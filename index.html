@@ -409,17 +409,30 @@
       background-clip: text;
     }
 
+    /* Filter chip rings — match Figma Storii Filter (node 2393:8639): Staycation / Nature / Road / Temple / Islands / Family */
     .filter-ic.variant-blue {
       border-color: #c3fbff;
       background: linear-gradient(163.88deg, #90f0ff 8.7%, #02d3f3 81.1%);
+    }
+    .filter-ic.variant-nature {
+      border-color: #a1ffae;
+      background: linear-gradient(163.88deg, #76d57f 8.7%, #05cf37 81.1%);
     }
     .filter-ic.variant-teal {
       border-color: #8df5dc;
       background: linear-gradient(163.88deg, #76d5d5 8.7%, #1beeab 81.1%);
     }
+    .filter-ic.variant-temple {
+      border-color: #ffaea1;
+      background: linear-gradient(163.88deg, #ffb788 8.7%, #cc4e00 81.1%);
+    }
     .filter-ic.variant-pink {
       border-color: #f28df5;
       background: linear-gradient(163.88deg, #d576bc 8.7%, #ee1bce 81.1%);
+    }
+    .filter-ic.variant-road {
+      border-color: #f5e78d;
+      background: linear-gradient(163.88deg, #d5c776 8.7%, #eeb91b 81.1%);
     }
 
     .card-head {
@@ -455,7 +468,8 @@
     }
     .filter-ic img { width: 100%; height: 100%; object-fit: cover; }
     .filter-ic.contain img,
-    .filter-ic.kabini-nature img {
+    .filter-ic.kabini-nature img,
+    .filter-ic.variant-temple img {
       object-fit: contain;
       padding: 2px;
     }
@@ -785,7 +799,7 @@
                 <h2>Kabini</h2>
                 <div class="sub-line sub-accent">Tiger Season · Long Weekend</div>
               </div>
-              <div class="filter-ic contain variant-teal"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Gnarling%2C_frothing_tiger_%2850870631337%29.jpg/500px-Gnarling%2C_frothing_tiger_%2850870631337%29.jpg" alt="" decoding="async"></div>
+              <div class="filter-ic contain variant-nature" aria-hidden="true"><img src="https://www.figma.com/api/mcp/asset/218748cc-7051-4646-89bd-30a6a5bbf0df" alt=""></div>
             </div>
             <p class="card-desc">Short grass, golden light, highest tiger sighting probability of the year.</p>
             <div class="card-meta">
@@ -802,7 +816,7 @@
                 <h2>Sri Lanka</h2>
                 <div class="sub-line sub-warm">Leopard Country · Shoulder Season</div>
               </div>
-              <div class="filter-ic contain variant-teal"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Leoparde.jpg/500px-Leoparde.jpg" alt="" decoding="async"></div>
+              <div class="filter-ic contain variant-nature" aria-hidden="true"><img src="https://www.figma.com/api/mcp/asset/218748cc-7051-4646-89bd-30a6a5bbf0df" alt=""></div>
             </div>
             <p class="card-desc">South coast after the rains — empty beaches, half the price. Yala&apos;s leopards are out and the crowds aren&apos;t.</p>
             <div class="card-meta">
@@ -819,7 +833,7 @@
                 <h2>Maldives</h2>
                 <div class="sub-line sub-accent">Peak Visibility · Shoulder Season</div>
               </div>
-              <div class="filter-ic contain variant-blue"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Maldives.jpg/500px-Maldives.jpg" alt="" decoding="async"></div>
+              <div class="filter-ic contain variant-teal" aria-hidden="true"><img src="https://www.figma.com/api/mcp/asset/63311770-660c-452e-acc9-4a2e0484a5f2" alt=""></div>
             </div>
             <p class="card-desc">Shoulder pricing, same water. Best dive visibility of the year.</p>
             <div class="card-meta">
@@ -836,7 +850,7 @@
                 <h2>Rajasthan</h2>
                 <div class="sub-line sub-warm">Golden Window · Long Weekend</div>
               </div>
-              <div class="filter-ic contain variant-pink"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Amber_Fort%2C_Jaipur%2C_Rajasthan.JPG/500px-Amber_Fort%2C_Jaipur%2C_Rajasthan.JPG" alt="" decoding="async"></div>
+              <div class="filter-ic contain variant-temple" aria-hidden="true"><img src="https://www.figma.com/api/mcp/asset/bd5ccfa9-017e-4ad0-bee1-b88b113afe09" alt=""></div>
             </div>
             <p class="card-desc">Warm forts, cool desert nights. Last comfortable month before the heat closes the season.</p>
             <div class="card-meta">
@@ -853,7 +867,7 @@
                 <h2>Thailand / Bangkok</h2>
                 <div class="sub-line sub-warm">City Exhales · Long Weekend</div>
               </div>
-              <div class="filter-ic contain variant-pink"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Wat_Arun_Ratchawararam_Ratchawaramahawihan.jpg/500px-Wat_Arun_Ratchawararam_Ratchawaramahawihan.jpg" alt="" decoding="async"></div>
+              <div class="filter-ic contain variant-temple" aria-hidden="true"><img src="https://www.figma.com/api/mcp/asset/bd5ccfa9-017e-4ad0-bee1-b88b113afe09" alt=""></div>
             </div>
             <p class="card-desc">Songkran just ended — hotels half empty, temples yours again.</p>
             <div class="card-meta">
@@ -870,7 +884,7 @@
                 <h2>Vietnam</h2>
                 <div class="sub-line sub-accent">Lantern Season · Golden Window</div>
               </div>
-              <div class="filter-ic contain variant-teal"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Hoi_An.jpg/500px-Hoi_An.jpg" alt="" decoding="async"></div>
+              <div class="filter-ic contain variant-road" aria-hidden="true"><img src="https://www.figma.com/api/mcp/asset/de63b9ab-a362-4f3d-bfb7-ead023526290" alt=""></div>
             </div>
             <p class="card-desc">Dry season, lanterns every night, none of the August crowds.</p>
             <div class="card-meta">
@@ -887,7 +901,7 @@
                 <h2>Ho Chi Minh City</h2>
                 <div class="sub-line sub-warm">Dry Season · Best Now</div>
               </div>
-              <div class="filter-ic contain variant-blue"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Saigon_skyline.jpg/500px-Saigon_skyline.jpg" alt="" decoding="async"></div>
+              <div class="filter-ic contain variant-blue" aria-hidden="true"><img src="https://www.figma.com/api/mcp/asset/f1560f1d-4081-4534-a9b2-a7df9c006e8f" alt=""></div>
             </div>
             <p class="card-desc">Best experienced slowly. Two full days is enough to understand it.</p>
             <div class="card-meta">
@@ -904,7 +918,7 @@
                 <h2>Hanoi</h2>
                 <div class="sub-line sub-accent">Spring Light · Best Now</div>
               </div>
-              <div class="filter-ic contain variant-teal"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Hoan_Kiem_Lake.jpg/500px-Hoan_Kiem_Lake.jpg" alt="" decoding="async"></div>
+              <div class="filter-ic contain variant-temple" aria-hidden="true"><img src="https://www.figma.com/api/mcp/asset/bd5ccfa9-017e-4ad0-bee1-b88b113afe09" alt=""></div>
             </div>
             <p class="card-desc">Amber afternoons, pho-scented streets. Ha Long Bay is mist over limestone, almost no boats.</p>
             <div class="card-meta">
@@ -921,7 +935,7 @@
                 <h2>Phuket / Krabi</h2>
                 <div class="sub-line sub-warm">Last Calm · Book Now</div>
               </div>
-              <div class="filter-ic contain variant-teal"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Maya_Bay.jpg/500px-Maya_Bay.jpg" alt="" decoding="async"></div>
+              <div class="filter-ic contain variant-teal" aria-hidden="true"><img src="https://www.figma.com/api/mcp/asset/63311770-660c-452e-acc9-4a2e0484a5f2" alt=""></div>
             </div>
             <p class="card-desc">Clear visibility, islands almost to yourself. Book before the monsoon closes the season.</p>
             <div class="card-meta">
@@ -938,7 +952,7 @@
                 <h2>Malaysia / KL</h2>
                 <div class="sub-line sub-accent">Dry Window · Best Now</div>
               </div>
-              <div class="filter-ic contain variant-pink"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Petronas_Twin_Towers.jpg/500px-Petronas_Twin_Towers.jpg" alt="" decoding="async"></div>
+              <div class="filter-ic contain variant-temple" aria-hidden="true"><img src="https://www.figma.com/api/mcp/asset/bd5ccfa9-017e-4ad0-bee1-b88b113afe09" alt=""></div>
             </div>
             <p class="card-desc">Petronas at dusk, Batu Caves in the morning, a food scene that beats cities twice its size.</p>
             <div class="card-meta">
@@ -955,9 +969,7 @@
                 <h2>Singapore</h2>
                 <div class="sub-line sub-warm">Pre-F1 · Book Now</div>
               </div>
-              <div class="filter-ic contain variant-blue"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Marina_Bay_Sands_at_night.jpg/500px-Marina_Bay_Sands_at_night.jpg" alt="" decoding="async"></div>
-            </div>
-            <p class="card-desc">Rates still pre-event — book before the paddock crowd does.</p>
+              <div class="filter-ic contain variant-pink" aria-hidden="true"><img src="https://www.figma.com/api/mcp/asset/8b4fb1e8-5200-4c2c-b413-e6a577a6eaa3" alt=""></div>
             <div class="card-meta">
               <span>5H FLIGHTS FROM ₹7000</span><span class="dot">·</span><span>STAYS FROM ₹9000</span>
             </div>
@@ -972,7 +984,7 @@
                 <h2>Bhutan</h2>
                 <div class="sub-line sub-accent">Bloom Season · Book Now</div>
               </div>
-              <div class="filter-ic contain variant-teal"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Paro_Taktsang.jpg/500px-Paro_Taktsang.jpg" alt="" decoding="async"></div>
+              <div class="filter-ic contain variant-temple" aria-hidden="true"><img src="https://www.figma.com/api/mcp/asset/bd5ccfa9-017e-4ad0-bee1-b88b113afe09" alt=""></div>
             </div>
             <p class="card-desc">Rhododendrons in full colour, Himalayan views with no haze. SDF fee resets soon.</p>
             <div class="card-meta">
