@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<!-- Storii prototype: edits live in this file; if reload looks unchanged, confirm URL path and hard-refresh (bypass cache). -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Storii — Stays</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;500;700&family=Instrument+Sans:wght@400;500;600;700&family=Geist+Mono:wght@500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: #0a1628;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+    }
+    .phone {
+      width: 402px;
+      height: 874px;
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.08),
+        0 40px 100px rgba(0,0,0,0.65);
+    }
+    /* Figma 4623:28866 — screen gradient */
+    .screen {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, #273f78 0%, #152d63 34.569%, #152d63 100%);
+    }
+    .map-wrap {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -30px;
+      bottom: 0;
+      width: 100%;
+      height: auto;
+      border-radius: 0;
+      overflow: hidden;
+      z-index: 1;
+      isolation: isolate;
+      direction: ltr;
+    }
+    /* Absolute fill: percentage-sized Maps in WebViews often leave a left “gutter” of backgroundColor. */
+    #gmap {
+      position: absolute;
+      left: -3px;
+      right: -3px;
+      top: 0;
+      bottom: 0;
+      width: auto;
+      height: 100%;
+      direction: ltr;
+      transform: translateZ(0);
+    }
+    .map-fallback {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      font-size: 13px;
+      color: rgba(255,255,255,0.85);
+      background: linear-gradient(135deg, #1a2d52, #0f1f3d);
+      z-index: 2;
+    }
+    .map-fallback.visible { display: flex; flex-direction: column; gap: 10px; }
+    .map-fallback code { font-size: 11px; opacity: 0.9; }
+
+    /* Bottom sheet — Figma 4633:31400: no solid fill; progressive backdrop blur (0 at top); subtle white lift at bottom */
+    /* z-index well above Maps internal panes/tiles so sheet receives taps, scroll, wheel — not the map. */
+    .sheet {
+      position: absolute;
+      left: 0;
+      top: 368px;
+      width: 402px;
+      height: 506px;
+      padding: 24px 20px 110px;
+      border-radius: 20px 20px 0 0;
+      z-index: 1000;
+      pointer-events: auto;
+      overflow: hidden;
+      isolation: isolate;
+      transform: translateZ(0);
+      background: transparent;
+      border-top: none;
+      box-shadow: none;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      min-height: 0;
+    }
+    .sheet::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      border-radius: 20px 20px 0 0;
+      z-index: 0;
+      pointer-events: none;
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      mask-image: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.12) 28%,
+        rgba(0, 0, 0, 0.55) 58%,
+        rgba(0, 0, 0, 1) 100%
+      );
+      -webkit-mask-image: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.12) 28%,
+        rgba(0, 0, 0, 0.55) 58%,
+        rgba(0, 0, 0, 1) 100%
+      );
+    }
+    /* Dark blue lift (#0F2045): invisible top 25%; stronger across lower 75%. */
+    .sheet::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      border-radius: 20px 20px 0 0;
+      z-index: 0;
+      pointer-events: none;
+      background: linear-gradient(
+        180deg,
+        rgba(15, 32, 69, 0) 0%,
+        rgba(15, 32, 69, 0) 25%,
+        rgba(15, 32, 69, 0.14) 55%,
+        rgba(15, 32, 69, 0.24) 100%
+      );
+      opacity: 1;
+    }
+    .sheet > * {
+      position: relative;
+      z-index: 1;
+    }
+    .search-row {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+      width: 100%;
+      min-width: 0;
+      flex-shrink: 0;
+    }
+    /* Search row inputs — Figma 4640:33120 */
+    .from-box {
+      width: 107px;
+      flex-shrink: 0;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 8px 12px 0;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 16px;
+      background: linear-gradient(96.298deg, rgba(110, 125, 158, 0.6) 23.02%, rgba(78, 96, 137, 0.6) 94.82%);
+    }
+    .from-box-main {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+      min-width: 0;
+    }
+    .from-box .pin-ic {
+      width: 30px;
+      height: 30px;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Figma 4634:31427 — vector sits in inset frame (avoids squashing the pin art). */
+    .from-box .pin-ic-vector {
+      position: absolute;
+      top: 22.39%;
+      right: 37.5%;
+      bottom: 22.39%;
+      left: 39.55%;
+    }
+    .from-box .pin-ic-vector img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+      display: block;
+    }
+    .from-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+    }
+    .from-text .lbl {
+      font-size: 8px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+    }
+    .from-text .city {
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      text-transform: capitalize;
+    }
+    .chev {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      overflow: visible;
+      align-self: flex-end;
+      margin-bottom: 4px;
+    }
+    .chev-img {
+      width: 7px;
+      height: auto;
+      max-height: 11px;
+      object-fit: contain;
+      object-position: center;
+      display: block;
+      opacity: 0.95;
+      transform: rotate(90deg);
+      transform-origin: center center;
+    }
+
+    .where-box {
+      flex: 1;
+      min-width: 0;
+      border-radius: 8px;
+      padding: 16px 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: linear-gradient(104.819deg, rgba(91, 107, 143, 0.8) 23.02%, rgba(65, 84, 126, 0.8) 94.82%);
+    }
+    .where-box .search-ic {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .where-box .search-ic-inner {
+      position: absolute;
+      top: 20.83%;
+      right: 18.41%;
+      bottom: 18.59%;
+      left: 20.83%;
+    }
+    .where-box .search-ic-inner img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+      display: block;
+    }
+    .where-box span {
+      font-weight: 500;
+      font-size: 16px;
+      color: #fff;
+      text-transform: capitalize;
+    }
+
+    /* Bleed into sheet horizontal padding so the scroller viewport is full 402px — maximizes next-card peek. */
+    .cards-scroller-bleed {
+      width: calc(100% + 40px);
+      margin-left: -20px;
+      margin-right: -20px;
+      flex: 1 1 auto;
+      min-height: 0;
+      min-width: 0;
+      align-self: stretch;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Horizontal cards — min-width:0 so row scrolls inside fixed-width sheet (flex quirk) */
+    /* Inner track uses max-content width so horizontal overflow is always measurable (flex-as-scroller bug in some engines). */
+    .cards-scroller {
+      display: block;
+      width: 100%;
+      min-width: 0;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      margin: 0;
+      padding: 4px 20px 14px 20px;
+      scroll-snap-type: x proximity;
+      scroll-padding-inline: 20px;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x;
+      overscroll-behavior-x: contain;
+      overscroll-behavior-y: contain;
+      scrollbar-width: none;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .cards-scroller-track {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: stretch;
+      gap: 16px;
+      width: max-content;
+      min-height: 0;
+    }
+    .cards-scroller:active {
+      cursor: grabbing;
+    }
+    .cards-scroller::-webkit-scrollbar { display: none; }
+
+    .cards-scroller-tail {
+      flex: 0 0 20px;
+      width: 20px;
+      flex-shrink: 0;
+      scroll-snap-align: end;
+    }
+
+    /* Card width leaves at least ~48px of the next card visible (plus 16px gap) within the scroller inner width. */
+    /* Fixed card width inside max-content track — avoids % flex-basis quirks; guarantees scroll range. */
+    .deal-card {
+      flex: 0 0 280px;
+      width: 280px;
+      scroll-snap-align: start;
+      background: #eef8f1;
+      border-radius: 6px;
+      padding: 20px 16px;
+      box-shadow: 0 1.92px 7.68px rgba(49,44,63,0.12);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+      transition: opacity 0.2s ease, transform 0.2s ease, filter 0.2s ease;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+    .deal-card.dim {
+      opacity: 0.48;
+      filter: saturate(0.85);
+      transform: scale(0.982);
+    }
+    article.deal-card:first-of-type.dim {
+      transform-origin: right center;
+    }
+    article.deal-card:last-of-type.dim {
+      transform-origin: left center;
+    }
+    .deal-card.kabini { background: #f0fff3; }
+    .deal-card.dest-sri-lanka { background: #f6fff8; }
+    .deal-card.dest-maldives { background: #f0f9ff; }
+    .deal-card.dest-rajasthan { background: #fff8f0; }
+    .deal-card.dest-bangkok { background: #fffef5; }
+    .deal-card.dest-vietnam { background: #f5fffa; }
+    .deal-card.dest-hcmc { background: #f5fbff; }
+    .deal-card.dest-hanoi { background: #f8fff5; }
+    .deal-card.dest-phuket { background: #f0fffc; }
+    .deal-card.dest-kl { background: #fffaf5; }
+    .deal-card.dest-singapore { background: #faf5ff; }
+    .deal-card.dest-bhutan { background: #f4fff7; }
+
+    .card-titles .sub-line {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: rgba(8, 14, 18, 0.72);
+      line-height: 1.35;
+      text-transform: none;
+      white-space: normal;
+    }
+    .card-titles .sub-line.sub-accent {
+      color: #0cc40c;
+    }
+    .card-titles .sub-line.sub-warm {
+      background: linear-gradient(177.65deg, #ffb788 9%, #cc4e00 81%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .filter-ic.variant-blue {
+      border-color: #c3fbff;
+      background: linear-gradient(163.88deg, #90f0ff 8.7%, #02d3f3 81.1%);
+    }
+    .filter-ic.variant-teal {
+      border-color: #8df5dc;
+      background: linear-gradient(163.88deg, #76d5d5 8.7%, #1beeab 81.1%);
+    }
+    .filter-ic.variant-pink {
+      border-color: #f28df5;
+      background: linear-gradient(163.88deg, #d576bc 8.7%, #ee1bce 81.1%);
+    }
+
+    .card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .card-titles { display: flex; flex-direction: column; gap: 2px; }
+    .card-titles h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #080e12;
+      text-transform: none;
+    }
+    .card-titles .sub-green { font-size: 12px; font-weight: 600; color: #0cc40c; }
+    .card-titles .sub-orange {
+      font-size: 12px;
+      font-weight: 600;
+      background: linear-gradient(177.65deg, #ffb788 9%, #cc4e00 81%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .filter-ic {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 1px solid #a1ffae;
+      flex-shrink: 0;
+      background: linear-gradient(160deg, #76d57f 9%, #05cf37 81%);
+    }
+    .filter-ic img { width: 100%; height: 100%; object-fit: cover; }
+    .filter-ic.contain img,
+    .filter-ic.kabini-nature img {
+      object-fit: contain;
+      padding: 2px;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: #6e6e6e;
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-height: 0;
+    }
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
+      font-size: 10px;
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-weight: 500;
+      color: #6e6e6e;
+      letter-spacing: -0.1px;
+      padding: 8px 0;
+    }
+    .card-meta .dot {
+      font-family: "Instrument Sans", sans-serif;
+      font-size: 12px;
+      color: #b4b4b4;
+      text-transform: lowercase;
+    }
+
+    .polaroid-stack {
+      position: relative;
+      height: 134px;
+      width: 100%;
+      max-width: 287px;
+      margin-top: 4px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .polaroid {
+      position: absolute;
+      border: 5px solid #fff;
+      border-radius: 2px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    .polaroid img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .deal-card img {
+      -webkit-user-drag: none;
+      user-drag: none;
+      pointer-events: none;
+    }
+    .polaroid.p1 {
+      width: 122px;
+      height: 166px;
+      left: 8px;
+      top: 21px;
+      transform: rotate(-6deg);
+      z-index: 1;
+    }
+    .polaroid.p2 {
+      width: 143px;
+      height: 173px;
+      left: 127px;
+      top: 11px;
+      transform: rotate(4deg);
+      z-index: 2;
+    }
+
+    /* Tab bar — Figma text tabs */
+    .tab-bar {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 402px;
+      height: 90px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 6px;
+      z-index: 1001;
+      pointer-events: none;
+    }
+    .tab-inner {
+      pointer-events: all;
+      width: 100%;
+      max-width: 382px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      padding: 10px 8px;
+      border-radius: 40px;
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    /* Map price pins — pill shape; font forced here + inline on marker HTML so gm-* styles don’t win */
+    .g-html-marker.map-pin-anchor .map-price-pin {
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-family: "Instrument Sans", system-ui, sans-serif !important;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      font-variant-numeric: normal;
+      color: #080e12;
+      white-space: nowrap;
+      border: 1px solid rgba(8, 14, 18, 0.12);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.5) inset,
+        0 1.92px 7.68px rgba(49, 44, 63, 0.12);
+      -webkit-font-smoothing: antialiased;
+    }
+    .map-price-pin--kabini {
+      background: #dff8ea;
+    }
+    .map-price-pin--sri-lanka {
+      background: #e8fff0;
+    }
+    .map-price-pin--maldives {
+      background: #dff4ff;
+    }
+    .map-price-pin--rajasthan {
+      background: #fff0e0;
+    }
+    .map-price-pin--bangkok {
+      background: #fff6de;
+    }
+    .map-price-pin--vietnam {
+      background: #e6faf0;
+    }
+    .map-price-pin--hcmc {
+      background: #e6f4ff;
+    }
+    .map-price-pin--hanoi {
+      background: #eefae8;
+    }
+    .map-price-pin--phuket {
+      background: #dff8f2;
+    }
+    .map-price-pin--kl {
+      background: #fff0e6;
+    }
+    .map-price-pin--singapore {
+      background: #f0e8ff;
+    }
+    .map-price-pin--bhutan {
+      background: #e2faee;
+    }
+
+    /* Map pins that anchor to cards — focus state */
+    .g-html-marker.map-pin-anchor {
+      font-family: "Instrument Sans", system-ui, sans-serif !important;
+      transition: transform 0.38s cubic-bezier(0.25, 0.9, 0.25, 1), filter 0.38s ease;
+      transform-origin: 50% 50%;
+    }
+    .g-html-marker.map-pin-anchor > .map-price-pin {
+      transition: border-width 0.38s ease, outline 0.38s ease, box-shadow 0.38s ease;
+    }
+    .g-html-marker.map-pin-anchor.pin-focused {
+      transform: scale(1.1);
+      filter: drop-shadow(0 6px 16px rgba(49, 44, 63, 0.35));
+      z-index: 2147483000 !important;
+    }
+    .g-html-marker.map-pin-anchor.pin-focused > .map-price-pin {
+      border-width: 2px !important;
+      outline: 2px solid rgba(255, 255, 255, 0.92);
+      outline-offset: 2px;
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.5) inset,
+        0 3px 14px rgba(49, 44, 63, 0.28),
+        0 0 0 1px rgba(8, 14, 18, 0.08);
+    }
+    .tab-item {
+      flex: 1;
+      min-width: 0;
+      text-align: center;
+      font-family: "Unbounded", sans-serif;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      user-select: none;
+    }
+    .tab-item.active {
+      font-weight: 500;
+      color: #fff;
+    }
+    .tab-item:not(.active) {
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.42);
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="screen">
+      <div class="map-wrap">
+        <div id="gmap"></div>
+        <div id="map-fallback" class="map-fallback">
+          <div>Add your Google Maps API key to load satellite view.</div>
+          <div>Open with <code>?gmapsKey=YOUR_BROWSER_KEY</code> (key is stored in localStorage).</div>
+        </div>
+      </div>
+
+      <div class="sheet">
+        <div class="search-row">
+          <div class="from-box">
+            <div class="from-box-main">
+              <div class="pin-ic" aria-hidden="true">
+                <div class="pin-ic-vector">
+                  <img src="https://www.figma.com/api/mcp/asset/cafb024e-1cbb-4b34-bcc4-987ad3514c38" alt="">
+                </div>
+              </div>
+              <div class="from-text">
+                <div class="lbl">from</div>
+                <div class="city">BOM</div>
+              </div>
+            </div>
+            <div class="chev" aria-hidden="true">
+              <img class="chev-img" src="https://www.figma.com/api/mcp/asset/69a1a498-7d49-48f6-b6c6-2eb84f329cea" alt="">
+            </div>
+          </div>
+          <div class="where-box">
+            <div class="search-ic" aria-hidden="true">
+              <div class="search-ic-inner">
+                <img src="https://www.figma.com/api/mcp/asset/8223193d-3947-44cd-8cb4-68c10b81743a" alt="">
+              </div>
+            </div>
+            <span>where to?</span>
+          </div>
+        </div>
+
+        <div class="cards-scroller-bleed">
+          <div class="cards-scroller" id="cards-scroller" role="region" aria-label="Destination deals">
+            <div class="cards-scroller-track">
+            <article class="deal-card kabini" id="card-kabini" data-anchor="kabini" data-lat="11.965" data-lng="76.316">
+            <div class="card-head">
+              <div class="card-titles">
+                <h2>Kabini</h2>
+                <div class="sub-line sub-accent">Tiger Season · Long Weekend</div>
+              </div>
+              <div class="filter-ic contain variant-teal"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Gnarling%2C_frothing_tiger_%2850870631337%29.jpg/500px-Gnarling%2C_frothing_tiger_%2850870631337%29.jpg" alt="" decoding="async"></div>
+            </div>
+            <p class="card-desc">Short grass, golden light, highest tiger sighting probability of the year.</p>
+            <div class="card-meta">
+              <span>3H FLIGHTS FROM ₹5000</span><span class="dot">·</span><span>STAYS FROM ₹4000</span>
+            </div>
+            <div class="polaroid-stack">
+              <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Gnarling%2C_frothing_tiger_%2850870631337%29.jpg/500px-Gnarling%2C_frothing_tiger_%2850870631337%29.jpg" alt="" decoding="async"></div>
+              <div class="polaroid p2"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Elephas_maximus_%28Bandipur%29.jpg/500px-Elephas_maximus_%28Bandipur%29.jpg" alt="" decoding="async"></div>
+            </div>
+          </article>
+            <article class="deal-card dest-sri-lanka dim" id="card-sri-lanka" data-anchor="sri-lanka" data-lat="6.9271" data-lng="79.8612">
+            <div class="card-head">
+              <div class="card-titles">
+                <h2>Sri Lanka</h2>
+                <div class="sub-line sub-warm">Leopard Country · Shoulder Season</div>
+              </div>
+              <div class="filter-ic contain variant-teal"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Leoparde.jpg/500px-Leoparde.jpg" alt="" decoding="async"></div>
+            </div>
+            <p class="card-desc">South coast after the rains — empty beaches, half the price. Yala&apos;s leopards are out and the crowds aren&apos;t.</p>
+            <div class="card-meta">
+              <span>3H 30M FLIGHTS FROM ₹7000</span><span class="dot">·</span><span>STAYS FROM ₹4500</span>
+            </div>
+            <div class="polaroid-stack">
+              <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Leoparde.jpg/500px-Leoparde.jpg" alt="" decoding="async"></div>
+              <div class="polaroid p2"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Unawatuna_beach.jpg/500px-Unawatuna_beach.jpg" alt="" decoding="async"></div>
+            </div>
+          </article>
+            <article class="deal-card dest-maldives dim" id="card-maldives" data-anchor="maldives" data-lat="3.2028" data-lng="73.2207">
+            <div class="card-head">
+              <div class="card-titles">
+                <h2>Maldives</h2>
+                <div class="sub-line sub-accent">Peak Visibility · Shoulder Season</div>
+              </div>
+              <div class="filter-ic contain variant-blue"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Maldives.jpg/500px-Maldives.jpg" alt="" decoding="async"></div>
+            </div>
+            <p class="card-desc">Shoulder pricing, same water. Best dive visibility of the year.</p>
+            <div class="card-meta">
+              <span>4H FLIGHTS FROM ₹16000</span><span class="dot">·</span><span>STAYS FROM ₹12000</span>
+            </div>
+            <div class="polaroid-stack">
+              <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Maldives.jpg/500px-Maldives.jpg" alt="" decoding="async"></div>
+              <div class="polaroid p2"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/The_Residence_MALDIVES_water_villas.jpg/500px-The_Residence_MALDIVES_water_villas.jpg" alt="" decoding="async"></div>
+            </div>
+          </article>
+            <article class="deal-card dest-rajasthan dim" id="card-rajasthan" data-anchor="rajasthan" data-lat="26.9124" data-lng="75.7873">
+            <div class="card-head">
+              <div class="card-titles">
+                <h2>Rajasthan</h2>
+                <div class="sub-line sub-warm">Golden Window · Long Weekend</div>
+              </div>
+              <div class="filter-ic contain variant-pink"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Amber_Fort%2C_Jaipur%2C_Rajasthan.JPG/500px-Amber_Fort%2C_Jaipur%2C_Rajasthan.JPG" alt="" decoding="async"></div>
+            </div>
+            <p class="card-desc">Warm forts, cool desert nights. Last comfortable month before the heat closes the season.</p>
+            <div class="card-meta">
+              <span>1H 30M FLIGHTS FROM ₹4000</span><span class="dot">·</span><span>STAYS FROM ₹3500</span>
+            </div>
+            <div class="polaroid-stack">
+              <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Amber_Fort%2C_Jaipur%2C_Rajasthan.JPG/500px-Amber_Fort%2C_Jaipur%2C_Rajasthan.JPG" alt="" decoding="async"></div>
+              <div class="polaroid p2"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Jaisalmer_Fort.jpg/500px-Jaisalmer_Fort.jpg" alt="" decoding="async"></div>
+            </div>
+          </article>
+            <article class="deal-card dest-bangkok dim" id="card-bangkok" data-anchor="bangkok" data-lat="13.7563" data-lng="100.5018">
+            <div class="card-head">
+              <div class="card-titles">
+                <h2>Thailand / Bangkok</h2>
+                <div class="sub-line sub-warm">City Exhales · Long Weekend</div>
+              </div>
+              <div class="filter-ic contain variant-pink"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Wat_Arun_Ratchawararam_Ratchawaramahawihan.jpg/500px-Wat_Arun_Ratchawararam_Ratchawaramahawihan.jpg" alt="" decoding="async"></div>
+            </div>
+            <p class="card-desc">Songkran just ended — hotels half empty, temples yours again.</p>
+            <div class="card-meta">
+              <span>4H FLIGHTS FROM ₹15000</span><span class="dot">·</span><span>STAYS FROM ₹5000</span>
+            </div>
+            <div class="polaroid-stack">
+              <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Wat_Arun_Ratchawararam_Ratchawaramahawihan.jpg/500px-Wat_Arun_Ratchawararam_Ratchawaramahawihan.jpg" alt="" decoding="async"></div>
+              <div class="polaroid p2"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Grand_Palace%2C_Bangkok.jpg/500px-Grand_Palace%2C_Bangkok.jpg" alt="" decoding="async"></div>
+            </div>
+          </article>
+            <article class="deal-card dest-vietnam dim" id="card-vietnam" data-anchor="vietnam" data-lat="15.8801" data-lng="108.3380">
+            <div class="card-head">
+              <div class="card-titles">
+                <h2>Vietnam</h2>
+                <div class="sub-line sub-accent">Lantern Season · Golden Window</div>
+              </div>
+              <div class="filter-ic contain variant-teal"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Hoi_An.jpg/500px-Hoi_An.jpg" alt="" decoding="async"></div>
+            </div>
+            <p class="card-desc">Dry season, lanterns every night, none of the August crowds.</p>
+            <div class="card-meta">
+              <span>5H FLIGHTS FROM ₹7000</span><span class="dot">·</span><span>STAYS FROM ₹4000</span>
+            </div>
+            <div class="polaroid-stack">
+              <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Hoi_An.jpg/500px-Hoi_An.jpg" alt="" decoding="async"></div>
+              <div class="polaroid p2"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Ha_Long_Bay%2C_Vietnam_-_panoramio.jpg/500px-Ha_Long_Bay%2C_Vietnam_-_panoramio.jpg" alt="" decoding="async"></div>
+            </div>
+          </article>
+            <article class="deal-card dest-hcmc dim" id="card-hcmc" data-anchor="hcmc" data-lat="10.8231" data-lng="106.6297">
+            <div class="card-head">
+              <div class="card-titles">
+                <h2>Ho Chi Minh City</h2>
+                <div class="sub-line sub-warm">Dry Season · Best Now</div>
+              </div>
+              <div class="filter-ic contain variant-blue"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Saigon_skyline.jpg/500px-Saigon_skyline.jpg" alt="" decoding="async"></div>
+            </div>
+            <p class="card-desc">Best experienced slowly. Two full days is enough to understand it.</p>
+            <div class="card-meta">
+              <span>5H FLIGHTS FROM ₹7000</span><span class="dot">·</span><span>STAYS FROM ₹3500</span>
+            </div>
+            <div class="polaroid-stack">
+              <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Saigon_skyline.jpg/500px-Saigon_skyline.jpg" alt="" decoding="async"></div>
+              <div class="polaroid p2"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Saigon_Notre-Dame_Basilica.jpg/500px-Saigon_Notre-Dame_Basilica.jpg" alt="" decoding="async"></div>
+            </div>
+          </article>
+            <article class="deal-card dest-hanoi dim" id="card-hanoi" data-anchor="hanoi" data-lat="21.0285" data-lng="105.8542">
+            <div class="card-head">
+              <div class="card-titles">
+                <h2>Hanoi</h2>
+                <div class="sub-line sub-accent">Spring Light · Best Now</div>
+              </div>
+              <div class="filter-ic contain variant-teal"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Hoan_Kiem_Lake.jpg/500px-Hoan_Kiem_Lake.jpg" alt="" decoding="async"></div>
+            </div>
+            <p class="card-desc">Amber afternoons, pho-scented streets. Ha Long Bay is mist over limestone, almost no boats.</p>
+            <div class="card-meta">
+              <span>5H FLIGHTS FROM ₹11000</span><span class="dot">·</span><span>STAYS FROM ₹4500</span>
+            </div>
+            <div class="polaroid-stack">
+              <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Hoan_Kiem_Lake.jpg/500px-Hoan_Kiem_Lake.jpg" alt="" decoding="async"></div>
+              <div class="polaroid p2"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Temple_of_Literature%2C_Hanoi.jpg/500px-Temple_of_Literature%2C_Hanoi.jpg" alt="" decoding="async"></div>
+            </div>
+          </article>
+            <article class="deal-card dest-phuket dim" id="card-phuket" data-anchor="phuket" data-lat="7.8804" data-lng="98.3923">
+            <div class="card-head">
+              <div class="card-titles">
+                <h2>Phuket / Krabi</h2>
+                <div class="sub-line sub-warm">Last Calm · Book Now</div>
+              </div>
+              <div class="filter-ic contain variant-teal"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Maya_Bay.jpg/500px-Maya_Bay.jpg" alt="" decoding="async"></div>
+            </div>
+            <p class="card-desc">Clear visibility, islands almost to yourself. Book before the monsoon closes the season.</p>
+            <div class="card-meta">
+              <span>4H 30M FLIGHTS FROM ₹17000</span><span class="dot">·</span><span>STAYS FROM ₹6000</span>
+            </div>
+            <div class="polaroid-stack">
+              <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Maya_Bay.jpg/500px-Maya_Bay.jpg" alt="" decoding="async"></div>
+              <div class="polaroid p2"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Patong_Beach.jpg/500px-Patong_Beach.jpg" alt="" decoding="async"></div>
+            </div>
+          </article>
+            <article class="deal-card dest-kl dim" id="card-kl" data-anchor="kl" data-lat="3.1390" data-lng="101.6869">
+            <div class="card-head">
+              <div class="card-titles">
+                <h2>Malaysia / KL</h2>
+                <div class="sub-line sub-accent">Dry Window · Best Now</div>
+              </div>
+              <div class="filter-ic contain variant-pink"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Petronas_Twin_Towers.jpg/500px-Petronas_Twin_Towers.jpg" alt="" decoding="async"></div>
+            </div>
+            <p class="card-desc">Petronas at dusk, Batu Caves in the morning, a food scene that beats cities twice its size.</p>
+            <div class="card-meta">
+              <span>5H FLIGHTS FROM ₹20000</span><span class="dot">·</span><span>STAYS FROM ₹5500</span>
+            </div>
+            <div class="polaroid-stack">
+              <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Petronas_Twin_Towers.jpg/500px-Petronas_Twin_Towers.jpg" alt="" decoding="async"></div>
+              <div class="polaroid p2"><img src="https://upload.wikimedia.org/wikipedia/commons/8/89/Batu_Caves.jpg" alt="" decoding="async"></div>
+            </div>
+          </article>
+            <article class="deal-card dest-singapore dim" id="card-singapore" data-anchor="singapore" data-lat="1.3521" data-lng="103.8198">
+            <div class="card-head">
+              <div class="card-titles">
+                <h2>Singapore</h2>
+                <div class="sub-line sub-warm">Pre-F1 · Book Now</div>
+              </div>
+              <div class="filter-ic contain variant-blue"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Marina_Bay_Sands_at_night.jpg/500px-Marina_Bay_Sands_at_night.jpg" alt="" decoding="async"></div>
+            </div>
+            <p class="card-desc">Rates still pre-event — book before the paddock crowd does.</p>
+            <div class="card-meta">
+              <span>5H FLIGHTS FROM ₹7000</span><span class="dot">·</span><span>STAYS FROM ₹9000</span>
+            </div>
+            <div class="polaroid-stack">
+              <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Marina_Bay_Sands_at_night.jpg/500px-Marina_Bay_Sands_at_night.jpg" alt="" decoding="async"></div>
+              <div class="polaroid p2"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Gardens_by_the_Bay_Supertrees.jpg/500px-Gardens_by_the_Bay_Supertrees.jpg" alt="" decoding="async"></div>
+            </div>
+          </article>
+            <article class="deal-card dest-bhutan dim" id="card-bhutan" data-anchor="bhutan" data-lat="27.4712" data-lng="89.6339">
+            <div class="card-head">
+              <div class="card-titles">
+                <h2>Bhutan</h2>
+                <div class="sub-line sub-accent">Bloom Season · Book Now</div>
+              </div>
+              <div class="filter-ic contain variant-teal"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Paro_Taktsang.jpg/500px-Paro_Taktsang.jpg" alt="" decoding="async"></div>
+            </div>
+            <p class="card-desc">Rhododendrons in full colour, Himalayan views with no haze. SDF fee resets soon.</p>
+            <div class="card-meta">
+              <span>3H FLIGHTS FROM ₹9000</span><span class="dot">·</span><span>STAYS FROM ₹8000</span>
+            </div>
+            <div class="polaroid-stack">
+              <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Paro_Taktsang.jpg/500px-Paro_Taktsang.jpg" alt="" decoding="async"></div>
+              <div class="polaroid p2"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Punakha_Dzong.jpg/500px-Punakha_Dzong.jpg" alt="" decoding="async"></div>
+            </div>
+          </article>
+          <div class="cards-scroller-tail" aria-hidden="true"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="tab-bar">
+        <div class="tab-inner">
+          <div class="tab-item active" data-tab="stay">stay</div>
+          <div class="tab-item" data-tab="fly">fly</div>
+          <div class="tab-item" data-tab="trips">trips</div>
+          <div class="tab-item" data-tab="club">club</div>
+        </div>
+      </nav>
+    </div>
+  </div>
+
+  <script>
+    /** If a /500px-… thumbnail 404s (Commons sometimes prunes sizes), try /960px-… once. */
+    (function setupCommonsThumbFallback() {
+      document.querySelectorAll(".deal-card img[src*='upload.wikimedia.org']").forEach((img) => {
+        img.addEventListener("error", () => {
+          if (img.dataset.commonsThumbFallback) return;
+          const u = img.src;
+          if (!/\/500px-[^/]+$/i.test(u)) return;
+          img.dataset.commonsThumbFallback = "1";
+          img.src = u.replace("/500px-", "/960px-");
+        });
+      });
+    })();
+
+    function getGmapsKey() {
+      const q = new URLSearchParams(location.search).get("gmapsKey");
+      if (q) localStorage.setItem("storii_gmaps_key", q);
+      return q || localStorage.getItem("storii_gmaps_key") || "";
+    }
+
+    function scrollToCard(id) {
+      const el = document.getElementById(id);
+      const scroller = document.getElementById("cards-scroller");
+      if (!el || !scroller) return;
+      const padLeft = parseFloat(getComputedStyle(scroller).scrollPaddingLeft) || 20;
+      const delta =
+        el.getBoundingClientRect().left -
+        scroller.getBoundingClientRect().left +
+        scroller.scrollLeft;
+      scroller.scrollTo({ left: Math.max(0, delta - padLeft), behavior: "smooth" });
+      if (typeof window.__storiiSyncToCard === "function") {
+        window.requestAnimationFrame(() => window.__storiiSyncToCard(el));
+      }
+    }
+
+    document.querySelectorAll(".tab-item").forEach((el) => {
+      el.addEventListener("click", () => {
+        document.querySelectorAll(".tab-item").forEach((t) => t.classList.remove("active"));
+        el.classList.add("active");
+      });
+    });
+
+    (function setupCardScrollerGestures() {
+      const scroller = document.getElementById("cards-scroller");
+      if (!scroller) return;
+      scroller.addEventListener("dragstart", (e) => e.preventDefault());
+      scroller.addEventListener("selectstart", (e) => e.preventDefault());
+
+      /* Trackpad / mouse wheel: map the dominant axis to horizontal scroll. One code path +
+         always preventDefault when we scroll avoids double-scrolling (native x + our handler). */
+      const WHEEL_PIXEL_GAIN = 1.5;
+      const WHEEL_LINE_PIXELS = 36;
+      scroller.addEventListener(
+        "wheel",
+        (e) => {
+          if (e.ctrlKey) return;
+          if (scroller.scrollWidth <= scroller.clientWidth + 1) return;
+          const ax = Math.abs(e.deltaX);
+          const ay = Math.abs(e.deltaY);
+          const dominant = ax >= ay ? e.deltaX : e.deltaY;
+          if (dominant === 0) return;
+
+          let mult = WHEEL_PIXEL_GAIN;
+          if (e.deltaMode === 1) mult = WHEEL_LINE_PIXELS;
+          else if (e.deltaMode === 2) mult = scroller.clientWidth * 0.9;
+
+          const max = scroller.scrollWidth - scroller.clientWidth;
+          const next = scroller.scrollLeft + dominant * mult;
+          const clamped = Math.max(0, Math.min(max, next));
+          if (clamped === scroller.scrollLeft && dominant !== 0) {
+            const atStart = scroller.scrollLeft <= 0.5;
+            const atEnd = scroller.scrollLeft >= max - 0.5;
+            if ((dominant < 0 && atStart) || (dominant > 0 && atEnd)) return;
+          }
+          e.preventDefault();
+          scroller.scrollLeft = clamped;
+        },
+        { passive: false }
+      );
+
+      /* Mouse / pen / touch: drag to scroll (reliable in embedded previews + nested flex hosts). */
+      let drag = null;
+      scroller.addEventListener("pointerdown", (e) => {
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+        const t = e.target;
+        if (t && typeof t.closest === "function" && t.closest("a, button, input, textarea, select")) return;
+        drag = { pid: e.pointerId, x0: e.clientX, sl0: scroller.scrollLeft };
+        try {
+          scroller.setPointerCapture(e.pointerId);
+        } catch (_) {}
+      });
+      scroller.addEventListener(
+        "pointermove",
+        (e) => {
+          if (!drag || drag.pid !== e.pointerId) return;
+          if (e.pointerType === "touch") e.preventDefault();
+          scroller.scrollLeft = drag.sl0 - (e.clientX - drag.x0);
+        },
+        { passive: false }
+      );
+      function endDrag(e) {
+        if (!drag || drag.pid !== e.pointerId) return;
+        try {
+          scroller.releasePointerCapture(e.pointerId);
+        } catch (_) {}
+        drag = null;
+      }
+      scroller.addEventListener("pointerup", endDrag);
+      scroller.addEventListener("pointercancel", endDrag);
+      scroller.addEventListener("lostpointercapture", endDrag);
+    })();
+
+    /** Runs only after Google Maps JS API is loaded (see dynamic script below). */
+    window.initStoriiMap = function initStoriiMap() {
+      const fallback = document.getElementById("map-fallback");
+      fallback.classList.remove("visible");
+
+      class HtmlMapMarker extends google.maps.OverlayView {
+        constructor(position, html, opts = {}) {
+          super();
+          this.position = position;
+          this.html = html;
+          this.className = opts.className || "g-html-marker";
+          this.anchor = opts.anchor || { x: 0.5, y: 1 };
+          this.anchorId = opts.anchorId || null;
+          this.div = null;
+        }
+        onAdd() {
+          this.div = document.createElement("div");
+          this.div.className = [this.className, this.anchorId ? "map-pin-anchor" : ""].filter(Boolean).join(" ");
+          this.div.style.position = "absolute";
+          this.div.style.fontFamily = '"Instrument Sans", system-ui, sans-serif';
+          this.div.innerHTML = this.html;
+          const panes = this.getPanes();
+          panes.overlayMouseTarget.appendChild(this.div);
+          this.div.addEventListener("click", () => {
+            if (this.onClick) this.onClick();
+          });
+        }
+        draw() {
+          const projection = this.getProjection();
+          if (!projection || !this.div) return;
+          const pt = projection.fromLatLngToDivPixel(this.position);
+          if (!pt) return;
+          const w = this.div.offsetWidth;
+          const h = this.div.offsetHeight;
+          this.div.style.left = `${pt.x - w * this.anchor.x}px`;
+          this.div.style.top = `${pt.y - h * this.anchor.y}px`;
+        }
+        onRemove() {
+          if (this.div && this.div.parentNode) this.div.parentNode.removeChild(this.div);
+          this.div = null;
+        }
+      }
+
+      function pinPriceHTML(amount, anchorId) {
+        const safe = String(anchorId || "kabini").replace(/[^a-z0-9-]/g, "") || "kabini";
+        return `<div class="map-price-pin map-price-pin--${safe}" style="font-family:'Instrument Sans',system-ui,sans-serif;font-variant-numeric:normal;">${amount}</div>`;
+      }
+
+      const mapEl = document.getElementById("gmap");
+      const mapOpts = {
+        center: { lat: 12, lng: 95 },
+        zoom: 4,
+        mapTypeId: google.maps.MapTypeId.TERRAIN,
+        backgroundColor: "#0d0f12",
+        disableDefaultUI: true,
+        zoomControl: true,
+        zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_TOP },
+        gestureHandling: "greedy",
+        draggable: true,
+        scrollwheel: true,
+        tilt: 0,
+        heading: 0
+      };
+      /* WebGL vector map: enables the same globe projection as google.com when zoomed out far enough,
+         while keeping TERRAIN + dark scheme + zero tilt for the default “flat” overview. */
+      if (google.maps.RenderingType) {
+        mapOpts.renderingType = google.maps.RenderingType.VECTOR;
+      }
+      if (google.maps.ColorScheme && google.maps.ColorScheme.DARK !== undefined) {
+        mapOpts.colorScheme = google.maps.ColorScheme.DARK;
+      }
+
+      const map = new google.maps.Map(mapEl, mapOpts);
+      window.__storiiMap = map;
+
+      const anchoredMarkers = [];
+
+      /* India + SE Asia only — crop Kenya / Madagascar / Australia out of frame. */
+      const regionBounds = new google.maps.LatLngBounds(
+        { lat: -6.55, lng: 72.55 },
+        { lat: 30.45, lng: 107.2 }
+      );
+
+      /** Symmetric padding for stable zoom; vertical framing handled by panBy after fit. */
+      function getFitPadding() {
+        return { top: 52, right: 10, bottom: 72, left: 10 };
+      }
+
+      /** Shift view so India/SEA sits higher (positive y = map center moves south → landmass rises on screen). */
+      function nudgeRegionUpward() {
+        const wrap = document.querySelector(".map-wrap");
+        const h = (wrap && wrap.clientHeight) || mapEl.clientHeight || 874;
+        map.panBy(0, Math.round(h * 0.24));
+      }
+
+      function refitMapFrame() {
+        google.maps.event.trigger(map, "resize");
+        map.fitBounds(regionBounds, getFitPadding());
+        nudgeRegionUpward();
+        anchoredMarkers.forEach(({ marker }) => marker.draw());
+      }
+
+      function syncToCard(card) {
+        if (!card || !card.dataset.lat) return;
+        const anchor = card.getAttribute("data-anchor") || null;
+        document.querySelectorAll(".deal-card").forEach((c) => {
+          c.classList.toggle("dim", c.id !== card.id);
+        });
+        anchoredMarkers.forEach(({ marker, anchorId }) => {
+          if (marker.div) marker.div.classList.toggle("pin-focused", Boolean(anchorId) && anchorId === anchor);
+        });
+      }
+
+      window.__storiiSyncToCard = syncToCard;
+
+      function visibilityRatio(card, root) {
+        const cr = card.getBoundingClientRect();
+        const rr = root.getBoundingClientRect();
+        const iw = Math.max(0, Math.min(cr.right, rr.right) - Math.max(cr.left, rr.left));
+        if (cr.width <= 0) return 0;
+        return iw / cr.width;
+      }
+
+      function setupCardMapAnchorSync() {
+        const scroller = document.getElementById("cards-scroller");
+        const cards = Array.from(document.querySelectorAll("#cards-scroller .deal-card"));
+        if (!scroller || cards.length === 0) return;
+
+        let ticking = false;
+        const onScroll = () => {
+          if (ticking) return;
+          ticking = true;
+          requestAnimationFrame(() => {
+            ticking = false;
+            let best = null;
+            let bestR = 0;
+            cards.forEach((card) => {
+              const r = visibilityRatio(card, scroller);
+              if (r > bestR) {
+                bestR = r;
+                best = card;
+              }
+            });
+            if (best && bestR > 0.35) syncToCard(best);
+          });
+        };
+
+        scroller.addEventListener("scroll", onScroll, { passive: true });
+        syncToCard(cards[0]);
+        requestAnimationFrame(onScroll);
+      }
+
+      /* Price pins spread across India + SE Asia (geography keeps labels apart at overview zoom). */
+      const pinDefs = [
+        { lat: 11.965, lng: 76.316, html: pinPriceHTML("₹5k", "kabini"), anchor: { x: 0.5, y: 0.5 }, anchorId: "kabini", onClick: () => scrollToCard("card-kabini") },
+        { lat: 6.9271, lng: 79.8612, html: pinPriceHTML("₹7k", "sri-lanka"), anchor: { x: 0.5, y: 0.5 }, anchorId: "sri-lanka", onClick: () => scrollToCard("card-sri-lanka") },
+        { lat: 3.2028, lng: 73.2207, html: pinPriceHTML("₹16k", "maldives"), anchor: { x: 0.5, y: 0.5 }, anchorId: "maldives", onClick: () => scrollToCard("card-maldives") },
+        { lat: 26.9124, lng: 75.7873, html: pinPriceHTML("₹4k", "rajasthan"), anchor: { x: 0.5, y: 0.5 }, anchorId: "rajasthan", onClick: () => scrollToCard("card-rajasthan") },
+        { lat: 13.7563, lng: 100.5018, html: pinPriceHTML("₹15k", "bangkok"), anchor: { x: 0.5, y: 0.5 }, anchorId: "bangkok", onClick: () => scrollToCard("card-bangkok") },
+        { lat: 15.8801, lng: 108.3380, html: pinPriceHTML("₹7k", "vietnam"), anchor: { x: 0.5, y: 0.5 }, anchorId: "vietnam", onClick: () => scrollToCard("card-vietnam") },
+        { lat: 10.8231, lng: 106.6297, html: pinPriceHTML("₹7k", "hcmc"), anchor: { x: 0.5, y: 0.5 }, anchorId: "hcmc", onClick: () => scrollToCard("card-hcmc") },
+        { lat: 21.0285, lng: 105.8542, html: pinPriceHTML("₹11k", "hanoi"), anchor: { x: 0.5, y: 0.5 }, anchorId: "hanoi", onClick: () => scrollToCard("card-hanoi") },
+        { lat: 7.8804, lng: 98.3923, html: pinPriceHTML("₹17k", "phuket"), anchor: { x: 0.5, y: 0.5 }, anchorId: "phuket", onClick: () => scrollToCard("card-phuket") },
+        { lat: 3.1390, lng: 101.6869, html: pinPriceHTML("₹20k", "kl"), anchor: { x: 0.5, y: 0.5 }, anchorId: "kl", onClick: () => scrollToCard("card-kl") },
+        { lat: 1.3521, lng: 103.8198, html: pinPriceHTML("₹7k", "singapore"), anchor: { x: 0.5, y: 0.5 }, anchorId: "singapore", onClick: () => scrollToCard("card-singapore") },
+        { lat: 27.4712, lng: 89.6339, html: pinPriceHTML("₹9k", "bhutan"), anchor: { x: 0.5, y: 0.5 }, anchorId: "bhutan", onClick: () => scrollToCard("card-bhutan") }
+      ];
+
+      /* fitBounds on first paint is often ignored until layout exists — wait for idle. */
+      google.maps.event.addListenerOnce(map, "idle", () => {
+        map.fitBounds(regionBounds, getFitPadding());
+        nudgeRegionUpward();
+        pinDefs.forEach((def) => {
+          const pos = new google.maps.LatLng(def.lat, def.lng);
+          const m = new HtmlMapMarker(pos, def.html, {
+            anchor: def.anchor || { x: 0.5, y: 1 },
+            anchorId: def.anchorId || null
+          });
+          m.onClick = def.onClick;
+          m.setMap(map);
+          if (def.anchorId) anchoredMarkers.push({ marker: m, anchorId: def.anchorId });
+        });
+        google.maps.event.addListenerOnce(map, "idle", () => {
+          refitMapFrame();
+          requestAnimationFrame(() => {
+            refitMapFrame();
+            anchoredMarkers.forEach(({ marker }) => marker.draw());
+            setupCardMapAnchorSync();
+          });
+          setTimeout(refitMapFrame, 100);
+          setTimeout(refitMapFrame, 400);
+          setTimeout(debouncedRelayout, 600);
+        });
+      });
+
+      const mapWrap = document.querySelector(".map-wrap");
+      let layoutDebounce = null;
+      function relayoutMapTiles() {
+        google.maps.event.trigger(map, "resize");
+        anchoredMarkers.forEach(({ marker }) => marker.draw());
+      }
+      function debouncedRelayout() {
+        if (layoutDebounce) clearTimeout(layoutDebounce);
+        layoutDebounce = setTimeout(relayoutMapTiles, 80);
+      }
+
+      if (mapWrap && typeof ResizeObserver !== "undefined") {
+        const ro = new ResizeObserver(() => debouncedRelayout());
+        ro.observe(mapWrap);
+      }
+      window.addEventListener("resize", debouncedRelayout, { passive: true });
+    };
+
+    (function loadMaps() {
+      const key = getGmapsKey();
+      const fallback = document.getElementById("map-fallback");
+      if (!key) {
+        fallback.classList.add("visible");
+        return;
+      }
+      const s = document.createElement("script");
+      s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&v=weekly&callback=initStoriiMap`;
+      s.async = true;
+      s.defer = true;
+      s.onerror = () => fallback.classList.add("visible");
+      document.head.appendChild(s);
+    })();
+  </script>
+</body>
+</html>
