@@ -662,7 +662,9 @@
       color: rgba(255, 255, 255, 0.42);
     }
 
-    /* Real phones: same stacking as desktop — full-bleed map, sheet over map, tab over sheet; padding clears tab */
+    /* Real phones: same stacking as desktop — full-bleed map, sheet over map, tab over sheet.
+       Tab is compact + sits on the home-indicator inset once; sheet bottom padding matches that
+       stack only (no double safe-area / no 90px empty bar) so cards keep vertical room. */
     @media (max-width: 480px) {
       html {
         height: -webkit-fill-available;
@@ -703,26 +705,34 @@
         left: 0;
         right: 0;
         width: 100%;
-        top: 368px;
+        /* Short viewports: start sheet higher so the card strip keeps ~min usable height. */
+        top: min(368px, max(268px, calc(100dvh - 480px)));
         bottom: 0;
         height: auto;
         min-height: 0;
-        padding: 24px 20px calc(112px + env(safe-area-inset-bottom, 0px));
+        gap: 16px;
+        padding: 20px 20px calc(52px + env(safe-area-inset-bottom, 0px));
       }
       .tab-bar {
         position: absolute;
-        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        /* One inset for the home indicator — tab hugs it (no extra 12px band below). */
+        bottom: env(safe-area-inset-bottom, 0px);
         left: 50%;
         transform: translateX(-50%);
         width: 100%;
         max-width: 100%;
-        height: 90px;
+        height: auto;
+        min-height: 0;
+        padding-top: 4px;
+        padding-bottom: 2px;
         padding-left: max(0px, env(safe-area-inset-left, 0px));
         padding-right: max(0px, env(safe-area-inset-right, 0px));
+        align-items: center;
         z-index: 1001;
       }
       .tab-inner {
         max-width: min(382px, calc(100% - 16px));
+        padding: 6px 8px;
       }
     }
   </style>
