@@ -520,7 +520,7 @@
       position: relative;
       /* Fixed band + overflow: bottom of the tilted frames crops inside the stack (not the whole card).
          Photos overlap again via left offsets; card overflow:hidden still clips the right edge slightly on p2. */
-      height: 132px;
+      height: 96px;
       width: 100%;
       max-width: 100%;
       margin-top: 4px;
@@ -547,17 +547,19 @@
       pointer-events: none;
     }
     .polaroid.p1 {
-      width: 122px;
-      height: 166px;
+      width: 48%;
+      aspect-ratio: 4 / 3;
+      height: auto;
       left: 8px;
       top: 21px;
       transform: rotate(-6deg);
       z-index: 1;
     }
     .polaroid.p2 {
-      width: 143px;
-      height: 173px;
-      left: 127px;
+      width: 48%;
+      aspect-ratio: 4 / 3;
+      height: auto;
+      left: calc(48% + 2px);
       top: 11px;
       transform: rotate(4deg);
       z-index: 2;
@@ -803,7 +805,7 @@
         display: none;
       }
       .deal-card {
-        padding: 18px 16px 12px;
+        padding: 16px;
         gap: 8px;
         border-radius: 8px;
         width: 100%;
@@ -829,20 +831,14 @@
         opacity: 1;
       }
       .polaroid-stack {
-        height: 156px;
+        height: 108px;
         margin-top: 6px;
         margin-bottom: -18px;
       }
       .polaroid.p1 {
-        width: 124px;
-        height: 176px;
-        left: 8px;
         top: 24px;
       }
       .polaroid.p2 {
-        width: 144px;
-        height: 184px;
-        left: 126px;
         top: 11px;
       }
       .tab-bar {
@@ -854,7 +850,7 @@
         max-width: 100%;
         height: auto;
         min-height: 0;
-        padding-top: 2px;
+        padding-top: 0;
         padding-bottom: 0;
         padding-left: max(0px, env(safe-area-inset-left, 0px));
         padding-right: max(0px, env(safe-area-inset-right, 0px));
@@ -867,7 +863,7 @@
       .tab-inner {
         max-width: min(382px, calc(100% - 16px));
         /* 6px original bottom + 12px below labels + home indicator inside same chrome (no extra float gap). */
-        padding: 6px 8px calc(6px + 12px + env(safe-area-inset-bottom, 0px)) 8px;
+        padding: 0 8px calc(6px + 12px + env(safe-area-inset-bottom, 0px)) 8px;
         background: transparent;
       }
     }
