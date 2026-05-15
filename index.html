@@ -90,7 +90,7 @@
       top: 368px;
       width: 402px;
       height: 506px;
-      padding: 24px 20px 122px;
+      padding: 24px 20px 112px;
       border-radius: 20px 20px 0 0;
       z-index: 1000;
       pointer-events: auto;
@@ -309,7 +309,10 @@
     /* Horizontal cards — min-width:0 so row scrolls inside fixed-width sheet (flex quirk) */
     /* Inner track uses max-content width so horizontal overflow is always measurable (flex-as-scroller bug in some engines). */
     .cards-scroller {
-      display: block;
+      display: flex;
+      flex-direction: column;
+      /* Split leftover sheet height evenly above/below the strip so gap under search ≈ gap above tabs. */
+      justify-content: center;
       width: 100%;
       min-width: 0;
       flex: 1 1 auto;
@@ -317,7 +320,7 @@
       overflow-x: auto;
       overflow-y: hidden;
       margin: 0;
-      padding: 4px 20px 14px 20px;
+      padding: 8px 20px 8px 20px;
       scroll-snap-type: x proximity;
       scroll-padding-inline: 20px;
       -webkit-overflow-scrolling: touch;
@@ -337,6 +340,8 @@
       gap: 16px;
       width: max-content;
       min-height: 0;
+      flex: 0 0 auto;
+      align-self: flex-start;
     }
     .cards-scroller:active {
       cursor: grabbing;
@@ -749,10 +754,36 @@
         bottom: 0;
         height: auto;
         min-height: 0;
-        gap: 16px;
+        /* Half prior rail — 50% less fixed space between search row and cards (see .cards-scroller). */
+        --card-rail-gap: 6px;
+        gap: var(--card-rail-gap);
         /* Tab bar sits flush to screen bottom; safe-area lives inside .tab-inner only — avoids
            Safari “double band” (sheet padding + tab bottom offset both reserving home-indicator). */
-        padding: 20px 20px calc(44px + env(safe-area-inset-bottom, 0px));
+        padding: 20px 20px calc(50px + env(safe-area-inset-bottom, 0px));
+      }
+      .cards-scroller {
+        padding: var(--card-rail-gap, 6px) 20px var(--card-rail-gap, 6px) 20px;
+      }
+      .deal-card {
+        padding: 22px 16px 16px;
+        gap: 10px;
+      }
+      .polaroid-stack {
+        height: 176px;
+        margin-top: 8px;
+        margin-bottom: -22px;
+      }
+      .polaroid.p1 {
+        width: 128px;
+        height: 192px;
+        left: 8px;
+        top: 26px;
+      }
+      .polaroid.p2 {
+        width: 150px;
+        height: 200px;
+        left: 124px;
+        top: 12px;
       }
       .tab-bar {
         position: absolute;
