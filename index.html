@@ -698,7 +698,7 @@
         flex-direction: column;
         /* Short viewports: start sheet higher so the card strip keeps ~min usable height. */
         top: min(368px, max(268px, calc(var(--storii-app-h, 100svh) - 480px)));
-        bottom: var(--storii-tab-bar-h, calc(90px + env(safe-area-inset-bottom, 0px)));
+        bottom: 0;
         height: auto;
         min-height: 0;
         --storii-map-cutoff: min(368px, max(268px, calc(var(--storii-app-h, 100svh) - 480px)));
@@ -737,7 +737,6 @@
         -webkit-overflow-scrolling: touch;
         touch-action: pan-y;
         scroll-snap-type: y mandatory;
-        scroll-padding-bottom: 20px;
         overscroll-behavior-y: contain;
         overscroll-behavior-x: auto;
       }
@@ -755,7 +754,9 @@
         align-items: stretch;
       }
       .cards-scroller-tail {
-        display: none !important;
+        height: 150px !important;
+        min-height: 150px !important;
+        display: block !important;
       }
       .card-row {
         display: flex;
@@ -853,7 +854,7 @@
       }
       .tab-bar {
         bottom: 0;
-        padding-bottom: 4px;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
         padding-left: max(0px, env(safe-area-inset-left, 0px));
         padding-right: max(0px, env(safe-area-inset-right, 0px));
         background: transparent;
@@ -863,7 +864,6 @@
       .tab-inner {
         width: 300px;
         max-width: min(300px, calc(100% - 48px));
-        margin-bottom: env(safe-area-inset-bottom, 0px);
       }
     }
   </style>
@@ -1183,7 +1183,11 @@
         }
 
         const sheet = document.querySelector(".sheet");
-        if (sheet) sheet.style.removeProperty("min-height");
+        if (sheet) {
+          const sheetTop = sheet.getBoundingClientRect().top;
+          const sheetH = Math.max(0, Math.floor(appH - sheetTop));
+          sheet.style.minHeight = `${sheetH}px`;
+        }
 
         bindLayoutObserver();
       }
