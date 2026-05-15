@@ -505,7 +505,9 @@
       padding-bottom: 24px;
       z-index: 1001;
       pointer-events: none;
-      background: transparent;
+      background: none;
+      background-color: transparent;
+      box-shadow: none;
     }
     .tab-inner {
       pointer-events: all;
@@ -679,13 +681,12 @@
         --storii-map-cutoff: min(368px, max(268px, calc(100dvh - 480px)));
         /* Search row + gap — tuned to where row + --card-rail-gap. */
         --storii-search-band: 86px;
-        /* Space for floating tab pill + 24px float gap + safe area. */
-        --storii-tab-band: calc(88px + env(safe-area-inset-bottom, 0px));
+        --storii-tab-float: calc(80px + env(safe-area-inset-bottom, 0px));
         --card-rail-gap: 10px;
         --storii-search-to-cards-gap: 18px;
         gap: var(--storii-search-to-cards-gap);
-        /* Bottom padding clears floating tab pill (not a full-width chrome band). */
-        padding: 16px 20px var(--storii-tab-band);
+        /* Minimal bottom padding — tab pill floats over cards; no full-width chrome. */
+        padding: 16px 20px 12px;
         /* Let the card scroller scroll vertically; default overflow:hidden clips it on phones. */
         overflow-x: hidden;
         overflow-y: visible;
@@ -705,12 +706,10 @@
         flex: 0 0 auto;
         width: 100%;
         height: calc(
-          100dvh - var(--storii-map-cutoff) - var(--storii-search-band) - var(--storii-tab-band) -
-            env(safe-area-inset-top, 0px)
+          100dvh - var(--storii-map-cutoff) - var(--storii-search-band) - env(safe-area-inset-top, 0px)
         );
         max-height: calc(
-          100dvh - var(--storii-map-cutoff) - var(--storii-search-band) - var(--storii-tab-band) -
-            env(safe-area-inset-top, 0px)
+          100dvh - var(--storii-map-cutoff) - var(--storii-search-band) - env(safe-area-inset-top, 0px)
         );
         min-height: 0;
         /* Horizontal inset comes from .sheet padding only — match search row width. */
@@ -720,7 +719,7 @@
         -webkit-overflow-scrolling: touch;
         touch-action: pan-y;
         scroll-snap-type: y mandatory;
-        scroll-padding-bottom: 6px;
+        scroll-padding-bottom: var(--storii-tab-float);
         overscroll-behavior-y: contain;
         overscroll-behavior-x: auto;
       }
@@ -829,10 +828,48 @@
       .polaroid.p2 {
         top: 11px;
       }
+      /* Fade sheet tint at bottom so cards show through around the floating pill. */
+      .sheet::before {
+        mask-image: linear-gradient(
+          180deg,
+          rgba(0, 0, 0, 0) 0%,
+          rgba(0, 0, 0, 0) 16%,
+          rgba(0, 0, 0, 0.35) 22%,
+          rgba(0, 0, 0, 1) 30%,
+          rgba(0, 0, 0, 1) 68%,
+          rgba(0, 0, 0, 0.35) 84%,
+          rgba(0, 0, 0, 0) 100%
+        );
+        -webkit-mask-image: linear-gradient(
+          180deg,
+          rgba(0, 0, 0, 0) 0%,
+          rgba(0, 0, 0, 0) 16%,
+          rgba(0, 0, 0, 0.35) 22%,
+          rgba(0, 0, 0, 1) 30%,
+          rgba(0, 0, 0, 1) 68%,
+          rgba(0, 0, 0, 0.35) 84%,
+          rgba(0, 0, 0, 0) 100%
+        );
+      }
+      .sheet::after {
+        background: linear-gradient(
+          180deg,
+          rgba(11, 27, 58, 0) 0%,
+          rgba(11, 27, 58, 0) 18%,
+          rgba(11, 27, 58, 0.88) 24%,
+          rgba(11, 27, 58, 0.98) 30%,
+          rgba(11, 27, 58, 1) 68%,
+          rgba(11, 27, 58, 0.45) 84%,
+          rgba(11, 27, 58, 0) 100%
+        );
+      }
       .tab-bar {
         padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
         padding-left: max(0px, env(safe-area-inset-left, 0px));
         padding-right: max(0px, env(safe-area-inset-right, 0px));
+        background: none;
+        background-color: transparent;
+        box-shadow: none;
       }
       .tab-inner {
         width: 300px;
