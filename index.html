@@ -1627,11 +1627,12 @@
       const showZoomButtons =
         typeof window.matchMedia === "undefined" ||
         !window.matchMedia("(max-width: 480px)").matches;
+      /* Cloud Map ID styling requires roadmap (vector). Do not set mapTypeId TERRAIN,
+         renderingType RASTER, or colorScheme — those override the Map ID style. */
       const mapOpts = {
         mapId: "c7bfce263011dd3d329c8429",
         center: { lat: 15, lng: 90 },
         zoom: 4,
-        mapTypeId: google.maps.MapTypeId.TERRAIN,
         backgroundColor: "#0d0f12",
         disableDefaultUI: true,
         zoomControl: showZoomButtons,
@@ -1643,14 +1644,6 @@
       };
       if (showZoomButtons) {
         mapOpts.zoomControlOptions = { position: google.maps.ControlPosition.RIGHT_TOP };
-      }
-      /* Raster tiles (not WebGL vector): vector/globe mode draws a visible horizontal seam at the equator
-         at this zoom; raster keeps the same mapTypeId + colorScheme without that line. */
-      if (google.maps.RenderingType && google.maps.RenderingType.RASTER !== undefined) {
-        mapOpts.renderingType = google.maps.RenderingType.RASTER;
-      }
-      if (google.maps.ColorScheme && google.maps.ColorScheme.DARK !== undefined) {
-        mapOpts.colorScheme = google.maps.ColorScheme.DARK;
       }
 
       const map = new google.maps.Map(mapEl, mapOpts);
