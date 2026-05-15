@@ -751,10 +751,9 @@
         width: 34px;
         flex-direction: column;
         align-items: center;
-        align-self: flex-start;
-        justify-content: flex-start;
-        padding-top: 4px;
-        gap: 4px;
+        /* Match .deal-card top padding — title (h2) is first row in card-head with no extra offset. */
+        padding-top: var(--storii-card-pad-top, 16px);
+        gap: 2px;
         font-family: "Geist Mono", ui-monospace, monospace;
         color: #fff;
         text-align: center;
@@ -768,18 +767,17 @@
         font-weight: 400;
         letter-spacing: 0;
         text-transform: uppercase;
-        line-height: normal;
+        line-height: 1;
         color: #fff;
       }
       .card-date-day {
         font-family: "Geist Mono", ui-monospace, monospace;
-        font-size: 16px;
+        font-size: 22px;
         font-weight: 300;
-        line-height: normal;
+        line-height: 1;
         letter-spacing: 0;
         color: #fff;
         width: 34px;
-        height: 26px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -793,7 +791,8 @@
         scroll-snap-align: none;
       }
       .deal-card {
-        padding: 16px;
+        --storii-card-pad-top: 16px;
+        padding: var(--storii-card-pad-top) 16px 16px;
         gap: 8px;
         border-radius: 8px;
         width: 100%;
@@ -867,6 +866,22 @@
 
       <div class="sheet">
         <div class="search-row">
+          <div class="from-box">
+            <div class="from-box-main">
+              <div class="pin-ic" aria-hidden="true">
+                <div class="pin-ic-vector">
+                  <img src="https://www.figma.com/api/mcp/asset/cafb024e-1cbb-4b34-bcc4-987ad3514c38" alt="">
+                </div>
+              </div>
+              <div class="from-text">
+                <div class="lbl">from</div>
+                <div class="city">BOM</div>
+              </div>
+            </div>
+            <div class="chev" aria-hidden="true">
+              <img class="chev-img" src="https://www.figma.com/api/mcp/asset/69a1a498-7d49-48f6-b6c6-2eb84f329cea" alt="">
+            </div>
+          </div>
           <div class="where-box">
             <div class="search-ic" aria-hidden="true">
               <div class="search-ic-inner">
@@ -1635,9 +1650,12 @@
       const showZoomButtons =
         typeof window.matchMedia === "undefined" ||
         !window.matchMedia("(max-width: 480px)").matches;
+      const STORII_MAP_DEFAULT_CENTER = { lat: 15, lng: 95 };
+      const STORII_MAP_DEFAULT_ZOOM = 4;
+
       const mapOpts = {
-        center: { lat: 10, lng: 100 },
-        zoom: 4,
+        center: STORII_MAP_DEFAULT_CENTER,
+        zoom: STORII_MAP_DEFAULT_ZOOM,
         mapTypeId: google.maps.MapTypeId.TERRAIN,
         backgroundColor: "#0d0f12",
         disableDefaultUI: true,
@@ -1662,6 +1680,13 @@
 
       const map = new google.maps.Map(mapEl, mapOpts);
       window.__storiiMap = map;
+
+      function applyDefaultMapView() {
+        map.setCenter(STORII_MAP_DEFAULT_CENTER);
+        map.setZoom(STORII_MAP_DEFAULT_ZOOM);
+      }
+
+      google.maps.event.addListenerOnce(map, "idle", applyDefaultMapView);
 
       const anchoredMarkers = [];
       let cardMapScrollSyncController = null;
@@ -1706,8 +1731,7 @@
 
       function refitMapFrame() {
         google.maps.event.trigger(map, "resize");
-        map.fitBounds(regionBounds, getFitPadding());
-        nudgeRegionUpward();
+        applyDefaultMapView();
         anchoredMarkers.forEach(({ marker }) => marker.draw());
       }
 
@@ -1823,10 +1847,9 @@
         });
       }
 
-      /* fitBounds on first paint is often ignored until layout exists — wait for idle. */
+      /* Wait for idle, then force default center/zoom (overrides any fitBounds side effects). */
       google.maps.event.addListenerOnce(map, "idle", () => {
-        map.fitBounds(regionBounds, getFitPadding());
-        nudgeRegionUpward();
+        applyDefaultMapView();
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
             mountAnchoredMarkers();
