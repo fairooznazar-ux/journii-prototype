@@ -664,12 +664,10 @@
       }
       .phone {
         position: fixed;
-        left: 0;
-        right: 0;
-        top: var(--storii-vv-top, 0px);
-        height: var(--storii-app-h, 100svh);
+        inset: 0;
         width: 100%;
         max-width: 100%;
+        height: auto;
         min-height: 0;
         max-height: none;
         margin: 0;
@@ -705,11 +703,9 @@
         --card-rail-gap: 10px;
         --storii-search-to-cards-gap: 18px;
         gap: var(--storii-search-to-cards-gap);
-        /* Minimal bottom padding — tab pill floats over cards; no full-width chrome. */
-        padding: 16px 20px 12px;
-        /* Let the card scroller scroll vertically; default overflow:hidden clips it on phones. */
-        overflow-x: hidden;
-        overflow-y: visible;
+        /* No bottom padding — cards bleed to screen edge; tab pill floats over. */
+        padding: 16px 20px 0;
+        overflow: hidden;
       }
       /* Figma 4653:33496 — vertical snap list; height fills viewport minus map, search, tab. */
       .cards-scroller-bleed {
@@ -728,8 +724,7 @@
         height: auto;
         max-height: none;
         min-height: 0;
-        /* Horizontal inset comes from .sheet padding only — match search row width. */
-        padding: var(--card-rail-gap, 10px) 0 8px 0;
+        padding: var(--card-rail-gap, 10px) 0 0 0;
         overflow-y: scroll;
         overflow-x: hidden;
         -webkit-overflow-scrolling: touch;
@@ -738,6 +733,10 @@
         scroll-padding-bottom: var(--storii-tab-float);
         overscroll-behavior-y: contain;
         overscroll-behavior-x: auto;
+      }
+      .sheet::before,
+      .sheet::after {
+        border-radius: 0;
       }
       .cards-scroller-track {
         display: flex;
@@ -761,7 +760,7 @@
         flex-shrink: 0;
         scroll-snap-align: start;
         scroll-snap-stop: normal;
-        min-height: calc(100% - 28px);
+        min-height: 100%;
         box-sizing: border-box;
       }
       .card-date {
@@ -1140,24 +1139,21 @@
         const root = document.documentElement;
         if (!mq.matches) {
           root.style.removeProperty("--storii-app-h");
-          root.style.removeProperty("--storii-vv-top");
           root.style.removeProperty("--storii-tab-float");
           return;
         }
         const vv = window.visualViewport;
-        const h = Math.round(vv?.height ?? window.innerHeight);
-        const top = Math.round(vv?.offsetTop ?? 0);
+        const h = Math.round(Math.max(vv?.height ?? 0, window.innerHeight));
         root.style.setProperty("--storii-app-h", `${h}px`);
-        root.style.setProperty("--storii-vv-top", `${top}px`);
+        root.style.removeProperty("--storii-vv-top");
 
-        const tabInner = document.querySelector(".tab-inner");
-        const scroller = document.getElementById("cards-scroller");
-        if (tabInner && scroller) {
-          const overlap = Math.max(
-            0,
-            scroller.getBoundingClientRect().bottom - tabInner.getBoundingClientRect().top
+        const tabBar = document.querySelector(".tab-bar");
+        if (tabBar) {
+          const tabClearance = Math.ceil(tabBar.getBoundingClientRect().height + 4);
+          root.style.setProperty(
+            "--storii-tab-float",
+            `${Math.min(Math.max(tabClearance, 52), 88)}px`
           );
-          root.style.setProperty("--storii-tab-float", `${Math.ceil(overlap + 8)}px`);
         }
       }
 
