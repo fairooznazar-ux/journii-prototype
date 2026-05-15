@@ -1279,19 +1279,20 @@
           return { top: 52, right: 10, bottom: 72, left: 10 };
         }
         const sheet = document.querySelector(".sheet");
-        let bottomPx = 160;
+        let bottomPx = 118;
         if (sheet) {
           const h = sheet.getBoundingClientRect().height;
-          bottomPx = Math.round(Math.min(Math.max(h * 0.5 + 32, 140), 260));
+          /* Lighter than before: enough to peel labels off the search bar without shoving land to the top. */
+          bottomPx = Math.round(Math.min(Math.max(h * 0.26 + 20, 92), 150));
         }
-        return { top: 44, right: 8, bottom: bottomPx, left: 8 };
+        return { top: 36, right: 8, bottom: bottomPx, left: 8 };
       }
 
-      /** Shift SEA higher in the viewport after fit (positive y = map moves south → land rises). */
+      /** After fitBounds, nudge view so the region sits a bit higher (smaller y = less lift). */
       function nudgeRegionUpward() {
         const wrap = document.querySelector(".map-wrap");
         const h = (wrap && wrap.clientHeight) || mapEl.clientHeight || 874;
-        const frac = isNarrowViewport() ? 0.3 : 0.24;
+        const frac = isNarrowViewport() ? 0.08 : 0.18;
         map.panBy(0, Math.round(h * frac));
       }
 
