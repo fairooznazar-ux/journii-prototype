@@ -779,7 +779,8 @@
             env(safe-area-inset-top, 0px)
         );
         min-height: 0;
-        padding: var(--card-rail-gap, 10px) 20px 8px 20px;
+        /* Horizontal inset comes from .sheet padding only — match search row width. */
+        padding: var(--card-rail-gap, 10px) 0 8px 0;
         overflow-y: scroll;
         overflow-x: hidden;
         -webkit-overflow-scrolling: touch;
@@ -795,7 +796,7 @@
         width: 100%;
         min-height: 100%;
         box-sizing: border-box;
-        gap: 0;
+        gap: 12px;
         align-items: stretch;
       }
       .cards-scroller-tail {
@@ -813,6 +814,19 @@
         scroll-snap-stop: normal;
         min-height: calc(100% - 80px);
         transform-origin: top center;
+        transition: opacity 0.3s ease;
+        opacity: 0.6;
+      }
+      .deal-card.is-active {
+        opacity: 1;
+      }
+      /* Static .dim in markup is for desktop strip; phones use scroll-driven .is-active instead. */
+      .deal-card.dim {
+        opacity: 0.6;
+        filter: none;
+      }
+      .deal-card.is-active.dim {
+        opacity: 1;
       }
       .polaroid-stack {
         height: 156px;
@@ -1491,28 +1505,45 @@
         cardMapScrollSyncController = new AbortController();
         const { signal } = cardMapScrollSyncController;
 
-        let ticking = false;
-        const onScroll = () => {
-          if (ticking) return;
-          ticking = true;
-          requestAnimationFrame(() => {
-            ticking = false;
-            let best = null;
-            let bestR = 0;
-            cards.forEach((card) => {
-              const r = visibilityRatio(card, scroller);
-              if (r > bestR) {
-                bestR = r;
-                best = card;
-              }
-            });
-            if (best && bestR > 0.35) syncToCard(best);
+        function pickActiveAndSync() {
+          const isMobile =
+            typeof window.matchMedia !== "undefined" && window.matchMedia("(max-width: 480px)").matches;
+          let best = null;
+          let bestR = 0;
+          cards.forEach((card) => {
+            const r = visibilityRatio(card, scroller);
+            if (r > bestR) {
+              bestR = r;
+              best = card;
+            }
           });
-        };
+          if (best && bestR > 0.35) {
+            if (isMobile) {
+              cards.forEach((c) => c.classList.toggle("is-active", c === best));
+            } else {
+              cards.forEach((c) => c.classList.remove("is-active"));
+            }
+            syncToCard(best);
+          }
+        }
 
-        scroller.addEventListener("scroll", onScroll, { passive: true, signal });
-        syncToCard(cards[0]);
-        requestAnimationFrame(onScroll);
+        const thresholds = [];
+        for (let i = 0; i <= 40; i += 1) thresholds.push(i / 40);
+
+        const activeCardObserver = new IntersectionObserver(() => {
+          pickActiveAndSync();
+        }, { root: scroller, rootMargin: "0px", threshold: thresholds });
+
+        cards.forEach((c) => activeCardObserver.observe(c));
+        signal.addEventListener(
+          "abort",
+          () => {
+            activeCardObserver.disconnect();
+          },
+          { once: true }
+        );
+
+        pickActiveAndSync();
       }
 
       window.__storiiSetupCardMapAnchorSync = setupCardMapAnchorSync;
