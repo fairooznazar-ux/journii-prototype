@@ -168,94 +168,11 @@
       min-width: 0;
       flex-shrink: 0;
     }
-    /* Search row inputs — Figma 4640:33120 */
-    .from-box {
-      width: 107px;
-      flex-shrink: 0;
-      border: none;
-      border-radius: 8px;
-      padding: 12px 8px 12px 0;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 16px;
-      background: linear-gradient(96.298deg, rgba(110, 125, 158, 0.6) 23.02%, rgba(78, 96, 137, 0.6) 94.82%);
-    }
-    .from-box-main {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      flex: 1;
-      min-width: 0;
-    }
-    .from-box .pin-ic {
-      width: 30px;
-      height: 30px;
-      flex-shrink: 0;
-      position: relative;
-      overflow: hidden;
-    }
-    /* Figma 4634:31427 — vector sits in inset frame (avoids squashing the pin art). */
-    .from-box .pin-ic-vector {
-      position: absolute;
-      top: 22.39%;
-      right: 37.5%;
-      bottom: 22.39%;
-      left: 39.55%;
-    }
-    .from-box .pin-ic-vector img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      object-position: center;
-      display: block;
-    }
-    .from-text {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 2px;
-    }
-    .from-text .lbl {
-      font-size: 8px;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.7);
-    }
-    .from-text .city {
-      font-size: 14px;
-      font-weight: 500;
-      color: #fff;
-      text-transform: capitalize;
-    }
-    .chev {
-      width: 14px;
-      height: 14px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      overflow: visible;
-      align-self: flex-end;
-      margin-bottom: 4px;
-    }
-    .chev-img {
-      width: 7px;
-      height: auto;
-      max-height: 11px;
-      object-fit: contain;
-      object-position: center;
-      display: block;
-      opacity: 0.95;
-      transform: rotate(90deg);
-      transform-origin: center center;
-    }
-
+    /* Search row — Where To only (Figma 4640:33120) */
     .where-box {
-      flex: 1;
+      width: 100%;
       min-width: 0;
+      flex-shrink: 0;
       border-radius: 8px;
       padding: 16px 8px;
       display: flex;
@@ -386,6 +303,14 @@
     .deal-card.dest-kl { background: #fffaf5; }
     .deal-card.dest-singapore { background: #faf5ff; }
     .deal-card.dest-bhutan { background: #f4fff7; }
+
+    /* Desktop: date column hidden; row wrapper is layout-transparent. */
+    .card-row {
+      display: contents;
+    }
+    .card-date {
+      display: none;
+    }
 
     .card-titles .sub-line {
       font-size: 11px;
@@ -803,6 +728,54 @@
       .cards-scroller-tail {
         display: none;
       }
+      .card-row {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        flex: 0 0 auto;
+        flex-shrink: 0;
+        scroll-snap-align: start;
+        scroll-snap-stop: normal;
+        min-height: calc(100% - 80px);
+        box-sizing: border-box;
+      }
+      .card-date {
+        display: flex;
+        flex: 0 0 32px;
+        width: 32px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        color: rgba(255, 255, 255, 0.52);
+        user-select: none;
+        pointer-events: none;
+      }
+      .card-date-month {
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        line-height: 1;
+      }
+      .card-date-day {
+        font-family: "Instrument Sans", system-ui, sans-serif;
+        font-size: 22px;
+        font-weight: 600;
+        line-height: 1;
+        letter-spacing: -0.02em;
+        color: rgba(255, 255, 255, 0.72);
+      }
+      .card-row .deal-card {
+        flex: 1 1 auto;
+        min-width: 0;
+        width: auto;
+        max-width: none;
+        min-height: 0;
+        scroll-snap-align: none;
+      }
       .deal-card {
         padding: 16px;
         gap: 8px;
@@ -811,9 +784,6 @@
         max-width: 100%;
         flex: 0 0 auto;
         flex-shrink: 0;
-        scroll-snap-align: start;
-        scroll-snap-stop: normal;
-        min-height: calc(100% - 80px);
         transform-origin: top center;
         transition: opacity 0.3s ease;
         opacity: 0.6;
@@ -1155,16 +1125,163 @@
     function isMobileCardDeck() {
       return typeof window.matchMedia !== "undefined" && window.matchMedia("(max-width: 480px)").matches;
     }
+
+    function storiiCardSnapElement(cardEl) {
+      if (!cardEl) return null;
+      if (isMobileCardDeck()) {
+        const row = cardEl.closest(".card-row");
+        if (row) return row;
+      }
+      return cardEl;
+    }
+
+    /** Indian national holidays 2025–2026 (YYYY-MM-DD). Long weekends use Fri/Mon in that stretch. */
+    const STORII_INDIAN_HOLIDAYS_2025_2026 = new Set([
+      "2025-01-26",
+      "2025-03-14",
+      "2025-03-31",
+      "2025-04-10",
+      "2025-04-18",
+      "2025-05-01",
+      "2025-06-07",
+      "2025-08-15",
+      "2025-08-27",
+      "2025-10-02",
+      "2025-10-21",
+      "2025-10-22",
+      "2025-11-05",
+      "2025-12-25",
+      "2026-01-26",
+      "2026-03-03",
+      "2026-03-21",
+      "2026-04-03",
+      "2026-05-01",
+      "2026-08-15",
+      "2026-10-02",
+      "2026-11-08",
+      "2026-12-25"
+    ]);
+
+    function storiiStartOfDay(d) {
+      const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      return x;
+    }
+
+    function storiiAddDays(d, n) {
+      const x = new Date(d.getTime());
+      x.setDate(x.getDate() + n);
+      return x;
+    }
+
+    function storiiToYMD(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+
+    function storiiIsIndianHoliday(d) {
+      return STORII_INDIAN_HOLIDAYS_2025_2026.has(storiiToYMD(d));
+    }
+
+    /** Friday–Monday block still ahead of or including today. */
+    function storiiWeekendBlockActive(fri, today) {
+      const mon = storiiAddDays(fri, 3);
+      return mon >= today;
+    }
+
+    function storiiIsLongWeekendFriday(fri) {
+      const mon = storiiAddDays(fri, 3);
+      return storiiIsIndianHoliday(fri) || storiiIsIndianHoliday(mon);
+    }
+
+    function storiiFridayForCurrentOrNextBlock(today) {
+      const t = storiiStartOfDay(today);
+      const dow = t.getDay();
+      const thisBlockFri = storiiAddDays(t, -((dow - 5 + 7) % 7));
+      if (storiiWeekendBlockActive(thisBlockFri, today)) return thisBlockFri;
+      return storiiAddDays(t, (5 - dow + 7) % 7);
+    }
+
+    /** Chronological weekend slots: long (Fri anchor) or regular (Sat) from today forward. */
+    function storiiBuildWeekendSlots(fromDate, count) {
+      const today = storiiStartOfDay(fromDate);
+      const slots = [];
+      let fri = storiiFridayForCurrentOrNextBlock(today);
+      const limit = 120;
+      let weeks = 0;
+      while (slots.length < count + 24 && weeks < limit) {
+        if (storiiWeekendBlockActive(fri, today)) {
+          const isLong = storiiIsLongWeekendFriday(fri);
+          const display = isLong ? fri : storiiAddDays(fri, 1);
+          if (display >= today) {
+            slots.push({ isLong, display, fri });
+          }
+        }
+        fri = storiiAddDays(fri, 7);
+        weeks += 1;
+      }
+      return slots;
+    }
+
+    function storiiWeekendSlotsForCards(cardCount, fromDate) {
+      const all = storiiBuildWeekendSlots(fromDate, cardCount + 24);
+      let start = all.findIndex((s) => s.isLong);
+      if (start < 0) start = 0;
+      return all.slice(start, start + cardCount);
+    }
+
+    const STORII_MONTH_ABBR = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
+    function storiiFormatCardDateLabel(d) {
+      return {
+        month: STORII_MONTH_ABBR[d.getMonth()],
+        day: String(d.getDate())
+      };
+    }
+
+    function storiiWrapCardsWithTravelDates() {
+      const track = document.getElementById("cards-scroller-track");
+      if (!track || track.dataset.storiiDatesWrapped === "1") return;
+
+      const cards = Array.from(track.querySelectorAll(":scope > .deal-card"));
+      if (cards.length === 0) return;
+
+      const slots = storiiWeekendSlotsForCards(cards.length, new Date());
+      cards.forEach((card, i) => {
+        const slot = slots[i] || slots[slots.length - 1];
+        const label = storiiFormatCardDateLabel(slot.display);
+        const row = document.createElement("div");
+        row.className = "card-row";
+        const dateEl = document.createElement("div");
+        dateEl.className = "card-date";
+        dateEl.setAttribute("aria-hidden", "true");
+        dateEl.innerHTML =
+          `<span class="card-date-month">${label.month}</span>` +
+          `<span class="card-date-day">${label.day}</span>`;
+        track.insertBefore(row, card);
+        row.appendChild(dateEl);
+        row.appendChild(card);
+      });
+      track.dataset.storiiDatesWrapped = "1";
+    }
+
+    storiiWrapCardsWithTravelDates();
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", storiiWrapCardsWithTravelDates, { once: true });
+    }
+
     function scrollToCard(id) {
       const el = document.getElementById(id);
       const scroller = document.getElementById("cards-scroller");
       const track = document.getElementById("cards-scroller-track");
       if (!el || !scroller) return;
+      const snapEl = storiiCardSnapElement(el) || el;
       if (isMobileCardDeck() && track) {
         const top =
-          el.offsetParent === track
-            ? el.offsetTop
-            : el.getBoundingClientRect().top - track.getBoundingClientRect().top + scroller.scrollTop;
+          snapEl.offsetParent === track
+            ? snapEl.offsetTop
+            : snapEl.getBoundingClientRect().top - track.getBoundingClientRect().top + scroller.scrollTop;
         scroller.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
       } else {
         const padLeft = parseFloat(getComputedStyle(scroller).scrollPaddingLeft) || 20;
@@ -1641,7 +1758,8 @@
           let best = null;
           let bestR = 0;
           cards.forEach((card) => {
-            const r = visibilityRatio(card, scroller);
+            const measureEl = isMobile ? card.closest(".card-row") || card : card;
+            const r = visibilityRatio(measureEl, scroller);
             if (r > bestR) {
               bestR = r;
               best = card;
