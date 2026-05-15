@@ -358,7 +358,7 @@
       scroll-snap-align: start;
       background: #eef8f1;
       border-radius: 6px;
-      padding: 20px 16px;
+      padding: 20px 16px 10px;
       box-shadow: 0 1.92px 7.68px rgba(49,44,63,0.12);
       display: flex;
       flex-direction: column;
@@ -491,32 +491,51 @@
       min-height: 0;
     }
     .card-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      align-items: center;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      overflow: hidden;
       font-size: 10px;
-      font-family: "Geist Mono", ui-monospace, monospace;
+      font-family: "Instrument Sans", system-ui, sans-serif;
       font-weight: 500;
       color: #6e6e6e;
-      letter-spacing: -0.1px;
-      padding: 8px 0;
+      letter-spacing: 0.02em;
+      padding: 4px 0;
+      margin-top: -4px;
+      margin-bottom: -4px;
+      line-height: 1.35;
+      min-width: 0;
+      word-break: normal;
+      overflow-wrap: anywhere;
+      text-overflow: ellipsis;
+      text-transform: none;
+    }
+    .card-meta span {
+      display: inline;
     }
     .card-meta .dot {
+      display: inline;
+      padding: 0 0.35em;
       font-family: "Instrument Sans", sans-serif;
-      font-size: 12px;
+      font-size: 11px;
       color: #b4b4b4;
       text-transform: lowercase;
     }
 
     .polaroid-stack {
       position: relative;
-      height: 134px;
+      /* Abs-positioned polaroids reach ~187px tall + rotation; old 134px + overflow:hidden cropped them.
+         min-height reserves vertical space; overflow visible keeps tilted corners; negative margin pulls
+         art into the card’s bottom padding so frames can read flush with the rounded card edge. */
+      min-height: 212px;
+      height: auto;
       width: 100%;
-      max-width: 287px;
+      max-width: 100%;
       margin-top: 4px;
+      margin-bottom: -18px;
       flex-shrink: 0;
-      overflow: hidden;
+      overflow: visible;
     }
     .polaroid {
       position: absolute;
@@ -545,10 +564,11 @@
       z-index: 1;
     }
     .polaroid.p2 {
-      width: 143px;
-      height: 173px;
-      left: 127px;
-      top: 11px;
+      width: 128px;
+      height: 158px;
+      left: auto;
+      right: 2px;
+      top: 14px;
       transform: rotate(4deg);
       z-index: 2;
     }
@@ -807,7 +827,7 @@
             </div>
             <p class="card-desc">Short grass, golden light, highest tiger sighting probability of the year.</p>
             <div class="card-meta">
-              <span>3H FLIGHTS FROM ₹5000</span><span class="dot">·</span><span>STAYS FROM ₹4000</span>
+              <span>3h Flights From ₹5000</span><span class="dot">·</span><span>Stays From ₹4000</span>
             </div>
             <div class="polaroid-stack">
               <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Gnarling%2C_frothing_tiger_%2850870631337%29.jpg/500px-Gnarling%2C_frothing_tiger_%2850870631337%29.jpg" alt="" decoding="async"></div>
@@ -824,7 +844,7 @@
             </div>
             <p class="card-desc">South coast after the rains — empty beaches, half the price. Yala&apos;s leopards are out and the crowds aren&apos;t.</p>
             <div class="card-meta">
-              <span>3H 30M FLIGHTS FROM ₹7000</span><span class="dot">·</span><span>STAYS FROM ₹4500</span>
+              <span>3h 30m Flights From ₹7000</span><span class="dot">·</span><span>Stays From ₹4500</span>
             </div>
             <div class="polaroid-stack">
               <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Leoparde.jpg/500px-Leoparde.jpg" alt="" decoding="async"></div>
@@ -841,7 +861,7 @@
             </div>
             <p class="card-desc">Shoulder pricing, same water. Best dive visibility of the year.</p>
             <div class="card-meta">
-              <span>4H FLIGHTS FROM ₹16000</span><span class="dot">·</span><span>STAYS FROM ₹12000</span>
+              <span>4h Flights From ₹16000</span><span class="dot">·</span><span>Stays From ₹12000</span>
             </div>
             <div class="polaroid-stack">
               <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Maldives.jpg/500px-Maldives.jpg" alt="" decoding="async"></div>
@@ -858,7 +878,7 @@
             </div>
             <p class="card-desc">Warm forts, cool desert nights. Last comfortable month before the heat closes the season.</p>
             <div class="card-meta">
-              <span>1H 30M FLIGHTS FROM ₹4000</span><span class="dot">·</span><span>STAYS FROM ₹3500</span>
+              <span>1h 30m Flights From ₹4000</span><span class="dot">·</span><span>Stays From ₹3500</span>
             </div>
             <div class="polaroid-stack">
               <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Amber_Fort%2C_Jaipur%2C_Rajasthan.JPG/500px-Amber_Fort%2C_Jaipur%2C_Rajasthan.JPG" alt="" decoding="async"></div>
@@ -875,7 +895,7 @@
             </div>
             <p class="card-desc">Songkran just ended — hotels half empty, temples yours again.</p>
             <div class="card-meta">
-              <span>4H FLIGHTS FROM ₹15000</span><span class="dot">·</span><span>STAYS FROM ₹5000</span>
+              <span>4h Flights From ₹15000</span><span class="dot">·</span><span>Stays From ₹5000</span>
             </div>
             <div class="polaroid-stack">
               <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Wat_Arun_Ratchawararam_Ratchawaramahawihan.jpg/500px-Wat_Arun_Ratchawararam_Ratchawaramahawihan.jpg" alt="" decoding="async"></div>
@@ -892,7 +912,7 @@
             </div>
             <p class="card-desc">Dry season, lanterns every night, none of the August crowds.</p>
             <div class="card-meta">
-              <span>5H FLIGHTS FROM ₹7000</span><span class="dot">·</span><span>STAYS FROM ₹4000</span>
+              <span>5h Flights From ₹7000</span><span class="dot">·</span><span>Stays From ₹4000</span>
             </div>
             <div class="polaroid-stack">
               <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Hoi_An.jpg/500px-Hoi_An.jpg" alt="" decoding="async"></div>
@@ -909,7 +929,7 @@
             </div>
             <p class="card-desc">Best experienced slowly. Two full days is enough to understand it.</p>
             <div class="card-meta">
-              <span>5H FLIGHTS FROM ₹7000</span><span class="dot">·</span><span>STAYS FROM ₹3500</span>
+              <span>5h Flights From ₹7000</span><span class="dot">·</span><span>Stays From ₹3500</span>
             </div>
             <div class="polaroid-stack">
               <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Saigon_skyline.jpg/500px-Saigon_skyline.jpg" alt="" decoding="async"></div>
@@ -926,7 +946,7 @@
             </div>
             <p class="card-desc">Amber afternoons, pho-scented streets. Ha Long Bay is mist over limestone, almost no boats.</p>
             <div class="card-meta">
-              <span>5H FLIGHTS FROM ₹11000</span><span class="dot">·</span><span>STAYS FROM ₹4500</span>
+              <span>5h Flights From ₹11000</span><span class="dot">·</span><span>Stays From ₹4500</span>
             </div>
             <div class="polaroid-stack">
               <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Hoan_Kiem_Lake.jpg/500px-Hoan_Kiem_Lake.jpg" alt="" decoding="async"></div>
@@ -943,7 +963,7 @@
             </div>
             <p class="card-desc">Clear visibility, islands almost to yourself. Book before the monsoon closes the season.</p>
             <div class="card-meta">
-              <span>4H 30M FLIGHTS FROM ₹17000</span><span class="dot">·</span><span>STAYS FROM ₹6000</span>
+              <span>4h 30m Flights From ₹17000</span><span class="dot">·</span><span>Stays From ₹6000</span>
             </div>
             <div class="polaroid-stack">
               <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Maya_Bay.jpg/500px-Maya_Bay.jpg" alt="" decoding="async"></div>
@@ -960,7 +980,7 @@
             </div>
             <p class="card-desc">Petronas at dusk, Batu Caves in the morning, a food scene that beats cities twice its size.</p>
             <div class="card-meta">
-              <span>5H FLIGHTS FROM ₹20000</span><span class="dot">·</span><span>STAYS FROM ₹5500</span>
+              <span>5h Flights From ₹20000</span><span class="dot">·</span><span>Stays From ₹5500</span>
             </div>
             <div class="polaroid-stack">
               <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Petronas_Twin_Towers.jpg/500px-Petronas_Twin_Towers.jpg" alt="" decoding="async"></div>
@@ -974,8 +994,10 @@
                 <div class="sub-line sub-warm">Pre-F1 · Book Now</div>
               </div>
               <div class="filter-ic contain variant-pink" aria-hidden="true"><img src="https://www.figma.com/api/mcp/asset/8b4fb1e8-5200-4c2c-b413-e6a577a6eaa3" alt=""></div>
+            </div>
+            <p class="card-desc">Rates still pre-event — book before the paddock crowd does.</p>
             <div class="card-meta">
-              <span>5H FLIGHTS FROM ₹7000</span><span class="dot">·</span><span>STAYS FROM ₹9000</span>
+              <span>5h Flights From ₹7000</span><span class="dot">·</span><span>Stays From ₹9000</span>
             </div>
             <div class="polaroid-stack">
               <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Marina_Bay_Sands_at_night.jpg/500px-Marina_Bay_Sands_at_night.jpg" alt="" decoding="async"></div>
@@ -992,7 +1014,7 @@
             </div>
             <p class="card-desc">Rhododendrons in full colour, Himalayan views with no haze. SDF fee resets soon.</p>
             <div class="card-meta">
-              <span>3H FLIGHTS FROM ₹9000</span><span class="dot">·</span><span>STAYS FROM ₹8000</span>
+              <span>3h Flights From ₹9000</span><span class="dot">·</span><span>Stays From ₹8000</span>
             </div>
             <div class="polaroid-stack">
               <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Paro_Taktsang.jpg/500px-Paro_Taktsang.jpg" alt="" decoding="async"></div>
