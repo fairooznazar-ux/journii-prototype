@@ -1222,6 +1222,36 @@
       window.__storiiMobileBottomBleed = applySoon;
     })();
 
+    function fixPWABottomSpacing() {
+      const scroller = document.getElementById("cards-scroller");
+      const tabBar = document.querySelector(".tab-bar") || document.querySelector("nav");
+
+      if (!scroller || !tabBar) return;
+
+      const tabRect = tabBar.getBoundingClientRect();
+
+      const distanceFromBottom = window.innerHeight - tabRect.bottom;
+      const paddingNeeded = tabRect.height + distanceFromBottom + 40;
+
+      scroller.style.setProperty("padding-bottom", paddingNeeded + "px", "important");
+      scroller.style.setProperty("scroll-padding-bottom", paddingNeeded + "px", "important");
+
+      console.log("innerHeight:", window.innerHeight);
+      console.log("tabBar bottom:", tabRect.bottom);
+      console.log("tabBar height:", tabRect.height);
+      console.log("distanceFromBottom:", distanceFromBottom);
+      console.log("paddingNeeded:", paddingNeeded);
+    }
+
+    fixPWABottomSpacing();
+
+    window.addEventListener("load", fixPWABottomSpacing);
+
+    const observer = new MutationObserver(() => fixPWABottomSpacing());
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+
+    setTimeout(() => observer.disconnect(), 5000);
+
     function storiiCardSnapElement(cardEl) {
       if (!cardEl) return null;
       if (isMobileCardDeck()) {
