@@ -697,14 +697,15 @@
       color: rgba(255, 255, 255, 0.42);
     }
 
-    /* Real phones: same stacking as desktop — full-bleed map, sheet over map, tab over sheet.
-       Tab is compact + sits on the home-indicator inset once; sheet bottom padding matches that
-       stack only (no double safe-area / no 90px empty bar) so cards keep vertical room. */
+    /* Real phones: full-bleed map, sheet over map, tab over sheet. Safe-area for the home
+       indicator is applied once inside .tab-inner (tab-bar flush bottom) so Safari does not stack
+       extra empty bands; sheet bottom padding matches tab stack height only. */
     @media (max-width: 480px) {
       html {
         height: -webkit-fill-available;
       }
       body {
+        min-height: 100svh;
         min-height: 100dvh;
         min-height: -webkit-fill-available;
         align-items: stretch;
@@ -715,8 +716,11 @@
       .phone {
         width: 100%;
         max-width: 100%;
+        /* svh first: iOS Safari avoids a tall dvh band that leaves dead space above/below fixed UI. */
+        height: 100svh;
         height: 100dvh;
         height: -webkit-fill-available;
+        min-height: 100svh;
         min-height: 100dvh;
         min-height: -webkit-fill-available;
         border-radius: 0;
@@ -746,28 +750,31 @@
         height: auto;
         min-height: 0;
         gap: 16px;
-        padding: 20px 20px calc(64px + env(safe-area-inset-bottom, 0px));
+        /* Tab bar sits flush to screen bottom; safe-area lives inside .tab-inner only — avoids
+           Safari “double band” (sheet padding + tab bottom offset both reserving home-indicator). */
+        padding: 20px 20px calc(44px + env(safe-area-inset-bottom, 0px));
       }
       .tab-bar {
         position: absolute;
-        /* One inset for the home indicator — tab hugs it (no extra 12px band below). */
-        bottom: env(safe-area-inset-bottom, 0px);
+        bottom: 0;
         left: 50%;
         transform: translateX(-50%);
         width: 100%;
         max-width: 100%;
         height: auto;
         min-height: 0;
-        padding-top: 4px;
-        padding-bottom: 2px;
+        padding-top: 2px;
+        padding-bottom: 0;
         padding-left: max(0px, env(safe-area-inset-left, 0px));
         padding-right: max(0px, env(safe-area-inset-right, 0px));
-        align-items: center;
+        align-items: flex-end;
+        justify-content: center;
         z-index: 1001;
       }
       .tab-inner {
         max-width: min(382px, calc(100% - 16px));
-        padding: 6px 8px calc(6px + 12px) 8px;
+        /* 6px original bottom + 12px below labels + home indicator inside same chrome (no extra float gap). */
+        padding: 6px 8px calc(6px + 12px + env(safe-area-inset-bottom, 0px)) 8px;
       }
     }
   </style>
