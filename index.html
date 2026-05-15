@@ -664,11 +664,13 @@
       }
       .phone {
         position: fixed;
-        inset: 0;
+        top: 0;
+        left: 0;
+        right: 0;
         width: 100%;
         max-width: 100%;
-        height: auto;
-        min-height: 0;
+        height: var(--storii-app-h, 100svh);
+        min-height: var(--storii-app-h, 100svh);
         max-height: none;
         margin: 0;
         border-radius: 0;
@@ -719,9 +721,9 @@
       }
       .cards-scroller {
         box-sizing: border-box;
-        flex: 1 1 auto;
+        flex: 0 0 auto;
         width: 100%;
-        height: auto;
+        height: var(--storii-scroller-h, auto);
         max-height: none;
         min-height: 0;
         padding: var(--card-rail-gap, 10px) 0 0 0;
@@ -753,7 +755,7 @@
       .card-row {
         display: flex;
         flex-direction: row;
-        align-items: flex-start;
+        align-items: stretch;
         gap: 8px;
         width: 100%;
         flex: 0 0 auto;
@@ -805,7 +807,8 @@
         min-width: 0;
         width: auto;
         max-width: none;
-        min-height: 0;
+        min-height: 100%;
+        align-self: stretch;
         scroll-snap-align: none;
       }
       .deal-card {
@@ -1131,36 +1134,100 @@
       return typeof window.matchMedia !== "undefined" && window.matchMedia("(max-width: 480px)").matches;
     }
 
-    /** iOS PWA: layout viewport (svh) often exceeds visible area — sync to visualViewport. */
-    (function storiiSyncMobileViewport() {
+  /**
+   * iOS PWA bottom bleed: measure shell + scroller on every resize (ResizeObserver).
+   * CSS viewport units alone are unreliable; this keeps cards flush to the screen bottom.
+   */
+    (function storiiMobileBottomBleed() {
       const mq = window.matchMedia("(max-width: 480px)");
+      let layoutObserver = null;
+
+      function clearMobileLayoutVars() {
+        const root = document.documentElement;
+        root.style.removeProperty("--storii-app-h");
+        root.style.removeProperty("--storii-tab-float");
+        root.style.removeProperty("--storii-scroller-h");
+        const scroller = document.getElementById("cards-scroller");
+        if (scroller) {
+          scroller.style.removeProperty("height");
+          delete scroller.dataset.storiiLayoutH;
+        }
+        const sheet = document.querySelector(".sheet");
+        if (sheet) sheet.style.removeProperty("min-height");
+      }
+
+      function measureTabFloat(scroller) {
+        const tabInner = document.querySelector(".tab-inner");
+        if (!scroller || !tabInner) return 56;
+        const sBottom = scroller.getBoundingClientRect().bottom;
+        const tabTop = tabInner.getBoundingClientRect().top;
+        return Math.ceil(Math.max(0, sBottom - tabTop) + 6);
+      }
 
       function apply() {
         const root = document.documentElement;
         if (!mq.matches) {
-          root.style.removeProperty("--storii-app-h");
-          root.style.removeProperty("--storii-tab-float");
+          clearMobileLayoutVars();
+          if (layoutObserver) {
+            layoutObserver.disconnect();
+            layoutObserver = null;
+          }
           return;
         }
-        const vv = window.visualViewport;
-        const h = Math.round(Math.max(vv?.height ?? 0, window.innerHeight));
-        root.style.setProperty("--storii-app-h", `${h}px`);
-        root.style.removeProperty("--storii-vv-top");
 
-        const tabBar = document.querySelector(".tab-bar");
-        if (tabBar) {
-          const tabClearance = Math.ceil(tabBar.getBoundingClientRect().height + 4);
-          root.style.setProperty(
-            "--storii-tab-float",
-            `${Math.min(Math.max(tabClearance, 52), 88)}px`
-          );
+        const vv = window.visualViewport;
+        const appH = Math.round(
+          Math.max(document.documentElement.clientHeight, window.innerHeight, vv?.height ?? 0)
+        );
+        root.style.setProperty("--storii-app-h", `${appH}px`);
+
+        const sheet = document.querySelector(".sheet");
+        const search = sheet?.querySelector(".search-row");
+        const scroller = document.getElementById("cards-scroller");
+        if (!sheet || !scroller) return;
+
+        const sheetStyle = getComputedStyle(sheet);
+        const padTop = parseFloat(sheetStyle.paddingTop) || 0;
+        const gap = parseFloat(sheetStyle.gap) || 0;
+        const searchH = search ? search.getBoundingClientRect().height : 0;
+        const sheetTop = sheet.getBoundingClientRect().top;
+        const sheetH = Math.max(0, Math.floor(appH - sheetTop));
+        sheet.style.minHeight = `${sheetH}px`;
+
+        const scrollerH = Math.max(0, Math.floor(sheet.clientHeight - padTop - searchH - gap));
+        const prevH = parseInt(scroller.dataset.storiiLayoutH || "", 10);
+        if (prevH !== scrollerH) {
+          scroller.dataset.storiiLayoutH = String(scrollerH);
+          root.style.setProperty("--storii-scroller-h", `${scrollerH}px`);
+          scroller.style.height = `${scrollerH}px`;
         }
+
+        root.style.setProperty("--storii-tab-float", `${measureTabFloat(scroller)}px`);
+
+        bindLayoutObserver();
+      }
+
+      function bindLayoutObserver() {
+        if (layoutObserver || !mq.matches) return;
+        const phone = document.querySelector(".phone");
+        const sheet = document.querySelector(".sheet");
+        const scroller = document.getElementById("cards-scroller");
+        if (!phone || !sheet || !scroller) return;
+        layoutObserver = new ResizeObserver(() => {
+          requestAnimationFrame(apply);
+        });
+        layoutObserver.observe(phone);
+        layoutObserver.observe(sheet);
+        layoutObserver.observe(scroller);
+        const track = document.getElementById("cards-scroller-track");
+        if (track) layoutObserver.observe(track);
       }
 
       function applySoon() {
         apply();
         requestAnimationFrame(() => requestAnimationFrame(apply));
       }
+
       applySoon();
       if (window.visualViewport) {
         window.visualViewport.addEventListener("resize", applySoon);
@@ -1171,6 +1238,7 @@
       mq.addEventListener("change", applySoon);
       window.addEventListener("load", applySoon, { once: true });
       window.__storiiSyncMobileViewport = applySoon;
+      window.__storiiMobileBottomBleed = applySoon;
     })();
 
     function storiiCardSnapElement(cardEl) {
@@ -1473,7 +1541,9 @@
           return;
         }
         resetInlineDeckStyles();
-        if (typeof window.__storiiSyncMobileViewport === "function") {
+        if (typeof window.__storiiMobileBottomBleed === "function") {
+          window.__storiiMobileBottomBleed();
+        } else if (typeof window.__storiiSyncMobileViewport === "function") {
           window.__storiiSyncMobileViewport();
         }
         if (typeof window.__storiiSetupCardMapAnchorSync === "function") {
