@@ -729,13 +729,13 @@
         height: auto;
         max-height: none;
         min-height: 0;
-        padding: var(--card-rail-gap, 10px) 0 160px 0;
+        padding: var(--card-rail-gap, 10px) 0 var(--pwa-bottom-offset, 160px) 0;
         overflow-x: hidden;
         overflow-y: scroll;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-y;
         scroll-snap-type: y mandatory;
-        scroll-padding-bottom: 160px;
+        scroll-padding-bottom: var(--pwa-bottom-offset, 160px);
         overscroll-behavior-y: contain;
         overscroll-behavior-x: auto;
       }
@@ -1146,8 +1146,12 @@
         const root = document.documentElement;
         root.style.removeProperty("--storii-app-h");
         root.style.removeProperty("--storii-tab-bar-h");
+        root.style.removeProperty("--pwa-bottom-offset");
         const scroller = document.getElementById("cards-scroller");
-        if (scroller) scroller.style.removeProperty("height");
+        if (scroller) {
+          scroller.style.removeProperty("height");
+          scroller.style.removeProperty("paddingBottom");
+        }
         const sheet = document.querySelector(".sheet");
         if (sheet) sheet.style.removeProperty("min-height");
       }
@@ -1169,6 +1173,9 @@
         );
         root.style.setProperty("--storii-app-h", `${appH}px`);
 
+        const layoutAppH =
+          window.navigator.standalone === true ? Math.max(0, appH - 100) : appH;
+
         const tabBar = document.querySelector(".tab-bar");
         if (tabBar) {
           const tabBarH = Math.ceil(tabBar.getBoundingClientRect().height);
@@ -1178,7 +1185,7 @@
         const sheet = document.querySelector(".sheet");
         if (sheet) {
           const sheetTop = sheet.getBoundingClientRect().top;
-          const sheetH = Math.max(0, Math.floor(appH - sheetTop));
+          const sheetH = Math.max(0, Math.floor(layoutAppH - sheetTop));
           sheet.style.minHeight = `${sheetH}px`;
         }
 
@@ -1215,6 +1222,23 @@
       window.addEventListener("load", applySoon, { once: true });
       window.__storiiSyncMobileViewport = applySoon;
       window.__storiiMobileBottomBleed = applySoon;
+    })();
+
+    (function storiiPwaStandaloneBottomOffset() {
+      function apply() {
+        if (window.navigator.standalone === true) {
+          const scroller = document.getElementById("cards-scroller");
+          if (scroller) {
+            scroller.style.paddingBottom = "200px";
+          }
+          document.documentElement.style.setProperty("--pwa-bottom-offset", "200px");
+        }
+      }
+      if (document.readyState === "loading") {
+        window.addEventListener("load", apply, { once: true });
+      } else {
+        apply();
+      }
     })();
 
     function storiiCardSnapElement(cardEl) {
