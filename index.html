@@ -661,6 +661,7 @@
         bottom: 0;
         left: 0;
         right: 0;
+        overflow: visible;
       }
       .phone {
         position: fixed;
@@ -676,6 +677,7 @@
         border-radius: 0;
         box-shadow: none;
         padding: 0;
+        overflow: visible;
       }
       .map-wrap {
         position: absolute;
@@ -701,13 +703,13 @@
         --storii-map-cutoff: min(368px, max(268px, calc(var(--storii-app-h, 100svh) - 480px)));
         /* Search row + gap — tuned to where row + --card-rail-gap. */
         --storii-search-band: 86px;
-        --storii-tab-float: 64px;
+        --storii-tab-bar-h: 80px;
+        --storii-tab-clearance: calc(var(--storii-tab-bar-h, 80px) + 32px + env(safe-area-inset-bottom, 0px));
         --card-rail-gap: 10px;
         --storii-search-to-cards-gap: 18px;
         gap: var(--storii-search-to-cards-gap);
-        /* No bottom padding — cards bleed to screen edge; tab pill floats over. */
         padding: 16px 20px 0;
-        overflow: hidden;
+        overflow: visible;
       }
       /* Figma 4653:33496 — vertical snap list; height fills viewport minus map, search, tab. */
       .cards-scroller-bleed {
@@ -718,21 +720,22 @@
         flex-direction: column;
         flex: 1 1 auto;
         min-height: 0;
+        overflow: visible;
       }
       .cards-scroller {
         box-sizing: border-box;
-        flex: 0 0 auto;
+        flex: 1 1 auto;
         width: 100%;
-        height: var(--storii-scroller-h, auto);
+        height: auto;
         max-height: none;
         min-height: 0;
-        padding: var(--card-rail-gap, 10px) 0 0 0;
-        overflow-y: scroll;
+        padding: var(--card-rail-gap, 10px) 0 var(--storii-tab-clearance) 0;
         overflow-x: hidden;
+        overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-y;
         scroll-snap-type: y mandatory;
-        scroll-padding-bottom: var(--storii-tab-float);
+        scroll-padding-bottom: var(--storii-tab-clearance);
         overscroll-behavior-y: contain;
         overscroll-behavior-x: auto;
       }
@@ -1134,10 +1137,7 @@
       return typeof window.matchMedia !== "undefined" && window.matchMedia("(max-width: 480px)").matches;
     }
 
-  /**
-   * iOS PWA bottom bleed: measure shell + scroller on every resize (ResizeObserver).
-   * CSS viewport units alone are unreliable; this keeps cards flush to the screen bottom.
-   */
+    /** iOS PWA: shell height + measured tab bar for card scroll clearance. */
     (function storiiMobileBottomBleed() {
       const mq = window.matchMedia("(max-width: 480px)");
       let layoutObserver = null;
@@ -1145,23 +1145,11 @@
       function clearMobileLayoutVars() {
         const root = document.documentElement;
         root.style.removeProperty("--storii-app-h");
-        root.style.removeProperty("--storii-tab-float");
-        root.style.removeProperty("--storii-scroller-h");
+        root.style.removeProperty("--storii-tab-bar-h");
         const scroller = document.getElementById("cards-scroller");
-        if (scroller) {
-          scroller.style.removeProperty("height");
-          delete scroller.dataset.storiiLayoutH;
-        }
+        if (scroller) scroller.style.removeProperty("height");
         const sheet = document.querySelector(".sheet");
         if (sheet) sheet.style.removeProperty("min-height");
-      }
-
-      function measureTabFloat(scroller) {
-        const tabInner = document.querySelector(".tab-inner");
-        if (!scroller || !tabInner) return 56;
-        const sBottom = scroller.getBoundingClientRect().bottom;
-        const tabTop = tabInner.getBoundingClientRect().top;
-        return Math.ceil(Math.max(0, sBottom - tabTop) + 6);
       }
 
       function apply() {
@@ -1181,28 +1169,18 @@
         );
         root.style.setProperty("--storii-app-h", `${appH}px`);
 
-        const sheet = document.querySelector(".sheet");
-        const search = sheet?.querySelector(".search-row");
-        const scroller = document.getElementById("cards-scroller");
-        if (!sheet || !scroller) return;
-
-        const sheetStyle = getComputedStyle(sheet);
-        const padTop = parseFloat(sheetStyle.paddingTop) || 0;
-        const gap = parseFloat(sheetStyle.gap) || 0;
-        const searchH = search ? search.getBoundingClientRect().height : 0;
-        const sheetTop = sheet.getBoundingClientRect().top;
-        const sheetH = Math.max(0, Math.floor(appH - sheetTop));
-        sheet.style.minHeight = `${sheetH}px`;
-
-        const scrollerH = Math.max(0, Math.floor(sheet.clientHeight - padTop - searchH - gap));
-        const prevH = parseInt(scroller.dataset.storiiLayoutH || "", 10);
-        if (prevH !== scrollerH) {
-          scroller.dataset.storiiLayoutH = String(scrollerH);
-          root.style.setProperty("--storii-scroller-h", `${scrollerH}px`);
-          scroller.style.height = `${scrollerH}px`;
+        const tabBar = document.querySelector(".tab-bar");
+        if (tabBar) {
+          const tabBarH = Math.ceil(tabBar.getBoundingClientRect().height);
+          root.style.setProperty("--storii-tab-bar-h", `${tabBarH}px`);
         }
 
-        root.style.setProperty("--storii-tab-float", `${measureTabFloat(scroller)}px`);
+        const sheet = document.querySelector(".sheet");
+        if (sheet) {
+          const sheetTop = sheet.getBoundingClientRect().top;
+          const sheetH = Math.max(0, Math.floor(appH - sheetTop));
+          sheet.style.minHeight = `${sheetH}px`;
+        }
 
         bindLayoutObserver();
       }
@@ -1210,17 +1188,15 @@
       function bindLayoutObserver() {
         if (layoutObserver || !mq.matches) return;
         const phone = document.querySelector(".phone");
-        const sheet = document.querySelector(".sheet");
-        const scroller = document.getElementById("cards-scroller");
-        if (!phone || !sheet || !scroller) return;
+        const tabBar = document.querySelector(".tab-bar");
+        if (!phone || !tabBar) return;
         layoutObserver = new ResizeObserver(() => {
           requestAnimationFrame(apply);
         });
         layoutObserver.observe(phone);
-        layoutObserver.observe(sheet);
-        layoutObserver.observe(scroller);
-        const track = document.getElementById("cards-scroller-track");
-        if (track) layoutObserver.observe(track);
+        layoutObserver.observe(tabBar);
+        const tabInner = document.querySelector(".tab-inner");
+        if (tabInner) layoutObserver.observe(tabInner);
       }
 
       function applySoon() {
