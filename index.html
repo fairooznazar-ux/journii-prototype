@@ -636,7 +636,12 @@
       color: rgba(255, 255, 255, 0.7);
     }
 
-    /* Real phones: full-bleed map, sheet over map, floating tab pill over sheet. */
+    /* Wrapper for sheet + tab; invisible on desktop (children layout as before). */
+    .screen-ui {
+      display: contents;
+    }
+
+    /* Real phones: full-bleed map, sheet + tab in flex column (tab reserves space). */
     @media (max-width: 480px) {
       html {
         height: 100%;
@@ -657,12 +662,27 @@
       }
       /* Full-bleed under status bar; .phone height tracks visualViewport. */
       .screen {
+        display: flex;
+        flex-direction: column;
         top: 0;
         bottom: 0;
         left: 0;
         right: 0;
         overflow: visible;
         background: transparent !important;
+      }
+      .screen-ui {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+        margin-top: min(368px, max(268px, calc(var(--storii-app-h, 100svh) - 480px)));
+        z-index: 1000;
+        pointer-events: none;
+      }
+      .screen-ui > .sheet,
+      .screen-ui > .tab-bar {
+        pointer-events: auto;
       }
       .phone {
         position: fixed;
@@ -690,27 +710,22 @@
         height: auto;
       }
       .sheet {
-        position: absolute;
-        left: 0;
-        right: 0;
+        position: relative;
+        left: auto;
+        right: auto;
         width: 100%;
+        flex: 1 1 auto;
         display: flex;
         flex-direction: column;
-        /* Short viewports: start sheet higher so the card strip keeps ~min usable height. */
-        top: min(368px, max(268px, calc(var(--storii-app-h, 100svh) - 480px)));
-        bottom: 0;
-        height: auto;
         min-height: 0;
         --storii-map-cutoff: min(368px, max(268px, calc(var(--storii-app-h, 100svh) - 480px)));
-        /* Search row + gap — tuned to where row + --card-rail-gap. */
         --storii-search-band: 86px;
         --storii-tab-bar-h: 80px;
-        --storii-tab-clearance: calc(var(--storii-tab-bar-h, 80px) + 32px + env(safe-area-inset-bottom, 0px));
         --card-rail-gap: 10px;
         --storii-search-to-cards-gap: 18px;
         gap: var(--storii-search-to-cards-gap);
         padding: 16px 20px 0;
-        overflow: visible;
+        overflow: hidden;
       }
       /* Figma 4653:33496 — vertical snap list; height fills viewport minus map, search, tab. */
       .cards-scroller-bleed {
@@ -724,19 +739,19 @@
         overflow: visible;
       }
       .cards-scroller {
-        box-sizing: content-box;
+        box-sizing: border-box;
         flex: 1 1 auto;
         width: 100%;
         height: auto;
         max-height: none;
         min-height: 0;
-        padding: var(--card-rail-gap, 10px) 0 0 0;
-        padding-bottom: 0 !important;
+        padding: var(--card-rail-gap, 10px) 0 16px 0;
         overflow-x: hidden;
-        overflow-y: scroll;
+        overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-y;
         scroll-snap-type: y mandatory;
+        scroll-padding-bottom: 16px;
         overscroll-behavior-y: contain;
         overscroll-behavior-x: auto;
       }
@@ -754,9 +769,7 @@
         align-items: stretch;
       }
       .cards-scroller-tail {
-        height: 150px !important;
-        min-height: 150px !important;
-        display: block !important;
+        display: none !important;
       }
       .card-row {
         display: flex;
@@ -853,8 +866,12 @@
         top: 11px;
       }
       .tab-bar {
-        bottom: 0;
-        padding-bottom: env(safe-area-inset-bottom, 0px);
+        position: relative;
+        bottom: auto;
+        left: auto;
+        right: auto;
+        flex: 0 0 auto;
+        padding-bottom: 4px;
         padding-left: max(0px, env(safe-area-inset-left, 0px));
         padding-right: max(0px, env(safe-area-inset-right, 0px));
         background: transparent;
@@ -864,6 +881,7 @@
       .tab-inner {
         width: 300px;
         max-width: min(300px, calc(100% - 48px));
+        margin-bottom: env(safe-area-inset-bottom, 0px);
       }
     }
   </style>
@@ -879,6 +897,7 @@
         </div>
       </div>
 
+      <div class="screen-ui">
       <div class="sheet">
         <div class="search-row">
           <div class="where-box">
@@ -1112,6 +1131,7 @@
           <div class="tab-item" data-tab="club">club</div>
         </div>
       </nav>
+      </div>
     </div>
   </div>
 
@@ -1140,10 +1160,28 @@
       return typeof window.matchMedia !== "undefined" && window.matchMedia("(max-width: 480px)").matches;
     }
 
-    /** iOS PWA: shell height + measured tab bar for card scroll clearance. */
+    /** iOS PWA: shell height; sheet/tab flex column reserves tab space (no scroller hacks). */
     (function storiiMobileBottomBleed() {
       const mq = window.matchMedia("(max-width: 480px)");
       let layoutObserver = null;
+
+      function isStandalonePWA() {
+        return (
+          (window.navigator && window.navigator.standalone === true) ||
+          (typeof window.matchMedia === "function" &&
+            window.matchMedia("(display-mode: standalone)").matches)
+        );
+      }
+
+      function storiiAppHeight() {
+        const vv = window.visualViewport;
+        if (isStandalonePWA()) {
+          return Math.round(vv?.height ?? window.innerHeight);
+        }
+        return Math.round(
+          Math.max(document.documentElement.clientHeight, window.innerHeight, vv?.height ?? 0)
+        );
+      }
 
       function clearMobileLayoutVars() {
         const root = document.documentElement;
@@ -1152,11 +1190,10 @@
         const scroller = document.getElementById("cards-scroller");
         if (scroller) {
           scroller.style.removeProperty("height");
+          scroller.style.removeProperty("max-height");
           scroller.style.removeProperty("paddingBottom");
           scroller.style.removeProperty("scrollPaddingBottom");
         }
-        const sheet = document.querySelector(".sheet");
-        if (sheet) sheet.style.removeProperty("min-height");
       }
 
       function apply() {
@@ -1170,10 +1207,7 @@
           return;
         }
 
-        const vv = window.visualViewport;
-        const appH = Math.round(
-          Math.max(document.documentElement.clientHeight, window.innerHeight, vv?.height ?? 0)
-        );
+        const appH = storiiAppHeight();
         root.style.setProperty("--storii-app-h", `${appH}px`);
 
         const tabBar = document.querySelector(".tab-bar");
@@ -1182,28 +1216,25 @@
           root.style.setProperty("--storii-tab-bar-h", `${tabBarH}px`);
         }
 
-        const sheet = document.querySelector(".sheet");
-        if (sheet) {
-          const sheetTop = sheet.getBoundingClientRect().top;
-          const sheetH = Math.max(0, Math.floor(appH - sheetTop));
-          sheet.style.minHeight = `${sheetH}px`;
-        }
-
         bindLayoutObserver();
       }
 
       function bindLayoutObserver() {
         if (layoutObserver || !mq.matches) return;
         const phone = document.querySelector(".phone");
+        const screenUi = document.querySelector(".screen-ui");
         const tabBar = document.querySelector(".tab-bar");
         if (!phone || !tabBar) return;
         layoutObserver = new ResizeObserver(() => {
           requestAnimationFrame(apply);
         });
         layoutObserver.observe(phone);
+        if (screenUi) layoutObserver.observe(screenUi);
         layoutObserver.observe(tabBar);
         const tabInner = document.querySelector(".tab-inner");
         if (tabInner) layoutObserver.observe(tabInner);
+        const sheet = document.querySelector(".sheet");
+        if (sheet) layoutObserver.observe(sheet);
       }
 
       function applySoon() {
@@ -1218,6 +1249,10 @@
       }
       window.addEventListener("resize", applySoon);
       window.addEventListener("orientationchange", applySoon);
+      window.addEventListener("pageshow", applySoon);
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") applySoon();
+      });
       mq.addEventListener("change", applySoon);
       window.addEventListener("load", applySoon, { once: true });
       window.__storiiSyncMobileViewport = applySoon;
@@ -1349,9 +1384,9 @@
       cards.forEach((card, i) => {
         const slot = slots[i] || slots[slots.length - 1];
         const label = storiiFormatCardDateLabel(slot.display);
-        const row = document.createElement("motion");
+        const row = document.createElement("div");
         row.className = "card-row";
-        const dateEl = document.createElement("motion");
+        const dateEl = document.createElement("div");
         dateEl.className = "card-date";
         dateEl.setAttribute("aria-hidden", "true");
         dateEl.innerHTML =
