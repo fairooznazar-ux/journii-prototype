@@ -13,7 +13,7 @@
   <meta http-equiv="Expires" content="0">
   <title>Storii — Stays</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;500;700&family=Instrument+Sans:wght@400;500;600;700&family=Geist+Mono:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;500;700&family=Instrument+Sans:wght@400;500;600;700&family=Geist+Mono:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -677,7 +677,8 @@
         /* Space reserved for tab bar + sheet bottom safe padding (cards stop above tabs). */
         --storii-tab-band: 96px;
         --card-rail-gap: 10px;
-        gap: var(--card-rail-gap);
+        --storii-search-to-cards-gap: 18px;
+        gap: var(--storii-search-to-cards-gap);
         /* Tab bar sits flush to screen bottom; safe-area lives inside .tab-inner only — avoids
            Safari “double band” (sheet padding + tab bottom offset both reserving home-indicator). */
         padding: 16px 20px calc(82px + env(safe-area-inset-bottom, 0px));
@@ -746,32 +747,42 @@
       }
       .card-date {
         display: flex;
-        flex: 0 0 32px;
-        width: 32px;
+        flex: 0 0 34px;
+        width: 34px;
         flex-direction: column;
         align-items: center;
         align-self: flex-start;
         justify-content: flex-start;
         padding-top: 4px;
-        gap: 2px;
-        color: rgba(255, 255, 255, 0.52);
+        gap: 4px;
+        font-family: "Geist Mono", ui-monospace, monospace;
+        color: #fff;
+        text-align: center;
         user-select: none;
         pointer-events: none;
       }
+      /* Figma 4653:33570 — kabini date */
       .card-date-month {
-        font-size: 9px;
-        font-weight: 600;
-        letter-spacing: 0.08em;
+        font-family: "Geist Mono", ui-monospace, monospace;
+        font-size: 10px;
+        font-weight: 400;
+        letter-spacing: 0;
         text-transform: uppercase;
-        line-height: 1;
+        line-height: normal;
+        color: #fff;
       }
       .card-date-day {
-        font-family: "Instrument Sans", system-ui, sans-serif;
-        font-size: 22px;
-        font-weight: 600;
-        line-height: 1;
-        letter-spacing: -0.02em;
-        color: rgba(255, 255, 255, 0.72);
+        font-family: "Geist Mono", ui-monospace, monospace;
+        font-size: 16px;
+        font-weight: 300;
+        line-height: normal;
+        letter-spacing: 0;
+        color: #fff;
+        width: 34px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
       .card-row .deal-card {
         flex: 1 1 auto;
@@ -856,6 +867,22 @@
 
       <div class="sheet">
         <div class="search-row">
+          <div class="from-box">
+            <div class="from-box-main">
+              <div class="pin-ic" aria-hidden="true">
+                <div class="pin-ic-vector">
+                  <img src="https://www.figma.com/api/mcp/asset/cafb024e-1cbb-4b34-bcc4-987ad3514c38" alt="">
+                </div>
+              </div>
+              <div class="from-text">
+                <div class="lbl">from</div>
+                <div class="city">BOM</div>
+              </div>
+            </div>
+            <div class="chev" aria-hidden="true">
+              <img class="chev-img" src="https://www.figma.com/api/mcp/asset/69a1a498-7d49-48f6-b6c6-2eb84f329cea" alt="">
+            </div>
+          </div>
           <div class="where-box">
             <div class="search-ic" aria-hidden="true">
               <div class="search-ic-inner">
@@ -1625,7 +1652,7 @@
         typeof window.matchMedia === "undefined" ||
         !window.matchMedia("(max-width: 480px)").matches;
       const mapOpts = {
-        center: { lat: 12, lng: 95 },
+        center: { lat: 15, lng: 90 },
         zoom: 4,
         mapTypeId: google.maps.MapTypeId.TERRAIN,
         backgroundColor: "#0d0f12",
@@ -1655,10 +1682,10 @@
       const anchoredMarkers = [];
       let cardMapScrollSyncController = null;
 
-      /* India + SE Asia only — crop Kenya / Madagascar / Australia out of frame. */
+      /* India + SE Asia — keep Central Asia (Kazakhstan, Mongolia) out of the default frame. */
       const regionBounds = new google.maps.LatLngBounds(
-        { lat: -6.55, lng: 72.55 },
-        { lat: 30.45, lng: 107.2 }
+        { lat: -8, lng: 72.55 },
+        { lat: 22, lng: 107.2 }
       );
 
       /** True when layout matches the stacked full-bleed phone UI (sheet + tabs). */
@@ -1685,11 +1712,11 @@
         return { top: 36, right: 8, bottom: bottomPx, left: 8 };
       }
 
-      /** After fitBounds, nudge view so the region sits a bit higher (smaller y = less lift). */
+      /** After fitBounds, fine-tune vertical framing (phone: slight pan south to drop Central Asia). */
       function nudgeRegionUpward() {
         const wrap = document.querySelector(".map-wrap");
         const h = (wrap && wrap.clientHeight) || mapEl.clientHeight || 874;
-        const frac = isNarrowViewport() ? 0.08 : 0.18;
+        const frac = isNarrowViewport() ? -0.04 : 0.12;
         map.panBy(0, Math.round(h * frac));
       }
 
