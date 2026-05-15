@@ -644,7 +644,7 @@
     .map-pin-active-symbol {
       position: absolute;
       left: 5px;
-      top: 6px;
+      top: 7px;
       width: 40px;
       height: 40px;
       border-radius: 50%;
@@ -1391,9 +1391,7 @@
       return (h2 && h2.textContent.trim()) || id || "unknown";
     }
 
-    /** Unified pin blob: 44px circle (r=22) + ~10px tail; single white stroke on outer edge. */
-    const STORII_MAP_PIN_ACTIVE_PATH =
-      "M 25 4 A 22 22 0 1 1 17.94 47.56 L 25 58 L 32.06 47.56 A 22 22 0 1 1 25 4 Z";
+    /* No longer a single path — pin is two separate SVG elements. */
 
     function storiiGetCardFilterIcon(anchorId) {
       const id = String(anchorId || "").replace(/[^a-z0-9-]/gi, "");
@@ -1424,10 +1422,14 @@
         const t = clone.textContent.replace(/\s+/g, "").trim();
         if (t) symbolInner = `<span class="map-pin-active-emoji">${storiiEscapeHtmlAttr(t)}</span>`;
       }
+      // Tail drawn first (behind), overlapping circle bottom by 3px to hide seam.
+      // Circle cx=25 cy=26, r=22 → bottom edge at y=48. Tail top at y=45 (3px overlap).
+      // Tail points to y=58. Overall viewBox height 62 gives 4px breathing at top (cy=26−22=4).
       return (
         `<div class="map-pin-active-wrap" aria-hidden="true">` +
         `<svg class="map-pin-active-svg" width="50" height="62" viewBox="0 0 50 62" xmlns="http://www.w3.org/2000/svg">` +
-        `<path d="${STORII_MAP_PIN_ACTIVE_PATH}" fill="${f}" stroke="#ffffff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>` +
+        `<polygon points="15,45 35,45 25,58" fill="#ffffff" stroke="#ffffff" stroke-width="3" stroke-linejoin="round"/>` +
+        `<circle cx="25" cy="26" r="22" fill="${f}" stroke="#ffffff" stroke-width="3"/>` +
         `</svg>` +
         `<div class="map-pin-active-symbol">${symbolInner}</div>` +
         `</div>`
