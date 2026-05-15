@@ -595,82 +595,63 @@
       -webkit-backdrop-filter: none;
     }
 
-    /* Map price pins — pill shape; font forced here + inline on marker HTML so gm-* styles don’t win */
-    .g-html-marker.map-pin-anchor .map-price-pin {
-      border-radius: 999px;
-      padding: 3px 9px;
-      font-family: "Instrument Sans", system-ui, sans-serif !important;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.01em;
-      font-variant-numeric: normal;
-      color: #080e12;
-      white-space: nowrap;
-      border: 1px solid rgba(8, 14, 18, 0.12);
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.5) inset,
-        0 1.92px 7.68px rgba(49, 44, 63, 0.12);
-      -webkit-font-smoothing: antialiased;
-    }
-    .map-price-pin--kabini {
-      background: #dff8ea;
-    }
-    .map-price-pin--sri-lanka {
-      background: #e8fff0;
-    }
-    .map-price-pin--maldives {
-      background: #dff4ff;
-    }
-    .map-price-pin--rajasthan {
-      background: #fff0e0;
-    }
-    .map-price-pin--bangkok {
-      background: #fff6de;
-    }
-    .map-price-pin--vietnam {
-      background: #e6faf0;
-    }
-    .map-price-pin--hcmc {
-      background: #e6f4ff;
-    }
-    .map-price-pin--hanoi {
-      background: #eefae8;
-    }
-    .map-price-pin--phuket {
-      background: #dff8f2;
-    }
-    .map-price-pin--kl {
-      background: #fff0e6;
-    }
-    .map-price-pin--singapore {
-      background: #f0e8ff;
-    }
-    .map-price-pin--bhutan {
-      background: #e2faee;
-    }
-
-    /* Map pins that anchor to cards — focus state */
+    /* Map destination pins — inactive: solid dot; active: emoji bubble + tail (HTML swapped in JS). */
     .g-html-marker.map-pin-anchor {
       font-family: "Instrument Sans", system-ui, sans-serif !important;
-      transition: transform 0.38s cubic-bezier(0.25, 0.9, 0.25, 1), filter 0.38s ease;
-      transform-origin: 50% 50%;
+      -webkit-font-smoothing: antialiased;
     }
-    .g-html-marker.map-pin-anchor > .map-price-pin {
-      transition: border-width 0.38s ease, outline 0.38s ease, box-shadow 0.38s ease;
+    .map-pin-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      box-sizing: border-box;
+      flex-shrink: 0;
     }
-    .g-html-marker.map-pin-anchor.pin-focused {
-      transform: scale(1.1);
-      filter: drop-shadow(0 6px 16px rgba(49, 44, 63, 0.35));
+    .map-pin-icon-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform-origin: 50% 100%;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
+    }
+    .map-pin-icon-wrap.map-pin-pop {
+      animation: map-pin-pop-in 0.32s ease forwards;
+    }
+    @keyframes map-pin-pop-in {
+      from {
+        transform: scale(0.6);
+      }
+      to {
+        transform: scale(1);
+      }
+    }
+    .map-pin-icon-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+    .map-pin-icon-emoji {
+      font-size: 22px;
+      line-height: 1;
+      display: block;
+      user-select: none;
+      pointer-events: none;
+    }
+    .map-pin-icon-tail {
+      width: 0;
+      height: 0;
+      margin-top: -1px;
+      border-left: 9px solid transparent;
+      border-right: 9px solid transparent;
+      border-top-style: solid;
+      border-top-width: 10px;
+    }
+    .g-html-marker.map-pin-anchor.map-pin-anchor-active {
       z-index: 2147483000 !important;
-    }
-    .g-html-marker.map-pin-anchor.pin-focused > .map-price-pin {
-      border-width: 2px !important;
-      outline: 2px solid rgba(255, 255, 255, 0.92);
-      outline-offset: 2px;
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.5) inset,
-        0 3px 14px rgba(49, 44, 63, 0.28),
-        0 0 0 1px rgba(8, 14, 18, 0.08);
     }
     .tab-item {
       flex: 1;
@@ -1331,20 +1312,58 @@
       window.__storiiRefreshMobileDeck = refresh;
     })();
 
+    /**
+     * Map pin palette + emoji per destination (matches card filter accents in markup).
+     * Used only for map markers — keep in sync with deal cards’ data-anchor / geography.
+     */
+    const STORII_MAP_DESTINATIONS = [
+      { anchorId: "kabini", lat: 11.965, lng: 76.316, color: "#05cf37", emoji: "🐅" },
+      { anchorId: "sri-lanka", lat: 6.9271, lng: 79.8612, color: "#0ca85e", emoji: "🐆" },
+      { anchorId: "maldives", lat: 3.2028, lng: 73.2207, color: "#1beeab", emoji: "🏝️" },
+      { anchorId: "rajasthan", lat: 26.9124, lng: 75.7873, color: "#cc4e00", emoji: "🏰" },
+      { anchorId: "bangkok", lat: 13.7563, lng: 100.5018, color: "#ea7a22", emoji: "🛕" },
+      { anchorId: "vietnam", lat: 15.8801, lng: 108.338, color: "#eeb91b", emoji: "🌿" },
+      { anchorId: "hcmc", lat: 10.8231, lng: 106.6297, color: "#02d3f3", emoji: "🏙️" },
+      { anchorId: "hanoi", lat: 21.0285, lng: 105.8542, color: "#d4380c", emoji: "⛩️" },
+      { anchorId: "phuket", lat: 7.8804, lng: 98.3923, color: "#14cfc1", emoji: "🏖️" },
+      { anchorId: "kl", lat: 3.139, lng: 101.6869, color: "#b45309", emoji: "🗼" },
+      { anchorId: "singapore", lat: 1.3521, lng: 103.8198, color: "#ee1bce", emoji: "🦁" },
+      { anchorId: "bhutan", lat: 27.4712, lng: 89.6339, color: "#0f766e", emoji: "🏔️" }
+    ];
+
+    function storiiSanitizeMapPinColor(hex) {
+      return typeof hex === "string" && /^#[0-9A-Fa-f]{6}$/.test(hex) ? hex : "#05cf37";
+    }
+
+    function storiiMapPinDotHtml(color) {
+      const c = storiiSanitizeMapPinColor(color);
+      return `<div class="map-pin-dot" style="background-color:${c};"></div>`;
+    }
+
+    function storiiMapPinIconHtml(emoji, color) {
+      const c = storiiSanitizeMapPinColor(color);
+      return `<div class="map-pin-icon-wrap"><div class="map-pin-icon-circle" style="background-color:${c};"><span class="map-pin-icon-emoji">${emoji}</span></div><div class="map-pin-icon-tail" style="border-top-color:${c};"></div></div>`;
+    }
+
     /** Runs only after Google Maps JS API is loaded (see dynamic script below). */
     window.initStoriiMap = function initStoriiMap() {
       const fallback = document.getElementById("map-fallback");
       fallback.classList.remove("visible");
 
       class HtmlMapMarker extends google.maps.OverlayView {
-        constructor(position, html, opts = {}) {
+        constructor(position, opts = {}) {
           super();
           this.position = position;
-          this.html = html;
           this.className = opts.className || "g-html-marker";
-          this.anchor = opts.anchor || { x: 0.5, y: 1 };
           this.anchorId = opts.anchorId || null;
           this.div = null;
+          this._dotHtml = opts.dotHtml || "";
+          this._iconHtml = opts.iconHtml || "";
+          this._anchorDot = opts.anchorDot || { x: 0.5, y: 0.5 };
+          this._anchorIcon = opts.anchorIcon || { x: 0.5, y: 1 };
+          this.html = this._dotHtml;
+          this.anchor = { x: this._anchorDot.x, y: this._anchorDot.y };
+          this._pinActive = null;
         }
         onAdd() {
           this.div = document.createElement("div");
@@ -1357,6 +1376,25 @@
           this.div.addEventListener("click", () => {
             if (this.onClick) this.onClick();
           });
+        }
+        applyPinActive(active) {
+          const next = Boolean(active);
+          if (this._pinActive === next) return;
+          this._pinActive = next;
+          this.html = next ? this._iconHtml : this._dotHtml;
+          this.anchor = next ? { x: this._anchorIcon.x, y: this._anchorIcon.y } : { x: this._anchorDot.x, y: this._anchorDot.y };
+          if (!this.div) return;
+          this.div.classList.toggle("map-pin-anchor-active", next);
+          this.div.innerHTML = this.html;
+          if (next) {
+            const root = this.div.querySelector(".map-pin-icon-wrap");
+            if (root) {
+              root.classList.remove("map-pin-pop");
+              void root.offsetWidth;
+              root.classList.add("map-pin-pop");
+            }
+          }
+          this.draw();
         }
         draw() {
           const projection = this.getProjection();
@@ -1372,11 +1410,6 @@
           if (this.div && this.div.parentNode) this.div.parentNode.removeChild(this.div);
           this.div = null;
         }
-      }
-
-      function pinPriceHTML(amount, anchorId) {
-        const safe = String(anchorId || "kabini").replace(/[^a-z0-9-]/g, "") || "kabini";
-        return `<div class="map-price-pin map-price-pin--${safe}" style="font-family:'Instrument Sans',system-ui,sans-serif;font-variant-numeric:normal;">${amount}</div>`;
       }
 
       const mapEl = document.getElementById("gmap");
@@ -1471,7 +1504,9 @@
           if (!mobileStack) c.classList.toggle("dim", c.id !== card.id);
         });
         anchoredMarkers.forEach(({ marker, anchorId }) => {
-          if (marker.div) marker.div.classList.toggle("pin-focused", Boolean(anchorId) && anchorId === anchor);
+          if (marker && typeof marker.applyPinActive === "function") {
+            marker.applyPinActive(Boolean(anchorId) && anchorId === anchor);
+          }
         });
       }
 
@@ -1544,21 +1579,15 @@
 
       window.__storiiSetupCardMapAnchorSync = setupCardMapAnchorSync;
 
-      /* Price pins spread across India + SE Asia (geography keeps labels apart at overview zoom). */
-      const pinDefs = [
-        { lat: 11.965, lng: 76.316, html: pinPriceHTML("₹5k", "kabini"), anchor: { x: 0.5, y: 0.5 }, anchorId: "kabini", onClick: () => scrollToCard("card-kabini") },
-        { lat: 6.9271, lng: 79.8612, html: pinPriceHTML("₹7k", "sri-lanka"), anchor: { x: 0.5, y: 0.5 }, anchorId: "sri-lanka", onClick: () => scrollToCard("card-sri-lanka") },
-        { lat: 3.2028, lng: 73.2207, html: pinPriceHTML("₹16k", "maldives"), anchor: { x: 0.5, y: 0.5 }, anchorId: "maldives", onClick: () => scrollToCard("card-maldives") },
-        { lat: 26.9124, lng: 75.7873, html: pinPriceHTML("₹4k", "rajasthan"), anchor: { x: 0.5, y: 0.5 }, anchorId: "rajasthan", onClick: () => scrollToCard("card-rajasthan") },
-        { lat: 13.7563, lng: 100.5018, html: pinPriceHTML("₹15k", "bangkok"), anchor: { x: 0.5, y: 0.5 }, anchorId: "bangkok", onClick: () => scrollToCard("card-bangkok") },
-        { lat: 15.8801, lng: 108.3380, html: pinPriceHTML("₹7k", "vietnam"), anchor: { x: 0.5, y: 0.5 }, anchorId: "vietnam", onClick: () => scrollToCard("card-vietnam") },
-        { lat: 10.8231, lng: 106.6297, html: pinPriceHTML("₹7k", "hcmc"), anchor: { x: 0.5, y: 0.5 }, anchorId: "hcmc", onClick: () => scrollToCard("card-hcmc") },
-        { lat: 21.0285, lng: 105.8542, html: pinPriceHTML("₹11k", "hanoi"), anchor: { x: 0.5, y: 0.5 }, anchorId: "hanoi", onClick: () => scrollToCard("card-hanoi") },
-        { lat: 7.8804, lng: 98.3923, html: pinPriceHTML("₹17k", "phuket"), anchor: { x: 0.5, y: 0.5 }, anchorId: "phuket", onClick: () => scrollToCard("card-phuket") },
-        { lat: 3.1390, lng: 101.6869, html: pinPriceHTML("₹20k", "kl"), anchor: { x: 0.5, y: 0.5 }, anchorId: "kl", onClick: () => scrollToCard("card-kl") },
-        { lat: 1.3521, lng: 103.8198, html: pinPriceHTML("₹7k", "singapore"), anchor: { x: 0.5, y: 0.5 }, anchorId: "singapore", onClick: () => scrollToCard("card-singapore") },
-        { lat: 27.4712, lng: 89.6339, html: pinPriceHTML("₹9k", "bhutan"), anchor: { x: 0.5, y: 0.5 }, anchorId: "bhutan", onClick: () => scrollToCard("card-bhutan") }
-      ];
+      /* Destination dots + emoji pins — positions from STORII_MAP_DESTINATIONS. */
+      const pinDefs = STORII_MAP_DESTINATIONS.map((d) => ({
+        lat: d.lat,
+        lng: d.lng,
+        anchorId: d.anchorId,
+        dotHtml: storiiMapPinDotHtml(d.color),
+        iconHtml: storiiMapPinIconHtml(d.emoji, d.color),
+        onClick: () => scrollToCard(`card-${String(d.anchorId).replace(/[^a-z0-9-]/gi, "")}`)
+      }));
 
       /* fitBounds on first paint is often ignored until layout exists — wait for idle. */
       google.maps.event.addListenerOnce(map, "idle", () => {
@@ -1566,9 +1595,12 @@
         nudgeRegionUpward();
         pinDefs.forEach((def) => {
           const pos = new google.maps.LatLng(def.lat, def.lng);
-          const m = new HtmlMapMarker(pos, def.html, {
-            anchor: def.anchor || { x: 0.5, y: 1 },
-            anchorId: def.anchorId || null
+          const m = new HtmlMapMarker(pos, {
+            anchorId: def.anchorId || null,
+            dotHtml: def.dotHtml,
+            iconHtml: def.iconHtml,
+            anchorDot: { x: 0.5, y: 0.5 },
+            anchorIcon: { x: 0.5, y: 1 }
           });
           m.onClick = def.onClick;
           m.setMap(map);
