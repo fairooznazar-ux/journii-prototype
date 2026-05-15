@@ -1189,15 +1189,6 @@
           sheet.style.minHeight = `${sheetH}px`;
         }
 
-        const scroller = document.getElementById("cards-scroller");
-        if (scroller && sheet && tabBar) {
-          const scrollerTop = scroller.getBoundingClientRect().top;
-          const tabBarH = Math.ceil(tabBar.getBoundingClientRect().height);
-          const availableH = appH - scrollerTop - tabBarH - 24;
-          scroller.style.setProperty("height", `${availableH}px`, "important");
-          scroller.style.setProperty("max-height", `${availableH}px`, "important");
-        }
-
         bindLayoutObserver();
       }
 
