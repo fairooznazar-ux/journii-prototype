@@ -137,7 +137,7 @@
         rgba(0, 0, 0, 1) 100%
       );
     }
-    /* Sheet tint: #1F85AC fade at lip (top two steps), solid #0D4074 from ~22% down. */
+    /* Sheet tint: #1F85AC fade at lip through 22%, then #1F85AC → #0D4074 down to bottom. */
     .sheet::after {
       content: "";
       position: absolute;
@@ -152,9 +152,9 @@
         180deg,
         rgba(31, 133, 172, 0) 0%,
         rgba(31, 133, 172, 0.45) 5%,
-        rgba(13, 64, 116, 0.9) 12%,
-        rgba(13, 64, 116, 0.98) 18%,
-        rgba(13, 64, 116, 1) 22%,
+        rgba(31, 133, 172, 0.9) 12%,
+        rgba(31, 133, 172, 0.98) 18%,
+        #1f85ac 22%,
         #0d4074 100%
       );
       opacity: 1;
