@@ -708,7 +708,7 @@
         --card-rail-gap: 10px;
         --storii-search-to-cards-gap: 18px;
         gap: var(--storii-search-to-cards-gap);
-        padding: 16px 20px 100px;
+        padding: 16px 20px 0;
         overflow: visible;
       }
       /* Figma 4653:33496 — vertical snap list; height fills viewport minus map, search, tab. */
@@ -853,7 +853,7 @@
         padding-bottom: env(safe-area-inset-bottom, 0px);
         padding-left: max(0px, env(safe-area-inset-left, 0px));
         padding-right: max(0px, env(safe-area-inset-right, 0px));
-        background: none;
+        background: transparent;
         background-color: transparent;
         box-shadow: none;
       }
@@ -1181,7 +1181,7 @@
         const sheet = document.querySelector(".sheet");
         if (sheet) {
           const sheetTop = sheet.getBoundingClientRect().top;
-          const sheetH = Math.max(0, Math.floor(appH - sheetTop - 100));
+          const sheetH = Math.max(0, Math.floor(appH - sheetTop));
           sheet.style.minHeight = `${sheetH}px`;
         }
 
@@ -1364,6 +1364,23 @@
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", storiiWrapCardsWithTravelDates, { once: true });
     }
+
+    (function storiiCardTrackBottomSpacer() {
+      function addSpacer() {
+        const track = document.querySelector(".cards-scroller-track");
+        if (!track || track.querySelector("[data-storii-tab-spacer]")) return;
+        const spacer = document.createElement("div");
+        spacer.setAttribute("data-storii-tab-spacer", "1");
+        spacer.setAttribute("aria-hidden", "true");
+        spacer.style.cssText =
+          "width: 100%; height: 120px; flex-shrink: 0; pointer-events: none;";
+        track.appendChild(spacer);
+      }
+      addSpacer();
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", addSpacer, { once: true });
+      }
+    })();
 
     function scrollToCard(id) {
       const el = document.getElementById(id);
