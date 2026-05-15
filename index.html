@@ -723,19 +723,20 @@
         overflow: visible;
       }
       .cards-scroller {
-        box-sizing: border-box;
+        box-sizing: content-box;
         flex: 1 1 auto;
         width: 100%;
         height: auto;
         max-height: none;
         min-height: 0;
-        padding: var(--card-rail-gap, 10px) 0 var(--pwa-bottom-offset, 160px) 0;
+        padding: var(--card-rail-gap, 10px) 0 0 0;
+        padding-bottom: 100px;
         overflow-x: hidden;
         overflow-y: scroll;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-y;
         scroll-snap-type: y mandatory;
-        scroll-padding-bottom: var(--pwa-bottom-offset, 160px);
+        scroll-padding-bottom: 100px;
         overscroll-behavior-y: contain;
         overscroll-behavior-x: auto;
       }
@@ -1186,10 +1187,6 @@
           sheet.style.minHeight = `${sheetH}px`;
         }
 
-        if (typeof window.fixPWABottomSpacing === "function") {
-          window.fixPWABottomSpacing();
-        }
-
         bindLayoutObserver();
       }
 
@@ -1224,32 +1221,6 @@
       window.__storiiSyncMobileViewport = applySoon;
       window.__storiiMobileBottomBleed = applySoon;
     })();
-
-    function fixPWABottomSpacing() {
-      const scroller = document.getElementById("cards-scroller");
-      const tabBar = document.querySelector(".tab-bar") || document.querySelector("nav");
-
-      if (!scroller || !tabBar) return;
-
-      const tabRect = tabBar.getBoundingClientRect();
-      const scrollerRect = scroller.getBoundingClientRect();
-
-      const overlap = scrollerRect.bottom - tabRect.top;
-      const requiredPadding = tabRect.height + Math.max(overlap, 0) + 40;
-
-      console.log("tabBar height:", tabRect.height);
-      console.log("overlap:", overlap);
-      console.log("applying paddingBottom:", requiredPadding);
-
-      scroller.style.paddingBottom = requiredPadding + "px";
-      scroller.style.scrollPaddingBottom = requiredPadding + "px";
-    }
-    window.fixPWABottomSpacing = fixPWABottomSpacing;
-
-    window.addEventListener("load", fixPWABottomSpacing);
-    window.addEventListener("resize", fixPWABottomSpacing);
-    setTimeout(fixPWABottomSpacing, 500);
-    setTimeout(fixPWABottomSpacing, 1500);
 
     function storiiCardSnapElement(cardEl) {
       if (!cardEl) return null;
