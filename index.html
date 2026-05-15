@@ -117,25 +117,27 @@
       pointer-events: none;
       backdrop-filter: blur(28px);
       -webkit-backdrop-filter: blur(28px);
-      /* Blur only in the lower band; top ~20% stays visually open so the map reads through. */
+      /* Short top fade (map → sheet), then ~90% by search row, solid for cards. */
       mask-image: linear-gradient(
         180deg,
         rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 0) 16%,
-        rgba(0, 0, 0, 0.35) 22%,
-        rgba(0, 0, 0, 1) 30%,
+        rgba(0, 0, 0, 0.45) 5%,
+        rgba(0, 0, 0, 0.9) 12%,
+        rgba(0, 0, 0, 0.98) 18%,
+        rgba(0, 0, 0, 1) 22%,
         rgba(0, 0, 0, 1) 100%
       );
       -webkit-mask-image: linear-gradient(
         180deg,
         rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 0) 16%,
-        rgba(0, 0, 0, 0.35) 22%,
-        rgba(0, 0, 0, 1) 30%,
+        rgba(0, 0, 0, 0.45) 5%,
+        rgba(0, 0, 0, 0.9) 12%,
+        rgba(0, 0, 0, 0.98) 18%,
+        rgba(0, 0, 0, 1) 22%,
         rgba(0, 0, 0, 1) 100%
       );
     }
-    /* Solid sheet tint (#0B1B3A): transparent top ~20%, opaque across lower ~80%. */
+    /* Solid sheet tint (#0B1B3A): short map fade at lip, ~90% at search, opaque for cards. */
     .sheet::after {
       content: "";
       position: absolute;
@@ -149,9 +151,10 @@
       background: linear-gradient(
         180deg,
         rgba(11, 27, 58, 0) 0%,
-        rgba(11, 27, 58, 0) 18%,
-        rgba(11, 27, 58, 0.88) 24%,
-        rgba(11, 27, 58, 0.98) 30%,
+        rgba(11, 27, 58, 0.45) 5%,
+        rgba(11, 27, 58, 0.9) 12%,
+        rgba(11, 27, 58, 0.98) 18%,
+        rgba(11, 27, 58, 1) 22%,
         rgba(11, 27, 58, 1) 100%
       );
       opacity: 1;
