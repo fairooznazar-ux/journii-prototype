@@ -662,6 +662,7 @@
         left: 0;
         right: 0;
         overflow: visible;
+        background: transparent !important;
       }
       .phone {
         position: fixed;
@@ -730,6 +731,7 @@
         max-height: none;
         min-height: 0;
         padding: var(--card-rail-gap, 10px) 0 0 0;
+        padding-bottom: 0 !important;
         overflow-x: hidden;
         overflow-y: scroll;
         -webkit-overflow-scrolling: touch;
@@ -752,7 +754,9 @@
         align-items: stretch;
       }
       .cards-scroller-tail {
-        display: none;
+        height: 150px !important;
+        min-height: 150px !important;
+        display: block !important;
       }
       .card-row {
         display: flex;
@@ -1364,23 +1368,6 @@
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", storiiWrapCardsWithTravelDates, { once: true });
     }
-
-    (function storiiCardTrackBottomSpacer() {
-      function addSpacer() {
-        const track = document.querySelector(".cards-scroller-track");
-        if (!track || track.querySelector("[data-storii-tab-spacer]")) return;
-        const spacer = document.createElement("div");
-        spacer.setAttribute("data-storii-tab-spacer", "1");
-        spacer.setAttribute("aria-hidden", "true");
-        spacer.style.cssText =
-          "width: 100%; height: 120px; flex-shrink: 0; pointer-events: none;";
-        track.appendChild(spacer);
-      }
-      addSpacer();
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", addSpacer, { once: true });
-      }
-    })();
 
     function scrollToCard(id) {
       const el = document.getElementById(id);
