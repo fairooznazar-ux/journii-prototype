@@ -772,7 +772,7 @@
       }
       .card-date-day {
         font-family: "Geist Mono", ui-monospace, monospace;
-        font-size: 22px;
+        font-size: 16px;
         font-weight: 300;
         line-height: 1;
         letter-spacing: 0;
@@ -1634,12 +1634,9 @@
       const showZoomButtons =
         typeof window.matchMedia === "undefined" ||
         !window.matchMedia("(max-width: 480px)").matches;
-      const STORII_MAP_DEFAULT_CENTER = { lat: 12, lng: 100 };
-      const STORII_MAP_DEFAULT_ZOOM = 5;
-
       const mapOpts = {
-        center: STORII_MAP_DEFAULT_CENTER,
-        zoom: STORII_MAP_DEFAULT_ZOOM,
+        center: { lat: 15, lng: 90 },
+        zoom: 4,
         mapTypeId: google.maps.MapTypeId.TERRAIN,
         backgroundColor: "#0d0f12",
         disableDefaultUI: true,
@@ -1664,13 +1661,6 @@
 
       const map = new google.maps.Map(mapEl, mapOpts);
       window.__storiiMap = map;
-
-      function applyDefaultMapView() {
-        map.setCenter(STORII_MAP_DEFAULT_CENTER);
-        map.setZoom(STORII_MAP_DEFAULT_ZOOM);
-      }
-
-      google.maps.event.addListenerOnce(map, "idle", applyDefaultMapView);
 
       const anchoredMarkers = [];
       let cardMapScrollSyncController = null;
@@ -1715,7 +1705,8 @@
 
       function refitMapFrame() {
         google.maps.event.trigger(map, "resize");
-        applyDefaultMapView();
+        map.fitBounds(regionBounds, getFitPadding());
+        nudgeRegionUpward();
         anchoredMarkers.forEach(({ marker }) => marker.draw());
       }
 
@@ -1831,9 +1822,10 @@
         });
       }
 
-      /* Wait for idle, then force default center/zoom (overrides any fitBounds side effects). */
+      /* fitBounds on first paint is often ignored until layout exists — wait for idle. */
       google.maps.event.addListenerOnce(map, "idle", () => {
-        applyDefaultMapView();
+        map.fitBounds(regionBounds, getFitPadding());
+        nudgeRegionUpward();
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
             mountAnchoredMarkers();
