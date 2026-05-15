@@ -162,8 +162,7 @@
     }
     .search-row {
       display: flex;
-      gap: 8px;
-      align-items: stretch;
+      align-items: center;
       width: 100%;
       min-width: 0;
       flex-shrink: 0;
@@ -173,8 +172,12 @@
       width: 100%;
       min-width: 0;
       flex-shrink: 0;
+      box-sizing: border-box;
+      height: 52px;
+      min-height: 52px;
+      max-height: 52px;
       border-radius: 8px;
-      padding: 16px 8px;
+      padding: 0 8px;
       display: flex;
       align-items: center;
       gap: 4px;
@@ -731,7 +734,7 @@
       .card-row {
         display: flex;
         flex-direction: row;
-        align-items: center;
+        align-items: flex-start;
         gap: 8px;
         width: 100%;
         flex: 0 0 auto;
@@ -747,7 +750,9 @@
         width: 32px;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
+        align-self: flex-start;
+        justify-content: flex-start;
+        padding-top: 4px;
         gap: 2px;
         color: rgba(255, 255, 255, 0.52);
         user-select: none;
@@ -851,22 +856,6 @@
 
       <div class="sheet">
         <div class="search-row">
-          <div class="from-box">
-            <div class="from-box-main">
-              <div class="pin-ic" aria-hidden="true">
-                <div class="pin-ic-vector">
-                  <img src="https://www.figma.com/api/mcp/asset/cafb024e-1cbb-4b34-bcc4-987ad3514c38" alt="">
-                </div>
-              </div>
-              <div class="from-text">
-                <div class="lbl">from</div>
-                <div class="city">BOM</div>
-              </div>
-            </div>
-            <div class="chev" aria-hidden="true">
-              <img class="chev-img" src="https://www.figma.com/api/mcp/asset/69a1a498-7d49-48f6-b6c6-2eb84f329cea" alt="">
-            </div>
-          </div>
           <div class="where-box">
             <div class="search-ic" aria-hidden="true">
               <div class="search-ic-inner">
@@ -1251,9 +1240,9 @@
       cards.forEach((card, i) => {
         const slot = slots[i] || slots[slots.length - 1];
         const label = storiiFormatCardDateLabel(slot.display);
-        const row = document.createElement("div");
+        const row = document.createElement("motion");
         row.className = "card-row";
-        const dateEl = document.createElement("div");
+        const dateEl = document.createElement("motion");
         dateEl.className = "card-date";
         dateEl.setAttribute("aria-hidden", "true");
         dateEl.innerHTML =
