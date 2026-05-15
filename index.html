@@ -754,15 +754,15 @@
         bottom: 0;
         height: auto;
         min-height: 0;
-        /* Half prior rail — 50% less fixed space between search row and cards (see .cards-scroller). */
-        --card-rail-gap: 6px;
+        /* Space between search row and card strip, and scroller top/bottom — keep in sync. */
+        --card-rail-gap: 12px;
         gap: var(--card-rail-gap);
         /* Tab bar sits flush to screen bottom; safe-area lives inside .tab-inner only — avoids
            Safari “double band” (sheet padding + tab bottom offset both reserving home-indicator). */
-        padding: 20px 20px calc(50px + env(safe-area-inset-bottom, 0px));
+        padding: 20px 20px calc(62px + env(safe-area-inset-bottom, 0px));
       }
       .cards-scroller {
-        padding: var(--card-rail-gap, 6px) 20px var(--card-rail-gap, 6px) 20px;
+        padding: var(--card-rail-gap, 12px) 20px var(--card-rail-gap, 12px) 20px;
       }
       .deal-card {
         padding: 22px 16px 16px;
