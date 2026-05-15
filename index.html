@@ -1146,11 +1146,11 @@
         const root = document.documentElement;
         root.style.removeProperty("--storii-app-h");
         root.style.removeProperty("--storii-tab-bar-h");
-        root.style.removeProperty("--pwa-bottom-offset");
         const scroller = document.getElementById("cards-scroller");
         if (scroller) {
           scroller.style.removeProperty("height");
           scroller.style.removeProperty("paddingBottom");
+          scroller.style.removeProperty("scrollPaddingBottom");
         }
         const sheet = document.querySelector(".sheet");
         if (sheet) sheet.style.removeProperty("min-height");
@@ -1173,9 +1173,6 @@
         );
         root.style.setProperty("--storii-app-h", `${appH}px`);
 
-        const layoutAppH =
-          window.navigator.standalone === true ? Math.max(0, appH - 100) : appH;
-
         const tabBar = document.querySelector(".tab-bar");
         if (tabBar) {
           const tabBarH = Math.ceil(tabBar.getBoundingClientRect().height);
@@ -1185,8 +1182,12 @@
         const sheet = document.querySelector(".sheet");
         if (sheet) {
           const sheetTop = sheet.getBoundingClientRect().top;
-          const sheetH = Math.max(0, Math.floor(layoutAppH - sheetTop));
+          const sheetH = Math.max(0, Math.floor(appH - sheetTop));
           sheet.style.minHeight = `${sheetH}px`;
+        }
+
+        if (typeof window.fixPWABottomSpacing === "function") {
+          window.fixPWABottomSpacing();
         }
 
         bindLayoutObserver();
@@ -1224,22 +1225,31 @@
       window.__storiiMobileBottomBleed = applySoon;
     })();
 
-    (function storiiPwaStandaloneBottomOffset() {
-      function apply() {
-        if (window.navigator.standalone === true) {
-          const scroller = document.getElementById("cards-scroller");
-          if (scroller) {
-            scroller.style.paddingBottom = "200px";
-          }
-          document.documentElement.style.setProperty("--pwa-bottom-offset", "200px");
-        }
-      }
-      if (document.readyState === "loading") {
-        window.addEventListener("load", apply, { once: true });
-      } else {
-        apply();
-      }
-    })();
+    function fixPWABottomSpacing() {
+      const scroller = document.getElementById("cards-scroller");
+      const tabBar = document.querySelector(".tab-bar") || document.querySelector("nav");
+
+      if (!scroller || !tabBar) return;
+
+      const tabRect = tabBar.getBoundingClientRect();
+      const scrollerRect = scroller.getBoundingClientRect();
+
+      const overlap = scrollerRect.bottom - tabRect.top;
+      const requiredPadding = tabRect.height + Math.max(overlap, 0) + 40;
+
+      console.log("tabBar height:", tabRect.height);
+      console.log("overlap:", overlap);
+      console.log("applying paddingBottom:", requiredPadding);
+
+      scroller.style.paddingBottom = requiredPadding + "px";
+      scroller.style.scrollPaddingBottom = requiredPadding + "px";
+    }
+    window.fixPWABottomSpacing = fixPWABottomSpacing;
+
+    window.addEventListener("load", fixPWABottomSpacing);
+    window.addEventListener("resize", fixPWABottomSpacing);
+    setTimeout(fixPWABottomSpacing, 500);
+    setTimeout(fixPWABottomSpacing, 1500);
 
     function storiiCardSnapElement(cardEl) {
       if (!cardEl) return null;
