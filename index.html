@@ -302,17 +302,14 @@
       min-height: 0;
       min-width: 0;
       align-self: stretch;
-      display: flex;
-      flex-direction: column;
+      display: block;
     }
 
     /* Horizontal cards — min-width:0 so row scrolls inside fixed-width sheet (flex quirk) */
     /* Inner track uses max-content width so horizontal overflow is always measurable (flex-as-scroller bug in some engines). */
+    /* display:block + padding: stable on iOS; flex + justify-content on a scrollport caused vertical jump while panning. */
     .cards-scroller {
-      display: flex;
-      flex-direction: column;
-      /* Split leftover sheet height evenly above/below the strip so gap under search ≈ gap above tabs. */
-      justify-content: center;
+      display: block;
       width: 100%;
       min-width: 0;
       flex: 1 1 auto;
@@ -320,7 +317,7 @@
       overflow-x: auto;
       overflow-y: hidden;
       margin: 0;
-      padding: 8px 20px 8px 20px;
+      padding: 4px 20px 14px 20px;
       scroll-snap-type: x proximity;
       scroll-padding-inline: 20px;
       -webkit-overflow-scrolling: touch;
@@ -340,8 +337,6 @@
       gap: 16px;
       width: max-content;
       min-height: 0;
-      flex: 0 0 auto;
-      align-self: flex-start;
     }
     .cards-scroller:active {
       cursor: grabbing;
@@ -378,13 +373,6 @@
     .deal-card.dim {
       opacity: 0.48;
       filter: saturate(0.85);
-      transform: scale(0.982);
-    }
-    article.deal-card:first-of-type.dim {
-      transform-origin: right center;
-    }
-    article.deal-card:last-of-type.dim {
-      transform-origin: left center;
     }
     .deal-card.kabini { background: #f0fff3; }
     .deal-card.dest-sri-lanka { background: #f6fff8; }
@@ -746,37 +734,27 @@
       }
       .sheet {
         position: absolute;
-        left: 10px;
-        right: 10px;
-        width: auto;
+        left: 0;
+        right: 0;
+        width: 100%;
         /* Short viewports: start sheet higher so the card strip keeps ~min usable height. */
         top: min(368px, max(268px, calc(100dvh - 480px)));
         bottom: 0;
         height: auto;
         min-height: 0;
-        /* Space between search row and card strip, and scroller top/bottom — keep in sync. */
         --card-rail-gap: 16px;
         gap: var(--card-rail-gap);
-        /* Inset + radius so top corners read on real devices (full-bleed sheet hides the curve). */
-        border-radius: 22px 22px 0 0;
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
         /* Tab bar sits flush to screen bottom; safe-area lives inside .tab-inner only — avoids
            Safari “double band” (sheet padding + tab bottom offset both reserving home-indicator). */
         padding: 20px 20px calc(66px + env(safe-area-inset-bottom, 0px));
       }
-      .sheet::before,
-      .sheet::after {
-        left: 0;
-        right: 0;
-        border-radius: 22px 22px 0 0;
-      }
       .cards-scroller {
-        padding: var(--card-rail-gap, 16px) 20px var(--card-rail-gap, 16px) 20px;
+        padding: var(--card-rail-gap, 16px) 20px 14px 20px;
       }
       .deal-card {
         padding: 22px 16px 16px;
         gap: 10px;
+        border-radius: 10px;
       }
       .polaroid-stack {
         height: 176px;
@@ -798,11 +776,10 @@
       .tab-bar {
         position: absolute;
         bottom: 0;
-        left: 10px;
-        right: 10px;
-        width: auto;
-        max-width: none;
-        transform: none;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 100%;
         height: auto;
         min-height: 0;
         padding-top: 2px;
@@ -814,7 +791,7 @@
         z-index: 1001;
       }
       .tab-inner {
-        max-width: min(382px, calc(100% - 20px));
+        max-width: min(382px, calc(100% - 16px));
         /* 6px original bottom + 12px below labels + home indicator inside same chrome (no extra float gap). */
         padding: 6px 8px calc(6px + 12px + env(safe-area-inset-bottom, 0px)) 8px;
       }
