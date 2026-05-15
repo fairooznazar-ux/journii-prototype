@@ -90,7 +90,7 @@
       top: 368px;
       width: 402px;
       height: 506px;
-      padding: 24px 20px 110px;
+      padding: 24px 20px 122px;
       border-radius: 20px 20px 0 0;
       z-index: 1000;
       pointer-events: auto;
@@ -333,7 +333,7 @@
       display: flex;
       flex-direction: row;
       flex-wrap: nowrap;
-      align-items: stretch;
+      align-items: flex-start;
       gap: 16px;
       width: max-content;
       min-height: 0;
@@ -358,11 +358,11 @@
       scroll-snap-align: start;
       background: #eef8f1;
       border-radius: 6px;
-      padding: 20px 16px 10px;
+      padding: 16px 16px 8px;
       box-shadow: 0 1.92px 7.68px rgba(49,44,63,0.12);
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       overflow: hidden;
       flex-shrink: 0;
       transition: opacity 0.2s ease, transform 0.2s ease, filter 0.2s ease;
@@ -525,17 +525,15 @@
 
     .polaroid-stack {
       position: relative;
-      /* Abs-positioned polaroids reach ~187px tall + rotation; old 134px + overflow:hidden cropped them.
-         min-height reserves vertical space; overflow visible keeps tilted corners; negative margin pulls
-         art into the card’s bottom padding so frames can read flush with the rounded card edge. */
-      min-height: 212px;
-      height: auto;
+      /* Fixed band + overflow: bottom of the tilted frames crops inside the stack (not the whole card).
+         Photos overlap again via left offsets; card overflow:hidden still clips the right edge slightly on p2. */
+      height: 132px;
       width: 100%;
       max-width: 100%;
       margin-top: 4px;
-      margin-bottom: -18px;
+      margin-bottom: -16px;
       flex-shrink: 0;
-      overflow: visible;
+      overflow: hidden;
     }
     .polaroid {
       position: absolute;
@@ -564,11 +562,10 @@
       z-index: 1;
     }
     .polaroid.p2 {
-      width: 128px;
-      height: 158px;
-      left: auto;
-      right: 2px;
-      top: 14px;
+      width: 143px;
+      height: 173px;
+      left: 127px;
+      top: 11px;
       transform: rotate(4deg);
       z-index: 2;
     }
@@ -580,7 +577,7 @@
       left: 50%;
       transform: translateX(-50%);
       width: 402px;
-      height: 90px;
+      height: 102px;
       display: flex;
       align-items: flex-start;
       justify-content: center;
@@ -596,7 +593,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 4px;
-      padding: 10px 8px;
+      padding: 10px 8px calc(10px + 12px) 8px;
       border-radius: 40px;
       background: transparent;
       backdrop-filter: none;
@@ -749,7 +746,7 @@
         height: auto;
         min-height: 0;
         gap: 16px;
-        padding: 20px 20px calc(52px + env(safe-area-inset-bottom, 0px));
+        padding: 20px 20px calc(64px + env(safe-area-inset-bottom, 0px));
       }
       .tab-bar {
         position: absolute;
@@ -770,7 +767,7 @@
       }
       .tab-inner {
         max-width: min(382px, calc(100% - 16px));
-        padding: 6px 8px;
+        padding: 6px 8px calc(6px + 12px) 8px;
       }
     }
   </style>
