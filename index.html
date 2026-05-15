@@ -639,27 +639,31 @@
     /* Real phones: full-bleed map, sheet over map, floating tab pill over sheet. */
     @media (max-width: 480px) {
       html {
+        height: 100%;
         height: -webkit-fill-available;
+        overflow: hidden;
+        background: #0d4074;
       }
       body {
-        min-height: 100svh;
-        min-height: 100dvh;
-        min-height: -webkit-fill-available;
+        height: 100%;
+        height: -webkit-fill-available;
+        min-height: 0;
         align-items: stretch;
         justify-content: flex-start;
         padding: 0;
+        overflow: hidden;
         overscroll-behavior-y: none;
+        background: #0d4074;
       }
       .phone {
+        position: fixed;
+        inset: 0;
         width: 100%;
         max-width: 100%;
-        /* svh first: iOS Safari avoids a tall dvh band that leaves dead space above/below fixed UI. */
-        height: 100svh;
-        height: 100dvh;
-        height: -webkit-fill-available;
-        min-height: 100svh;
-        min-height: 100dvh;
-        min-height: -webkit-fill-available;
+        height: auto;
+        min-height: 0;
+        max-height: none;
+        margin: 0;
         border-radius: 0;
         box-shadow: none;
         padding-top: env(safe-area-inset-top, 0px);
@@ -682,11 +686,11 @@
         right: 0;
         width: 100%;
         /* Short viewports: start sheet higher so the card strip keeps ~min usable height. */
-        top: min(368px, max(268px, calc(100dvh - 480px)));
+        top: min(368px, max(268px, calc(100svh - 480px)));
         bottom: 0;
         height: auto;
         min-height: 0;
-        --storii-map-cutoff: min(368px, max(268px, calc(100dvh - 480px)));
+        --storii-map-cutoff: min(368px, max(268px, calc(100svh - 480px)));
         /* Search row + gap — tuned to where row + --card-rail-gap. */
         --storii-search-band: 86px;
         --storii-tab-float: calc(80px + env(safe-area-inset-bottom, 0px));
@@ -714,10 +718,10 @@
         flex: 0 0 auto;
         width: 100%;
         height: calc(
-          100dvh - var(--storii-map-cutoff) - var(--storii-search-band) - env(safe-area-inset-top, 0px)
+          100svh - var(--storii-map-cutoff) - var(--storii-search-band) - env(safe-area-inset-top, 0px)
         );
         max-height: calc(
-          100dvh - var(--storii-map-cutoff) - var(--storii-search-band) - env(safe-area-inset-top, 0px)
+          100svh - var(--storii-map-cutoff) - var(--storii-search-band) - env(safe-area-inset-top, 0px)
         );
         min-height: 0;
         /* Horizontal inset comes from .sheet padding only — match search row width. */
@@ -837,7 +841,8 @@
         top: 11px;
       }
       .tab-bar {
-        padding-bottom: calc(4px + env(safe-area-inset-bottom, 0px));
+        bottom: env(safe-area-inset-bottom, 0px);
+        padding-bottom: 4px;
         padding-left: max(0px, env(safe-area-inset-left, 0px));
         padding-right: max(0px, env(safe-area-inset-right, 0px));
         background: none;
