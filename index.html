@@ -729,12 +729,13 @@
         height: auto;
         max-height: none;
         min-height: 0;
-        padding: var(--card-rail-gap, 10px) 0 120px 0;
+        padding: var(--card-rail-gap, 10px) 0 160px 0;
         overflow-x: hidden;
         overflow-y: scroll;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-y;
         scroll-snap-type: y mandatory;
+        scroll-padding-bottom: 160px;
         overscroll-behavior-y: contain;
         overscroll-behavior-x: auto;
       }
@@ -764,7 +765,7 @@
         flex-shrink: 0;
         scroll-snap-align: start;
         scroll-snap-stop: normal;
-        min-height: 100%;
+        min-height: auto;
         box-sizing: border-box;
       }
       .card-date {
