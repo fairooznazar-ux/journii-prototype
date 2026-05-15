@@ -595,26 +595,35 @@
       -webkit-backdrop-filter: none;
     }
 
-    /* Map destination pins — inactive: solid dot; active: emoji bubble + tail (HTML swapped in JS). */
+    /* Map destination pins — inactive: dot from card .filter-ic fill; active: SVG bubble + card icon image. */
     .g-html-marker.map-pin-anchor {
       font-family: "Instrument Sans", system-ui, sans-serif !important;
       -webkit-font-smoothing: antialiased;
     }
-    .map-pin-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
+    .map-pin-dot-wrap {
       box-sizing: border-box;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .map-pin-dot-inner {
+      box-sizing: border-box;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 3px solid #fff;
       flex-shrink: 0;
     }
-    .map-pin-icon-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    .map-pin-active-wrap {
+      position: relative;
+      width: 50px;
+      height: 54px;
       transform-origin: 50% 100%;
       filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
     }
-    .map-pin-icon-wrap.map-pin-pop {
+    .map-pin-active-wrap.map-pin-pop {
       animation: map-pin-pop-in 0.32s ease forwards;
     }
     @keyframes map-pin-pop-in {
@@ -625,30 +634,37 @@
         transform: scale(1);
       }
     }
-    .map-pin-icon-circle {
+    .map-pin-active-svg {
+      display: block;
+      width: 50px;
+      height: 54px;
+    }
+    .map-pin-active-symbol {
+      position: absolute;
+      left: 5px;
+      top: 0;
       width: 40px;
       height: 40px;
       border-radius: 50%;
+      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+      pointer-events: none;
       box-sizing: border-box;
     }
-    .map-pin-icon-emoji {
+    .map-pin-active-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 2px;
+      box-sizing: border-box;
+      display: block;
+    }
+    .map-pin-active-emoji {
       font-size: 22px;
       line-height: 1;
       display: block;
-      user-select: none;
-      pointer-events: none;
-    }
-    .map-pin-icon-tail {
-      width: 0;
-      height: 0;
-      margin-top: -1px;
-      border-left: 9px solid transparent;
-      border-right: 9px solid transparent;
-      border-top-style: solid;
-      border-top-width: 10px;
     }
     .g-html-marker.map-pin-anchor.map-pin-anchor-active {
       z-index: 2147483000 !important;
@@ -1313,36 +1329,89 @@
     })();
 
     /**
-     * Map pin palette + emoji per destination (matches card filter accents in markup).
-     * Used only for map markers — keep in sync with deal cards’ data-anchor / geography.
+     * Map geography only — pin colour and symbol are read from each card’s `.filter-ic` in the DOM
+     * when markers are built and whenever focus changes.
      */
     const STORII_MAP_DESTINATIONS = [
-      { anchorId: "kabini", lat: 11.965, lng: 76.316, color: "#05cf37", emoji: "🐅" },
-      { anchorId: "sri-lanka", lat: 6.9271, lng: 79.8612, color: "#0ca85e", emoji: "🐆" },
-      { anchorId: "maldives", lat: 3.2028, lng: 73.2207, color: "#1beeab", emoji: "🏝️" },
-      { anchorId: "rajasthan", lat: 26.9124, lng: 75.7873, color: "#cc4e00", emoji: "🏰" },
-      { anchorId: "bangkok", lat: 13.7563, lng: 100.5018, color: "#ea7a22", emoji: "🛕" },
-      { anchorId: "vietnam", lat: 15.8801, lng: 108.338, color: "#eeb91b", emoji: "🌿" },
-      { anchorId: "hcmc", lat: 10.8231, lng: 106.6297, color: "#02d3f3", emoji: "🏙️" },
-      { anchorId: "hanoi", lat: 21.0285, lng: 105.8542, color: "#d4380c", emoji: "⛩️" },
-      { anchorId: "phuket", lat: 7.8804, lng: 98.3923, color: "#14cfc1", emoji: "🏖️" },
-      { anchorId: "kl", lat: 3.139, lng: 101.6869, color: "#b45309", emoji: "🗼" },
-      { anchorId: "singapore", lat: 1.3521, lng: 103.8198, color: "#ee1bce", emoji: "🦁" },
-      { anchorId: "bhutan", lat: 27.4712, lng: 89.6339, color: "#0f766e", emoji: "🏔️" }
+      { anchorId: "kabini", lat: 11.965, lng: 76.316 },
+      { anchorId: "sri-lanka", lat: 6.9271, lng: 79.8612 },
+      { anchorId: "maldives", lat: 3.2028, lng: 73.2207 },
+      { anchorId: "rajasthan", lat: 26.9124, lng: 75.7873 },
+      { anchorId: "bangkok", lat: 13.7563, lng: 100.5018 },
+      { anchorId: "vietnam", lat: 15.8801, lng: 108.338 },
+      { anchorId: "hcmc", lat: 10.8231, lng: 106.6297 },
+      { anchorId: "hanoi", lat: 21.0285, lng: 105.8542 },
+      { anchorId: "phuket", lat: 7.8804, lng: 98.3923 },
+      { anchorId: "kl", lat: 3.139, lng: 101.6869 },
+      { anchorId: "singapore", lat: 1.3521, lng: 103.8198 },
+      { anchorId: "bhutan", lat: 27.4712, lng: 89.6339 }
     ];
 
-    function storiiSanitizeMapPinColor(hex) {
-      return typeof hex === "string" && /^#[0-9A-Fa-f]{6}$/.test(hex) ? hex : "#05cf37";
+    function storiiEscapeHtmlAttr(s) {
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
     }
 
-    function storiiMapPinDotHtml(color) {
-      const c = storiiSanitizeMapPinColor(color);
-      return `<div class="map-pin-dot" style="background-color:${c};"></div>`;
+    /** Match the card chip fill: gradient → last hex stop; else solid background-color. */
+    function storiiReadFilterIconFill(filterIc) {
+      if (!filterIc || typeof filterIc.getBoundingClientRect !== "function") return "#05cf37";
+      let cs;
+      try {
+        cs = getComputedStyle(filterIc);
+      } catch (e) {
+        return "#05cf37";
+      }
+      const bgImg = cs.backgroundImage;
+      if (bgImg && bgImg !== "none" && /gradient/i.test(bgImg)) {
+        const hexes = bgImg.match(/#[0-9A-Fa-f]{6}/gi);
+        if (hexes && hexes.length) return hexes[hexes.length - 1];
+      }
+      const bc = cs.backgroundColor;
+      if (bc && bc !== "rgba(0, 0, 0, 0)" && bc !== "transparent") return bc;
+      return "#05cf37";
     }
 
-    function storiiMapPinIconHtml(emoji, color) {
-      const c = storiiSanitizeMapPinColor(color);
-      return `<div class="map-pin-icon-wrap"><div class="map-pin-icon-circle" style="background-color:${c};"><span class="map-pin-icon-emoji">${emoji}</span></div><div class="map-pin-icon-tail" style="border-top-color:${c};"></div></div>`;
+    function storiiGetCardFilterIcon(anchorId) {
+      const id = String(anchorId || "").replace(/[^a-z0-9-]/gi, "");
+      if (!id) return null;
+      const card = document.querySelector(`.deal-card[data-anchor="${id}"]`);
+      return (card && card.querySelector(".filter-ic")) || null;
+    }
+
+    function storiiMapPinDotHtmlFromFill(fill) {
+      const f = storiiEscapeHtmlAttr(fill);
+      return `<div class="map-pin-dot-wrap" aria-hidden="true"><div class="map-pin-dot-inner" style="background-color:${f};"></div></div>`;
+    }
+
+    /** Custom SVG bubble + tail; symbol from the same `.filter-ic` as the card (img and/or text nodes). */
+    function storiiMapPinActiveHtmlFromCard(anchorId, fill) {
+      const id = String(anchorId || "").replace(/[^a-z0-9-]/gi, "");
+      const f = storiiEscapeHtmlAttr(fill);
+      const card = document.querySelector(`.deal-card[data-anchor="${id}"]`);
+      const ic = card && card.querySelector(".filter-ic");
+      const img = ic && ic.querySelector("img");
+      const rawSrc = img && (img.getAttribute("src") || img.src);
+      let symbolInner = "";
+      if (rawSrc) {
+        symbolInner = `<img class="map-pin-active-img" src="${storiiEscapeHtmlAttr(rawSrc)}" alt="">`;
+      } else if (ic) {
+        const clone = ic.cloneNode(true);
+        clone.querySelectorAll("img").forEach((im) => im.remove());
+        const t = clone.textContent.replace(/\s+/g, "").trim();
+        if (t) symbolInner = `<span class="map-pin-active-emoji">${storiiEscapeHtmlAttr(t)}</span>`;
+      }
+      return (
+        `<div class="map-pin-active-wrap" aria-hidden="true">` +
+        `<svg class="map-pin-active-svg" width="50" height="54" viewBox="0 0 50 54" xmlns="http://www.w3.org/2000/svg">` +
+        `<path d="M 17.5 40.5 L 25 52 L 32.5 40.5 Z" fill="${f}"/>` +
+        `<circle cx="25" cy="20" r="20.5" fill="${f}" stroke="#ffffff" stroke-width="3"/>` +
+        `</svg>` +
+        `<div class="map-pin-active-symbol">${symbolInner}</div>` +
+        `</div>`
+      );
     }
 
     /** Runs only after Google Maps JS API is loaded (see dynamic script below). */
@@ -1357,13 +1426,22 @@
           this.className = opts.className || "g-html-marker";
           this.anchorId = opts.anchorId || null;
           this.div = null;
-          this._dotHtml = opts.dotHtml || "";
-          this._iconHtml = opts.iconHtml || "";
           this._anchorDot = opts.anchorDot || { x: 0.5, y: 0.5 };
           this._anchorIcon = opts.anchorIcon || { x: 0.5, y: 1 };
-          this.html = this._dotHtml;
+          this.html = "";
           this.anchor = { x: this._anchorDot.x, y: this._anchorDot.y };
           this._pinActive = null;
+          this.rebuildPinMarkup(false);
+        }
+        rebuildPinMarkup(active) {
+          const id = this.anchorId;
+          if (!id) {
+            this.html = "";
+            return;
+          }
+          const fill = storiiReadFilterIconFill(storiiGetCardFilterIcon(id));
+          this.html = active ? storiiMapPinActiveHtmlFromCard(id, fill) : storiiMapPinDotHtmlFromFill(fill);
+          this.anchor = active ? { x: this._anchorIcon.x, y: this._anchorIcon.y } : { x: this._anchorDot.x, y: this._anchorDot.y };
         }
         onAdd() {
           this.div = document.createElement("div");
@@ -1381,13 +1459,12 @@
           const next = Boolean(active);
           if (this._pinActive === next) return;
           this._pinActive = next;
-          this.html = next ? this._iconHtml : this._dotHtml;
-          this.anchor = next ? { x: this._anchorIcon.x, y: this._anchorIcon.y } : { x: this._anchorDot.x, y: this._anchorDot.y };
+          this.rebuildPinMarkup(next);
           if (!this.div) return;
           this.div.classList.toggle("map-pin-anchor-active", next);
           this.div.innerHTML = this.html;
           if (next) {
-            const root = this.div.querySelector(".map-pin-icon-wrap");
+            const root = this.div.querySelector(".map-pin-active-wrap");
             if (root) {
               root.classList.remove("map-pin-pop");
               void root.offsetWidth;
@@ -1464,7 +1541,7 @@
       /**
        * Padding passed to fitBounds — tells Maps to keep geographic content out of UI gutters.
        * Taller sheet / CSS padding alone does not move HTML overlay pins; camera framing does.
-       * On phones, bottom padding tracks ~sheet height so price pills clear the search row.
+       * On phones, bottom padding tracks ~sheet height so map pins clear the search row.
        */
       function getFitPadding() {
         if (!isNarrowViewport()) {
@@ -1579,13 +1656,11 @@
 
       window.__storiiSetupCardMapAnchorSync = setupCardMapAnchorSync;
 
-      /* Destination dots + emoji pins — positions from STORII_MAP_DESTINATIONS. */
+      /* Destination pins — HTML/SVG built from each card’s `.filter-ic` (fill + chip art). */
       const pinDefs = STORII_MAP_DESTINATIONS.map((d) => ({
         lat: d.lat,
         lng: d.lng,
         anchorId: d.anchorId,
-        dotHtml: storiiMapPinDotHtml(d.color),
-        iconHtml: storiiMapPinIconHtml(d.emoji, d.color),
         onClick: () => scrollToCard(`card-${String(d.anchorId).replace(/[^a-z0-9-]/gi, "")}`)
       }));
 
@@ -1597,8 +1672,6 @@
           const pos = new google.maps.LatLng(def.lat, def.lng);
           const m = new HtmlMapMarker(pos, {
             anchorId: def.anchorId || null,
-            dotHtml: def.dotHtml,
-            iconHtml: def.iconHtml,
             anchorDot: { x: 0.5, y: 0.5 },
             anchorIcon: { x: 0.5, y: 1 }
           });
