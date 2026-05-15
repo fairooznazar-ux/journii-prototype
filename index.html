@@ -672,7 +672,7 @@
         height: auto;
         min-height: 0;
         --storii-map-cutoff: min(368px, max(268px, calc(100dvh - 480px)));
-        /* Search row + gap — tuned to from/where row + --card-rail-gap. */
+        /* Search row + gap — tuned to where row + --card-rail-gap. */
         --storii-search-band: 86px;
         /* Space reserved for tab bar + sheet bottom safe padding (cards stop above tabs). */
         --storii-tab-band: 96px;
@@ -866,22 +866,6 @@
 
       <div class="sheet">
         <div class="search-row">
-          <div class="from-box">
-            <div class="from-box-main">
-              <div class="pin-ic" aria-hidden="true">
-                <div class="pin-ic-vector">
-                  <img src="https://www.figma.com/api/mcp/asset/cafb024e-1cbb-4b34-bcc4-987ad3514c38" alt="">
-                </div>
-              </div>
-              <div class="from-text">
-                <div class="lbl">from</div>
-                <div class="city">BOM</div>
-              </div>
-            </div>
-            <div class="chev" aria-hidden="true">
-              <img class="chev-img" src="https://www.figma.com/api/mcp/asset/69a1a498-7d49-48f6-b6c6-2eb84f329cea" alt="">
-            </div>
-          </div>
           <div class="where-box">
             <div class="search-ic" aria-hidden="true">
               <div class="search-ic-inner">
@@ -1650,8 +1634,8 @@
       const showZoomButtons =
         typeof window.matchMedia === "undefined" ||
         !window.matchMedia("(max-width: 480px)").matches;
-      const STORII_MAP_DEFAULT_CENTER = { lat: 15, lng: 95 };
-      const STORII_MAP_DEFAULT_ZOOM = 4;
+      const STORII_MAP_DEFAULT_CENTER = { lat: 12, lng: 100 };
+      const STORII_MAP_DEFAULT_ZOOM = 5;
 
       const mapOpts = {
         center: STORII_MAP_DEFAULT_CENTER,
