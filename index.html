@@ -754,8 +754,8 @@
         align-items: stretch;
       }
       .cards-scroller-tail {
-        height: 24px !important;
-        min-height: 24px !important;
+        height: 150px !important;
+        min-height: 150px !important;
         display: block !important;
       }
       .card-row {
@@ -854,7 +854,7 @@
       }
       .tab-bar {
         bottom: 0;
-        padding-bottom: 4px;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
         padding-left: max(0px, env(safe-area-inset-left, 0px));
         padding-right: max(0px, env(safe-area-inset-right, 0px));
         background: transparent;
@@ -864,7 +864,6 @@
       .tab-inner {
         width: 300px;
         max-width: min(300px, calc(100% - 48px));
-        margin-bottom: env(safe-area-inset-bottom, 0px);
       }
     }
   </style>
@@ -1141,29 +1140,10 @@
       return typeof window.matchMedia !== "undefined" && window.matchMedia("(max-width: 480px)").matches;
     }
 
-    /** iOS PWA: shell height + measured scroller height (sheet stays full-bleed). */
+    /** iOS PWA: shell height + measured tab bar for card scroll clearance. */
     (function storiiMobileBottomBleed() {
       const mq = window.matchMedia("(max-width: 480px)");
       let layoutObserver = null;
-      let pwaSettleTimers = [];
-
-      function isStandalonePWA() {
-        return (
-          (window.navigator && window.navigator.standalone === true) ||
-          (typeof window.matchMedia === "function" &&
-            window.matchMedia("(display-mode: standalone)").matches)
-        );
-      }
-
-      function storiiAppHeight() {
-        const vv = window.visualViewport;
-        if (isStandalonePWA()) {
-          return Math.round(vv?.height ?? window.innerHeight);
-        }
-        return Math.round(
-          Math.max(document.documentElement.clientHeight, window.innerHeight, vv?.height ?? 0)
-        );
-      }
 
       function clearMobileLayoutVars() {
         const root = document.documentElement;
@@ -1172,42 +1152,11 @@
         const scroller = document.getElementById("cards-scroller");
         if (scroller) {
           scroller.style.removeProperty("height");
-          scroller.style.removeProperty("max-height");
           scroller.style.removeProperty("paddingBottom");
           scroller.style.removeProperty("scrollPaddingBottom");
         }
         const sheet = document.querySelector(".sheet");
         if (sheet) sheet.style.removeProperty("min-height");
-        pwaSettleTimers.forEach((id) => clearTimeout(id));
-        pwaSettleTimers = [];
-      }
-
-      function sizeMobileScroller() {
-        const scroller = document.getElementById("cards-scroller");
-        const tabBar = document.querySelector(".tab-bar");
-        const tabInner = document.querySelector(".tab-inner");
-        if (!scroller || !tabBar) return;
-
-        const scrollerTop = scroller.getBoundingClientRect().top;
-        const tabTop = (tabInner || tabBar).getBoundingClientRect().top;
-        const availableH = Math.max(120, Math.floor(tabTop - scrollerTop - 12));
-
-        scroller.style.setProperty("height", `${availableH}px`, "important");
-        scroller.style.setProperty("max-height", `${availableH}px`, "important");
-        scroller.style.setProperty("scroll-padding-bottom", "16px", "important");
-      }
-
-      function schedulePwaSettlePasses() {
-        if (!mq.matches || !isStandalonePWA()) return;
-        pwaSettleTimers.forEach((id) => clearTimeout(id));
-        pwaSettleTimers = [];
-        [0, 80, 200, 450, 900, 1600, 2800].forEach((ms) => {
-          pwaSettleTimers.push(
-            window.setTimeout(() => {
-              apply();
-            }, ms)
-          );
-        });
       }
 
       function apply() {
@@ -1221,7 +1170,10 @@
           return;
         }
 
-        const appH = storiiAppHeight();
+        const vv = window.visualViewport;
+        const appH = Math.round(
+          Math.max(document.documentElement.clientHeight, window.innerHeight, vv?.height ?? 0)
+        );
         root.style.setProperty("--storii-app-h", `${appH}px`);
 
         const tabBar = document.querySelector(".tab-bar");
@@ -1237,7 +1189,6 @@
           sheet.style.minHeight = `${sheetH}px`;
         }
 
-        sizeMobileScroller();
         bindLayoutObserver();
       }
 
@@ -1245,7 +1196,6 @@
         if (layoutObserver || !mq.matches) return;
         const phone = document.querySelector(".phone");
         const tabBar = document.querySelector(".tab-bar");
-        const scroller = document.getElementById("cards-scroller");
         if (!phone || !tabBar) return;
         layoutObserver = new ResizeObserver(() => {
           requestAnimationFrame(apply);
@@ -1254,15 +1204,11 @@
         layoutObserver.observe(tabBar);
         const tabInner = document.querySelector(".tab-inner");
         if (tabInner) layoutObserver.observe(tabInner);
-        if (scroller) layoutObserver.observe(scroller);
-        const sheet = document.querySelector(".sheet");
-        if (sheet) layoutObserver.observe(sheet);
       }
 
       function applySoon() {
         apply();
         requestAnimationFrame(() => requestAnimationFrame(apply));
-        schedulePwaSettlePasses();
       }
 
       applySoon();
@@ -1272,10 +1218,6 @@
       }
       window.addEventListener("resize", applySoon);
       window.addEventListener("orientationchange", applySoon);
-      window.addEventListener("pageshow", applySoon);
-      document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "visible") applySoon();
-      });
       mq.addEventListener("change", applySoon);
       window.addEventListener("load", applySoon, { once: true });
       window.__storiiSyncMobileViewport = applySoon;
