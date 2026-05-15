@@ -693,7 +693,8 @@
         --storii-map-cutoff: min(368px, max(268px, calc(100svh - 480px)));
         /* Search row + gap — tuned to where row + --card-rail-gap. */
         --storii-search-band: 86px;
-        --storii-tab-float: calc(80px + env(safe-area-inset-bottom, 0px));
+        /* Pill ~56px + 24px padding; 4px tab-bar inset — safe area handled on .tab-bar only. */
+        --storii-tab-float: 72px;
         --card-rail-gap: 10px;
         --storii-search-to-cards-gap: 18px;
         gap: var(--storii-search-to-cards-gap);
@@ -757,7 +758,7 @@
         flex-shrink: 0;
         scroll-snap-align: start;
         scroll-snap-stop: normal;
-        min-height: calc(100% - 80px);
+        min-height: calc(100% - 52px);
         box-sizing: border-box;
       }
       .card-date {
@@ -841,8 +842,8 @@
         top: 11px;
       }
       .tab-bar {
-        bottom: env(safe-area-inset-bottom, 0px);
-        padding-bottom: 4px;
+        bottom: 0;
+        padding-bottom: calc(4px + env(safe-area-inset-bottom, 0px));
         padding-left: max(0px, env(safe-area-inset-left, 0px));
         padding-right: max(0px, env(safe-area-inset-right, 0px));
         background: none;
