@@ -493,34 +493,35 @@
       z-index: 2;
     }
 
-    /* Tab bar — Figma text tabs */
+    /* Tab bar — Figma 4665:33910 iOS floating pill */
     .tab-bar {
       position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 402px;
-      height: 102px;
+      bottom: 0;
+      left: 0;
+      right: 0;
       display: flex;
-      align-items: flex-start;
+      align-items: flex-end;
       justify-content: center;
-      padding-top: 6px;
+      padding-bottom: 24px;
       z-index: 1001;
       pointer-events: none;
+      background: transparent;
     }
     .tab-inner {
       pointer-events: all;
-      width: 100%;
-      max-width: 382px;
+      box-sizing: border-box;
+      width: 300px;
+      max-width: calc(100% - 48px);
+      min-height: 56px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 4px;
-      padding: 10px 8px calc(10px + 12px) 8px;
+      padding: 12px 30px;
       border-radius: 40px;
-      background: transparent;
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
+      background: rgba(20, 76, 133, 0.2);
+      backdrop-filter: blur(20px) saturate(1.2);
+      -webkit-backdrop-filter: blur(20px) saturate(1.2);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.22);
     }
 
     /* Map destination pins — inactive: dot from card .filter-ic fill; active: SVG bubble + card icon image. */
@@ -600,28 +601,32 @@
       z-index: 2147483000 !important;
     }
     .tab-item {
-      flex: 1;
-      min-width: 0;
+      flex: 0 0 52px;
+      width: 52px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       text-align: center;
       font-family: "Unbounded", sans-serif;
       font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.08em;
+      line-height: 1;
       cursor: pointer;
       user-select: none;
     }
     .tab-item.active {
       font-weight: 500;
       color: #fff;
+      letter-spacing: 0.06em;
     }
     .tab-item:not(.active) {
       font-weight: 300;
-      color: rgba(255, 255, 255, 0.42);
+      color: rgba(255, 255, 255, 0.7);
     }
 
-    /* Real phones: full-bleed map, sheet over map, tab over sheet. Safe-area for the home
-       indicator is applied once inside .tab-inner (tab-bar flush bottom) so Safari does not stack
-       extra empty bands; sheet bottom padding matches tab stack height only. */
+    /* Real phones: full-bleed map, sheet over map, floating tab pill over sheet. */
     @media (max-width: 480px) {
       html {
         height: -webkit-fill-available;
@@ -674,14 +679,13 @@
         --storii-map-cutoff: min(368px, max(268px, calc(100dvh - 480px)));
         /* Search row + gap — tuned to where row + --card-rail-gap. */
         --storii-search-band: 86px;
-        /* Space reserved for tab bar + sheet bottom safe padding (cards stop above tabs). */
-        --storii-tab-band: 96px;
+        /* Space for floating tab pill + 24px float gap + safe area. */
+        --storii-tab-band: calc(88px + env(safe-area-inset-bottom, 0px));
         --card-rail-gap: 10px;
         --storii-search-to-cards-gap: 18px;
         gap: var(--storii-search-to-cards-gap);
-        /* Tab bar sits flush to screen bottom; safe-area lives inside .tab-inner only — avoids
-           Safari “double band” (sheet padding + tab bottom offset both reserving home-indicator). */
-        padding: 16px 20px calc(82px + env(safe-area-inset-bottom, 0px));
+        /* Bottom padding clears floating tab pill (not a full-width chrome band). */
+        padding: 16px 20px var(--storii-tab-band);
         /* Let the card scroller scroll vertically; default overflow:hidden clips it on phones. */
         overflow-x: hidden;
         overflow-y: visible;
@@ -826,29 +830,13 @@
         top: 11px;
       }
       .tab-bar {
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 100%;
-        max-width: 100%;
-        height: auto;
-        min-height: 0;
-        padding-top: 0;
-        padding-bottom: 0;
+        padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
         padding-left: max(0px, env(safe-area-inset-left, 0px));
         padding-right: max(0px, env(safe-area-inset-right, 0px));
-        align-items: flex-end;
-        justify-content: center;
-        z-index: 1001;
-        /* Same base tint as sheet opaque band (#0B1B3A in .sheet::after). */
-        background: #0b1b3a;
       }
       .tab-inner {
-        max-width: min(382px, calc(100% - 16px));
-        /* 6px original bottom + 12px below labels + home indicator inside same chrome (no extra float gap). */
-        padding: 0 8px calc(6px + 12px + env(safe-area-inset-bottom, 0px)) 8px;
-        background: transparent;
+        width: 300px;
+        max-width: min(300px, calc(100% - 48px));
       }
     }
   </style>
