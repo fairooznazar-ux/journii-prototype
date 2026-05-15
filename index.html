@@ -742,30 +742,59 @@
         bottom: 0;
         height: auto;
         min-height: 0;
+        --storii-map-cutoff: min(368px, max(268px, calc(100dvh - 480px)));
+        /* Search row + gap — tuned to from/where row + --card-rail-gap. */
+        --storii-search-band: 86px;
+        /* Space reserved for tab bar + sheet bottom safe padding (cards stop above tabs). */
+        --storii-tab-band: 96px;
         --card-rail-gap: 10px;
         gap: var(--card-rail-gap);
         /* Tab bar sits flush to screen bottom; safe-area lives inside .tab-inner only — avoids
            Safari “double band” (sheet padding + tab bottom offset both reserving home-indicator). */
         padding: 16px 20px calc(82px + env(safe-area-inset-bottom, 0px));
+        /* Let the card scroller scroll vertically; default overflow:hidden clips it on phones. */
+        overflow-x: hidden;
+        overflow-y: visible;
       }
-      /* Figma 4653:33496 — vertical deck: next card peeks under; scroll sends front card behind + smaller. */
+      /* Figma 4653:33496 — vertical snap list; height fills viewport minus map, search, tab. */
       .cards-scroller-bleed {
         width: 100%;
         margin-left: 0;
         margin-right: 0;
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
       }
       .cards-scroller {
-        padding: var(--card-rail-gap, 10px) 20px 12px 20px;
-        overflow-y: auto;
+        box-sizing: border-box;
+        flex: 0 0 auto;
+        width: 100%;
+        height: calc(
+          100dvh - var(--storii-map-cutoff) - var(--storii-search-band) - var(--storii-tab-band) -
+            env(safe-area-inset-top, 0px)
+        );
+        max-height: calc(
+          100dvh - var(--storii-map-cutoff) - var(--storii-search-band) - var(--storii-tab-band) -
+            env(safe-area-inset-top, 0px)
+        );
+        min-height: 0;
+        padding: var(--card-rail-gap, 10px) 20px 8px 20px;
+        overflow-y: scroll;
         overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
         touch-action: pan-y;
-        scroll-snap-type: none;
+        scroll-snap-type: y mandatory;
+        scroll-padding-bottom: 6px;
         overscroll-behavior-y: contain;
         overscroll-behavior-x: auto;
       }
       .cards-scroller-track {
+        display: flex;
         flex-direction: column;
         width: 100%;
+        min-height: 100%;
+        box-sizing: border-box;
         gap: 0;
         align-items: stretch;
       }
@@ -779,9 +808,11 @@
         width: 100%;
         max-width: 100%;
         flex: 0 0 auto;
+        flex-shrink: 0;
+        scroll-snap-align: start;
+        scroll-snap-stop: normal;
+        min-height: calc(100% - 80px);
         transform-origin: top center;
-        will-change: transform, opacity;
-        transition: transform 0.14s ease-out, opacity 0.14s ease-out;
       }
       .polaroid-stack {
         height: 156px;
@@ -1115,19 +1146,17 @@
     function isMobileCardDeck() {
       return typeof window.matchMedia !== "undefined" && window.matchMedia("(max-width: 480px)").matches;
     }
-    const MOBILE_DECK_STRIDE = 56;
-    window.__storiiDeckStride = MOBILE_DECK_STRIDE;
-
     function scrollToCard(id) {
       const el = document.getElementById(id);
       const scroller = document.getElementById("cards-scroller");
+      const track = document.getElementById("cards-scroller-track");
       if (!el || !scroller) return;
-      if (isMobileCardDeck()) {
-        const cards = Array.from(document.querySelectorAll("#cards-scroller .deal-card"));
-        const idx = cards.indexOf(el);
-        if (idx >= 0) {
-          scroller.scrollTo({ top: idx * MOBILE_DECK_STRIDE, behavior: "smooth" });
-        }
+      if (isMobileCardDeck() && track) {
+        const top =
+          el.offsetParent === track
+            ? el.offsetTop
+            : el.getBoundingClientRect().top - track.getBoundingClientRect().top + scroller.scrollTop;
+        scroller.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
       } else {
         const padLeft = parseFloat(getComputedStyle(scroller).scrollPaddingLeft) || 20;
         const delta =
@@ -1249,20 +1278,12 @@
       scroller.addEventListener("lostpointercapture", endDrag);
     })();
 
-    /** Vertical reverse-stack deck on narrow viewports (Figma 4653:33496). */
-    (function initMobileVerticalDeck() {
+    /** After mobile scroller gets a real height, clear old deck transforms and rebind map↔card scroll. */
+    (function initMobileCardScrollLayout() {
       const mq = window.matchMedia("(max-width: 480px)");
-      const DECK_STRIDE = MOBILE_DECK_STRIDE;
-      const PEEK = 44;
-      const MAX_BACK = 3;
-      let scrollHandler = null;
 
-      function deckCards() {
-        return Array.from(document.querySelectorAll("#cards-scroller .deal-card"));
-      }
-
-      function resetDesktopDeckStyles() {
-        deckCards().forEach((c) => {
+      function resetInlineDeckStyles() {
+        document.querySelectorAll("#cards-scroller .deal-card").forEach((c) => {
           c.style.marginTop = "";
           c.style.transform = "";
           c.style.zIndex = "";
@@ -1273,100 +1294,25 @@
         if (track) track.style.paddingBottom = "";
       }
 
-      function applyPeekMargins() {
-        const cards = deckCards();
-        cards.forEach((c) => {
-          c.style.marginTop = "";
-        });
-        for (let i = 1; i < cards.length; i++) {
-          const prev = cards[i - 1];
-          const overlap = Math.max(0, prev.offsetHeight - PEEK);
-          cards[i].style.marginTop = `-${overlap}px`;
-        }
-        const track = document.getElementById("cards-scroller-track");
-        if (track) {
-          track.style.paddingBottom = `${DECK_STRIDE * (cards.length + 4)}px`;
-        }
-      }
-
-      function updateDeckTransforms() {
-        const scroller = document.getElementById("cards-scroller");
-        const cards = deckCards();
-        if (!scroller || !cards.length) return;
-        const st = scroller.scrollTop;
-        const lead = st / DECK_STRIDE;
-        cards.forEach((el, i) => {
-          const d = i - lead;
-          let scale = 1;
-          let zi = 30;
-          let opacity = 1;
-          let ty = 0;
-          let pe = "auto";
-
-          if (d > MAX_BACK + 0.35) {
-            opacity = 0;
-            scale = 0.76;
-            zi = 1;
-            pe = "none";
-          } else if (d < -1.15) {
-            opacity = 0;
-            scale = 0.72;
-            zi = 0;
-            pe = "none";
-          } else if (d < 0) {
-            const t = Math.min(1, Math.max(0, 1 + d));
-            opacity = 0.42 + 0.55 * t;
-            scale = 0.76 + 0.2 * t;
-            zi = Math.round(18 + t * 22);
-            ty = (1 - t) * -6;
-            pe = t > 0.35 ? "auto" : "none";
-          } else {
-            const k = Math.min(MAX_BACK, Math.floor(d + 1e-6));
-            const sub = d - k;
-            opacity = 1;
-            scale = Math.max(0.77, 1 - k * 0.066 - sub * 0.04);
-            zi = Math.round(48 - k * 12 - sub * 10);
-            ty = k * 3;
-          }
-
-          zi = Math.max(0, Math.min(78, zi));
-          el.style.zIndex = String(zi);
-          el.style.transform = `translateY(${ty.toFixed(1)}px) scale(${scale.toFixed(3)})`;
-          el.style.opacity = opacity.toFixed(3);
-          el.style.pointerEvents = pe;
-        });
-      }
-
-      function bindScroll() {
-        const scroller = document.getElementById("cards-scroller");
-        if (!scroller) return;
-        if (scrollHandler) {
-          scroller.removeEventListener("scroll", scrollHandler);
-        }
-        scrollHandler = () => {
-          window.requestAnimationFrame(updateDeckTransforms);
-        };
-        scroller.addEventListener("scroll", scrollHandler, { passive: true });
-      }
-
       function refresh() {
         if (!mq.matches) {
-          resetDesktopDeckStyles();
+          resetInlineDeckStyles();
           return;
         }
-        applyPeekMargins();
-        updateDeckTransforms();
-        bindScroll();
+        resetInlineDeckStyles();
+        if (typeof window.__storiiSetupCardMapAnchorSync === "function") {
+          window.__storiiSetupCardMapAnchorSync();
+        }
       }
 
       mq.addEventListener("change", () => window.requestAnimationFrame(refresh));
-      window.addEventListener("load", () => window.requestAnimationFrame(refresh), { once: true });
       window.addEventListener("resize", () => {
         if (mq.matches) window.requestAnimationFrame(refresh);
       });
       document.querySelectorAll("#cards-scroller .deal-card img").forEach((img) => {
         img.addEventListener("load", () => window.requestAnimationFrame(refresh), { passive: true });
       });
+      window.addEventListener("load", () => window.requestAnimationFrame(refresh), { once: true });
       if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", () => window.requestAnimationFrame(refresh), { once: true });
       } else {
@@ -1459,6 +1405,7 @@
       window.__storiiMap = map;
 
       const anchoredMarkers = [];
+      let cardMapScrollSyncController = null;
 
       /* India + SE Asia only — crop Kenya / Madagascar / Australia out of frame. */
       const regionBounds = new google.maps.LatLngBounds(
@@ -1540,6 +1487,10 @@
         const cards = Array.from(document.querySelectorAll("#cards-scroller .deal-card"));
         if (!scroller || cards.length === 0) return;
 
+        if (cardMapScrollSyncController) cardMapScrollSyncController.abort();
+        cardMapScrollSyncController = new AbortController();
+        const { signal } = cardMapScrollSyncController;
+
         let ticking = false;
         const onScroll = () => {
           if (ticking) return;
@@ -1559,10 +1510,12 @@
           });
         };
 
-        scroller.addEventListener("scroll", onScroll, { passive: true });
+        scroller.addEventListener("scroll", onScroll, { passive: true, signal });
         syncToCard(cards[0]);
         requestAnimationFrame(onScroll);
       }
+
+      window.__storiiSetupCardMapAnchorSync = setupCardMapAnchorSync;
 
       /* Price pins spread across India + SE Asia (geography keeps labels apart at overview zoom). */
       const pinDefs = [
