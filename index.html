@@ -746,23 +746,33 @@
       }
       .sheet {
         position: absolute;
-        left: 0;
-        right: 0;
-        width: 100%;
+        left: 10px;
+        right: 10px;
+        width: auto;
         /* Short viewports: start sheet higher so the card strip keeps ~min usable height. */
         top: min(368px, max(268px, calc(100dvh - 480px)));
         bottom: 0;
         height: auto;
         min-height: 0;
         /* Space between search row and card strip, and scroller top/bottom — keep in sync. */
-        --card-rail-gap: 12px;
+        --card-rail-gap: 16px;
         gap: var(--card-rail-gap);
+        /* Inset + radius so top corners read on real devices (full-bleed sheet hides the curve). */
+        border-radius: 22px 22px 0 0;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
         /* Tab bar sits flush to screen bottom; safe-area lives inside .tab-inner only — avoids
            Safari “double band” (sheet padding + tab bottom offset both reserving home-indicator). */
-        padding: 20px 20px calc(62px + env(safe-area-inset-bottom, 0px));
+        padding: 20px 20px calc(66px + env(safe-area-inset-bottom, 0px));
+      }
+      .sheet::before,
+      .sheet::after {
+        left: 0;
+        right: 0;
+        border-radius: 22px 22px 0 0;
       }
       .cards-scroller {
-        padding: var(--card-rail-gap, 12px) 20px var(--card-rail-gap, 12px) 20px;
+        padding: var(--card-rail-gap, 16px) 20px var(--card-rail-gap, 16px) 20px;
       }
       .deal-card {
         padding: 22px 16px 16px;
@@ -788,10 +798,11 @@
       .tab-bar {
         position: absolute;
         bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 100%;
-        max-width: 100%;
+        left: 10px;
+        right: 10px;
+        width: auto;
+        max-width: none;
+        transform: none;
         height: auto;
         min-height: 0;
         padding-top: 2px;
@@ -803,7 +814,7 @@
         z-index: 1001;
       }
       .tab-inner {
-        max-width: min(382px, calc(100% - 16px));
+        max-width: min(382px, calc(100% - 20px));
         /* 6px original bottom + 12px below labels + home indicator inside same chrome (no extra float gap). */
         padding: 6px 8px calc(6px + 12px + env(safe-area-inset-bottom, 0px)) 8px;
       }
