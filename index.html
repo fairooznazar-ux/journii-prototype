@@ -619,9 +619,10 @@
     .map-pin-active-wrap {
       position: relative;
       width: 50px;
-      height: 54px;
+      height: 62px;
       transform-origin: 50% 100%;
       filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
+      overflow: visible;
     }
     .map-pin-active-wrap.map-pin-pop {
       animation: map-pin-pop-in 0.32s ease forwards;
@@ -637,12 +638,13 @@
     .map-pin-active-svg {
       display: block;
       width: 50px;
-      height: 54px;
+      height: 62px;
+      overflow: visible;
     }
     .map-pin-active-symbol {
       position: absolute;
       left: 5px;
-      top: 0;
+      top: 6px;
       width: 40px;
       height: 40px;
       border-radius: 50%;
@@ -1355,24 +1357,43 @@
         .replace(/>/g, "&gt;");
     }
 
-    /** Match the card chip fill: gradient → last hex stop; else solid background-color. */
+    /** Last colour stop from a computed linear-gradient (hex or rgb/rgba). */
+    function storiiParseGradientEndColor(bgImage) {
+      if (!bgImage || bgImage === "none") return null;
+      const hexes = bgImage.match(/#[0-9A-Fa-f]{6,8}\b/gi);
+      if (hexes && hexes.length) return hexes[hexes.length - 1];
+      const rgbs = bgImage.match(/rgba?\(\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+(?:\s*,\s*[\d.]+)?\s*\)/gi);
+      if (rgbs && rgbs.length) return rgbs[rgbs.length - 1];
+      return null;
+    }
+
+    /** Per-card chip fill — must call on that card’s `.filter-ic` after layout (not cached globally). */
     function storiiReadFilterIconFill(filterIc) {
       if (!filterIc || typeof filterIc.getBoundingClientRect !== "function") return "#05cf37";
+      void filterIc.offsetHeight;
       let cs;
       try {
         cs = getComputedStyle(filterIc);
       } catch (e) {
         return "#05cf37";
       }
-      const bgImg = cs.backgroundImage;
-      if (bgImg && bgImg !== "none" && /gradient/i.test(bgImg)) {
-        const hexes = bgImg.match(/#[0-9A-Fa-f]{6}/gi);
-        if (hexes && hexes.length) return hexes[hexes.length - 1];
-      }
+      const fromGrad = storiiParseGradientEndColor(cs.backgroundImage);
+      if (fromGrad) return fromGrad;
       const bc = cs.backgroundColor;
       if (bc && bc !== "rgba(0, 0, 0, 0)" && bc !== "transparent") return bc;
       return "#05cf37";
     }
+
+    function storiiDestinationLabelForAnchor(anchorId) {
+      const id = String(anchorId || "").replace(/[^a-z0-9-]/gi, "");
+      const card = document.querySelector(`.deal-card[data-anchor="${id}"]`);
+      const h2 = card && card.querySelector(".card-titles h2");
+      return (h2 && h2.textContent.trim()) || id || "unknown";
+    }
+
+    /** Unified pin blob: 44px circle (r=22) + ~10px tail; single white stroke on outer edge. */
+    const STORII_MAP_PIN_ACTIVE_PATH =
+      "M 25 4 A 22 22 0 1 1 17.94 47.56 L 25 58 L 32.06 47.56 A 22 22 0 1 1 25 4 Z";
 
     function storiiGetCardFilterIcon(anchorId) {
       const id = String(anchorId || "").replace(/[^a-z0-9-]/gi, "");
@@ -1405,9 +1426,8 @@
       }
       return (
         `<div class="map-pin-active-wrap" aria-hidden="true">` +
-        `<svg class="map-pin-active-svg" width="50" height="54" viewBox="0 0 50 54" xmlns="http://www.w3.org/2000/svg">` +
-        `<path d="M 17.5 40.5 L 25 52 L 32.5 40.5 Z" fill="${f}"/>` +
-        `<circle cx="25" cy="20" r="20.5" fill="${f}" stroke="#ffffff" stroke-width="3"/>` +
+        `<svg class="map-pin-active-svg" width="50" height="62" viewBox="0 0 50 62" xmlns="http://www.w3.org/2000/svg">` +
+        `<path d="${STORII_MAP_PIN_ACTIVE_PATH}" fill="${f}" stroke="#ffffff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>` +
         `</svg>` +
         `<div class="map-pin-active-symbol">${symbolInner}</div>` +
         `</div>`
@@ -1664,34 +1684,48 @@
         onClick: () => scrollToCard(`card-${String(d.anchorId).replace(/[^a-z0-9-]/gi, "")}`)
       }));
 
-      /* fitBounds on first paint is often ignored until layout exists — wait for idle. */
-      google.maps.event.addListenerOnce(map, "idle", () => {
-        map.fitBounds(regionBounds, getFitPadding());
-        nudgeRegionUpward();
+      function mountAnchoredMarkers() {
         pinDefs.forEach((def) => {
+          const anchorId = def.anchorId || null;
+          if (!anchorId) return;
+          const filterIc = storiiGetCardFilterIcon(anchorId);
+          const fill = storiiReadFilterIconFill(filterIc);
+          console.log("[storii map pin]", storiiDestinationLabelForAnchor(anchorId), fill);
           const pos = new google.maps.LatLng(def.lat, def.lng);
           const m = new HtmlMapMarker(pos, {
-            anchorId: def.anchorId || null,
+            anchorId,
             anchorDot: { x: 0.5, y: 0.5 },
             anchorIcon: { x: 0.5, y: 1 }
           });
           m.onClick = def.onClick;
           m.setMap(map);
-          if (def.anchorId) anchoredMarkers.push({ marker: m, anchorId: def.anchorId });
+          anchoredMarkers.push({ marker: m, anchorId });
         });
-        google.maps.event.addListenerOnce(map, "idle", () => {
-          refitMapFrame();
+      }
+
+      /* fitBounds on first paint is often ignored until layout exists — wait for idle. */
+      google.maps.event.addListenerOnce(map, "idle", () => {
+        map.fitBounds(regionBounds, getFitPadding());
+        nudgeRegionUpward();
+        requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            refitMapFrame();
+            mountAnchoredMarkers();
             anchoredMarkers.forEach(({ marker }) => marker.draw());
             setupCardMapAnchorSync();
-            if (typeof window.__storiiRefreshMobileDeck === "function") {
-              window.requestAnimationFrame(() => window.__storiiRefreshMobileDeck());
-            }
+            google.maps.event.addListenerOnce(map, "idle", () => {
+              refitMapFrame();
+              requestAnimationFrame(() => {
+                refitMapFrame();
+                anchoredMarkers.forEach(({ marker }) => marker.draw());
+                if (typeof window.__storiiRefreshMobileDeck === "function") {
+                  window.requestAnimationFrame(() => window.__storiiRefreshMobileDeck());
+                }
+              });
+              setTimeout(refitMapFrame, 100);
+              setTimeout(refitMapFrame, 400);
+              setTimeout(debouncedRelayout, 600);
+            });
           });
-          setTimeout(refitMapFrame, 100);
-          setTimeout(refitMapFrame, 400);
-          setTimeout(debouncedRelayout, 600);
         });
       });
 
