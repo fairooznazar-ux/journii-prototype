@@ -82,7 +82,7 @@
     .map-fallback.visible { display: flex; flex-direction: column; gap: 10px; }
     .map-fallback code { font-size: 11px; opacity: 0.9; }
 
-    /* Bottom sheet — Figma 4633:31400: no solid fill; progressive backdrop blur (0 at top); subtle white lift at bottom */
+    /* Bottom sheet — top ~20% fades to transparent over the map; lower ~80% reads as an opaque panel. */
     /* z-index well above Maps internal panes/tiles so sheet receives taps, scroll, wheel — not the map. */
     .sheet {
       position: absolute;
@@ -117,22 +117,25 @@
       pointer-events: none;
       backdrop-filter: blur(28px);
       -webkit-backdrop-filter: blur(28px);
+      /* Blur only in the lower band; top ~20% stays visually open so the map reads through. */
       mask-image: linear-gradient(
         180deg,
         rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 0.12) 28%,
-        rgba(0, 0, 0, 0.55) 58%,
+        rgba(0, 0, 0, 0) 16%,
+        rgba(0, 0, 0, 0.35) 22%,
+        rgba(0, 0, 0, 1) 30%,
         rgba(0, 0, 0, 1) 100%
       );
       -webkit-mask-image: linear-gradient(
         180deg,
         rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 0.12) 28%,
-        rgba(0, 0, 0, 0.55) 58%,
+        rgba(0, 0, 0, 0) 16%,
+        rgba(0, 0, 0, 0.35) 22%,
+        rgba(0, 0, 0, 1) 30%,
         rgba(0, 0, 0, 1) 100%
       );
     }
-    /* Dark blue lift (#0F2045): invisible top 25%; stronger across lower 75%. */
+    /* Solid sheet tint (#0B1B3A): transparent top ~20%, opaque across lower ~80%. */
     .sheet::after {
       content: "";
       position: absolute;
@@ -145,10 +148,11 @@
       pointer-events: none;
       background: linear-gradient(
         180deg,
-        rgba(15, 32, 69, 0) 0%,
-        rgba(15, 32, 69, 0) 25%,
-        rgba(15, 32, 69, 0.14) 55%,
-        rgba(15, 32, 69, 0.24) 100%
+        rgba(11, 27, 58, 0) 0%,
+        rgba(11, 27, 58, 0) 18%,
+        rgba(11, 27, 58, 0.88) 24%,
+        rgba(11, 27, 58, 0.98) 30%,
+        rgba(11, 27, 58, 1) 100%
       );
       opacity: 1;
     }
@@ -1195,10 +1199,10 @@
       if (showZoomButtons) {
         mapOpts.zoomControlOptions = { position: google.maps.ControlPosition.RIGHT_TOP };
       }
-      /* WebGL vector map: enables the same globe projection as google.com when zoomed out far enough,
-         while keeping TERRAIN + dark scheme + zero tilt for the default “flat” overview. */
-      if (google.maps.RenderingType) {
-        mapOpts.renderingType = google.maps.RenderingType.VECTOR;
+      /* Raster tiles (not WebGL vector): vector/globe mode draws a visible horizontal seam at the equator
+         at this zoom; raster keeps the same mapTypeId + colorScheme without that line. */
+      if (google.maps.RenderingType && google.maps.RenderingType.RASTER !== undefined) {
+        mapOpts.renderingType = google.maps.RenderingType.RASTER;
       }
       if (google.maps.ColorScheme && google.maps.ColorScheme.DARK !== undefined) {
         mapOpts.colorScheme = google.maps.ColorScheme.DARK;
