@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#21769B">
+  <meta name="color-scheme" content="dark">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -619,7 +620,7 @@
       justify-content: center;
       text-align: center;
       font-family: "Unbounded", sans-serif;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.1em;
@@ -632,16 +633,21 @@
       color: #fff;
     }
     .tab-item:not(.active) {
-      font-weight: 500;
+      font-weight: 300;
       color: rgba(255, 255, 255, 0.7);
     }
 
     /* Real phones: full-bleed map, sheet over map, floating tab pill over sheet. */
     @media (max-width: 480px) {
       html {
-        height: -webkit-fill-available;
+        height: 100%;
+        min-height: 100%;
+        min-height: -webkit-fill-available;
+        background: #0d4074;
       }
       body {
+        height: 100%;
+        min-height: 100%;
         min-height: 100svh;
         min-height: 100dvh;
         min-height: -webkit-fill-available;
@@ -649,23 +655,51 @@
         justify-content: flex-start;
         padding: 0;
         overscroll-behavior-y: none;
+        background: #0d4074;
       }
       .phone {
         width: 100%;
         max-width: 100%;
-        /* svh first: iOS Safari avoids a tall dvh band that leaves dead space above/below fixed UI. */
-        height: 100svh;
-        height: 100dvh;
-        height: -webkit-fill-available;
+        height: 100%;
+        min-height: 100%;
         min-height: 100svh;
         min-height: 100dvh;
         min-height: -webkit-fill-available;
+        max-height: 100dvh;
         border-radius: 0;
         box-shadow: none;
         padding-top: env(safe-area-inset-top, 0px);
-        padding-bottom: 0;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
         padding-left: env(safe-area-inset-left, 0px);
         padding-right: env(safe-area-inset-right, 0px);
+        background: #0d4074;
+        overflow: hidden;
+      }
+      .screen {
+        background: transparent;
+      }
+      /* Top: status bar tint; bottom: home-indicator band — match sheet, not #152d63 / black. */
+      .phone::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: env(safe-area-inset-top, 0px);
+        background: #21769b;
+        z-index: 1100;
+        pointer-events: none;
+      }
+      .phone::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: env(safe-area-inset-bottom, 0px);
+        background: #0d4074;
+        z-index: 1100;
+        pointer-events: none;
       }
       .map-wrap {
         position: absolute;
