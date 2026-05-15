@@ -1264,16 +1264,35 @@
         { lat: 30.45, lng: 107.2 }
       );
 
-      /** Symmetric padding for stable zoom; vertical framing handled by panBy after fit. */
-      function getFitPadding() {
-        return { top: 52, right: 10, bottom: 72, left: 10 };
+      /** True when layout matches the stacked full-bleed phone UI (sheet + tabs). */
+      function isNarrowViewport() {
+        return typeof window.matchMedia !== "undefined" && window.matchMedia("(max-width: 480px)").matches;
       }
 
-      /** Shift view so India/SEA sits higher (positive y = map center moves south → landmass rises on screen). */
+      /**
+       * Padding passed to fitBounds — tells Maps to keep geographic content out of UI gutters.
+       * Taller sheet / CSS padding alone does not move HTML overlay pins; camera framing does.
+       * On phones, bottom padding tracks ~sheet height so price pills clear the search row.
+       */
+      function getFitPadding() {
+        if (!isNarrowViewport()) {
+          return { top: 52, right: 10, bottom: 72, left: 10 };
+        }
+        const sheet = document.querySelector(".sheet");
+        let bottomPx = 160;
+        if (sheet) {
+          const h = sheet.getBoundingClientRect().height;
+          bottomPx = Math.round(Math.min(Math.max(h * 0.5 + 32, 140), 260));
+        }
+        return { top: 44, right: 8, bottom: bottomPx, left: 8 };
+      }
+
+      /** Shift SEA higher in the viewport after fit (positive y = map moves south → land rises). */
       function nudgeRegionUpward() {
         const wrap = document.querySelector(".map-wrap");
         const h = (wrap && wrap.clientHeight) || mapEl.clientHeight || 874;
-        map.panBy(0, Math.round(h * 0.24));
+        const frac = isNarrowViewport() ? 0.3 : 0.24;
+        map.panBy(0, Math.round(h * frac));
       }
 
       function refitMapFrame() {
