@@ -742,36 +742,36 @@
         bottom: 0;
         height: auto;
         min-height: 0;
-        --card-rail-gap: 16px;
+        --card-rail-gap: 10px;
         gap: var(--card-rail-gap);
         /* Tab bar sits flush to screen bottom; safe-area lives inside .tab-inner only — avoids
            Safari “double band” (sheet padding + tab bottom offset both reserving home-indicator). */
-        padding: 20px 20px calc(66px + env(safe-area-inset-bottom, 0px));
+        padding: 16px 20px calc(82px + env(safe-area-inset-bottom, 0px));
       }
       .cards-scroller {
-        padding: var(--card-rail-gap, 16px) 20px 14px 20px;
+        padding: var(--card-rail-gap, 10px) 20px 12px 20px;
       }
       .deal-card {
-        padding: 22px 16px 16px;
-        gap: 10px;
-        border-radius: 10px;
+        padding: 18px 16px 12px;
+        gap: 8px;
+        border-radius: 8px;
       }
       .polaroid-stack {
-        height: 176px;
-        margin-top: 8px;
-        margin-bottom: -22px;
+        height: 156px;
+        margin-top: 6px;
+        margin-bottom: -18px;
       }
       .polaroid.p1 {
-        width: 128px;
-        height: 192px;
+        width: 124px;
+        height: 176px;
         left: 8px;
-        top: 26px;
+        top: 24px;
       }
       .polaroid.p2 {
-        width: 150px;
-        height: 200px;
-        left: 124px;
-        top: 12px;
+        width: 144px;
+        height: 184px;
+        left: 126px;
+        top: 11px;
       }
       .tab-bar {
         position: absolute;
