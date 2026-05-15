@@ -708,7 +708,7 @@
         --card-rail-gap: 10px;
         --storii-search-to-cards-gap: 18px;
         gap: var(--storii-search-to-cards-gap);
-        padding: 16px 20px 0;
+        padding: 16px 20px 100px;
         overflow: visible;
       }
       /* Figma 4653:33496 — vertical snap list; height fills viewport minus map, search, tab. */
@@ -730,13 +730,11 @@
         max-height: none;
         min-height: 0;
         padding: var(--card-rail-gap, 10px) 0 0 0;
-        padding-bottom: 100px;
         overflow-x: hidden;
         overflow-y: scroll;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-y;
         scroll-snap-type: y mandatory;
-        scroll-padding-bottom: 100px;
         overscroll-behavior-y: contain;
         overscroll-behavior-x: auto;
       }
@@ -1183,7 +1181,7 @@
         const sheet = document.querySelector(".sheet");
         if (sheet) {
           const sheetTop = sheet.getBoundingClientRect().top;
-          const sheetH = Math.max(0, Math.floor(appH - sheetTop));
+          const sheetH = Math.max(0, Math.floor(appH - sheetTop - 100));
           sheet.style.minHeight = `${sheetH}px`;
         }
 
@@ -1221,36 +1219,6 @@
       window.__storiiSyncMobileViewport = applySoon;
       window.__storiiMobileBottomBleed = applySoon;
     })();
-
-    function fixPWABottomSpacing() {
-      const scroller = document.getElementById("cards-scroller");
-      const tabBar = document.querySelector(".tab-bar") || document.querySelector("nav");
-
-      if (!scroller || !tabBar) return;
-
-      const tabRect = tabBar.getBoundingClientRect();
-
-      const distanceFromBottom = window.innerHeight - tabRect.bottom;
-      const paddingNeeded = tabRect.height + distanceFromBottom + 40;
-
-      scroller.style.setProperty("padding-bottom", paddingNeeded + "px", "important");
-      scroller.style.setProperty("scroll-padding-bottom", paddingNeeded + "px", "important");
-
-      console.log("innerHeight:", window.innerHeight);
-      console.log("tabBar bottom:", tabRect.bottom);
-      console.log("tabBar height:", tabRect.height);
-      console.log("distanceFromBottom:", distanceFromBottom);
-      console.log("paddingNeeded:", paddingNeeded);
-    }
-
-    fixPWABottomSpacing();
-
-    window.addEventListener("load", fixPWABottomSpacing);
-
-    const observer = new MutationObserver(() => fixPWABottomSpacing());
-    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
-
-    setTimeout(() => observer.disconnect(), 5000);
 
     function storiiCardSnapElement(cardEl) {
       if (!cardEl) return null;
