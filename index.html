@@ -655,21 +655,27 @@
         overscroll-behavior-y: none;
         background: #0d4074;
       }
+      /* Full-bleed under status bar; .phone height tracks visualViewport. */
+      .screen {
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+      }
       .phone {
         position: fixed;
-        inset: 0;
+        left: 0;
+        right: 0;
+        top: var(--storii-vv-top, 0px);
+        height: var(--storii-app-h, 100svh);
         width: 100%;
         max-width: 100%;
-        height: auto;
         min-height: 0;
         max-height: none;
         margin: 0;
         border-radius: 0;
         box-shadow: none;
-        padding-top: env(safe-area-inset-top, 0px);
-        padding-bottom: 0;
-        padding-left: env(safe-area-inset-left, 0px);
-        padding-right: env(safe-area-inset-right, 0px);
+        padding: 0;
       }
       .map-wrap {
         position: absolute;
@@ -685,16 +691,17 @@
         left: 0;
         right: 0;
         width: 100%;
+        display: flex;
+        flex-direction: column;
         /* Short viewports: start sheet higher so the card strip keeps ~min usable height. */
-        top: min(368px, max(268px, calc(100svh - 480px)));
+        top: min(368px, max(268px, calc(var(--storii-app-h, 100svh) - 480px)));
         bottom: 0;
         height: auto;
         min-height: 0;
-        --storii-map-cutoff: min(368px, max(268px, calc(100svh - 480px)));
+        --storii-map-cutoff: min(368px, max(268px, calc(var(--storii-app-h, 100svh) - 480px)));
         /* Search row + gap — tuned to where row + --card-rail-gap. */
         --storii-search-band: 86px;
-        /* Pill ~56px + 24px padding; 4px tab-bar inset — safe area handled on .tab-bar only. */
-        --storii-tab-float: 72px;
+        --storii-tab-float: 64px;
         --card-rail-gap: 10px;
         --storii-search-to-cards-gap: 18px;
         gap: var(--storii-search-to-cards-gap);
@@ -716,14 +723,10 @@
       }
       .cards-scroller {
         box-sizing: border-box;
-        flex: 0 0 auto;
+        flex: 1 1 auto;
         width: 100%;
-        height: calc(
-          100svh - var(--storii-map-cutoff) - var(--storii-search-band) - env(safe-area-inset-top, 0px)
-        );
-        max-height: calc(
-          100svh - var(--storii-map-cutoff) - var(--storii-search-band) - env(safe-area-inset-top, 0px)
-        );
+        height: auto;
+        max-height: none;
         min-height: 0;
         /* Horizontal inset comes from .sheet padding only — match search row width. */
         padding: var(--card-rail-gap, 10px) 0 8px 0;
@@ -758,7 +761,7 @@
         flex-shrink: 0;
         scroll-snap-align: start;
         scroll-snap-stop: normal;
-        min-height: calc(100% - 52px);
+        min-height: calc(100% - 28px);
         box-sizing: border-box;
       }
       .card-date {
@@ -843,7 +846,7 @@
       }
       .tab-bar {
         bottom: 0;
-        padding-bottom: calc(4px + env(safe-area-inset-bottom, 0px));
+        padding-bottom: env(safe-area-inset-bottom, 0px);
         padding-left: max(0px, env(safe-area-inset-left, 0px));
         padding-right: max(0px, env(safe-area-inset-right, 0px));
         background: none;
@@ -1128,6 +1131,51 @@
     function isMobileCardDeck() {
       return typeof window.matchMedia !== "undefined" && window.matchMedia("(max-width: 480px)").matches;
     }
+
+    /** iOS PWA: layout viewport (svh) often exceeds visible area — sync to visualViewport. */
+    (function storiiSyncMobileViewport() {
+      const mq = window.matchMedia("(max-width: 480px)");
+
+      function apply() {
+        const root = document.documentElement;
+        if (!mq.matches) {
+          root.style.removeProperty("--storii-app-h");
+          root.style.removeProperty("--storii-vv-top");
+          root.style.removeProperty("--storii-tab-float");
+          return;
+        }
+        const vv = window.visualViewport;
+        const h = Math.round(vv?.height ?? window.innerHeight);
+        const top = Math.round(vv?.offsetTop ?? 0);
+        root.style.setProperty("--storii-app-h", `${h}px`);
+        root.style.setProperty("--storii-vv-top", `${top}px`);
+
+        const tabInner = document.querySelector(".tab-inner");
+        const scroller = document.getElementById("cards-scroller");
+        if (tabInner && scroller) {
+          const overlap = Math.max(
+            0,
+            scroller.getBoundingClientRect().bottom - tabInner.getBoundingClientRect().top
+          );
+          root.style.setProperty("--storii-tab-float", `${Math.ceil(overlap + 8)}px`);
+        }
+      }
+
+      function applySoon() {
+        apply();
+        requestAnimationFrame(() => requestAnimationFrame(apply));
+      }
+      applySoon();
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", applySoon);
+        window.visualViewport.addEventListener("scroll", applySoon);
+      }
+      window.addEventListener("resize", applySoon);
+      window.addEventListener("orientationchange", applySoon);
+      mq.addEventListener("change", applySoon);
+      window.addEventListener("load", applySoon, { once: true });
+      window.__storiiSyncMobileViewport = applySoon;
+    })();
 
     function storiiCardSnapElement(cardEl) {
       if (!cardEl) return null;
@@ -1429,6 +1477,9 @@
           return;
         }
         resetInlineDeckStyles();
+        if (typeof window.__storiiSyncMobileViewport === "function") {
+          window.__storiiSyncMobileViewport();
+        }
         if (typeof window.__storiiSetupCardMapAnchorSync === "function") {
           window.__storiiSetupCardMapAnchorSync();
         }
