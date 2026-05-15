@@ -748,13 +748,40 @@
            Safari “double band” (sheet padding + tab bottom offset both reserving home-indicator). */
         padding: 16px 20px calc(82px + env(safe-area-inset-bottom, 0px));
       }
+      /* Figma 4653:33496 — vertical deck: next card peeks under; scroll sends front card behind + smaller. */
+      .cards-scroller-bleed {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+      }
       .cards-scroller {
         padding: var(--card-rail-gap, 10px) 20px 12px 20px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        touch-action: pan-y;
+        scroll-snap-type: none;
+        overscroll-behavior-y: contain;
+        overscroll-behavior-x: auto;
+      }
+      .cards-scroller-track {
+        flex-direction: column;
+        width: 100%;
+        gap: 0;
+        align-items: stretch;
+      }
+      .cards-scroller-tail {
+        display: none;
       }
       .deal-card {
         padding: 18px 16px 12px;
         gap: 8px;
         border-radius: 8px;
+        width: 100%;
+        max-width: 100%;
+        flex: 0 0 auto;
+        transform-origin: top center;
+        will-change: transform, opacity;
+        transition: transform 0.14s ease-out, opacity 0.14s ease-out;
       }
       .polaroid-stack {
         height: 156px;
@@ -789,11 +816,14 @@
         align-items: flex-end;
         justify-content: center;
         z-index: 1001;
+        /* Same base tint as sheet opaque band (#0B1B3A in .sheet::after). */
+        background: #0b1b3a;
       }
       .tab-inner {
         max-width: min(382px, calc(100% - 16px));
         /* 6px original bottom + 12px below labels + home indicator inside same chrome (no extra float gap). */
         padding: 6px 8px calc(6px + 12px + env(safe-area-inset-bottom, 0px)) 8px;
+        background: transparent;
       }
     }
   </style>
@@ -839,7 +869,7 @@
 
         <div class="cards-scroller-bleed">
           <div class="cards-scroller" id="cards-scroller" role="region" aria-label="Destination deals">
-            <div class="cards-scroller-track">
+            <div class="cards-scroller-track" id="cards-scroller-track">
             <article class="deal-card kabini" id="card-kabini" data-anchor="kabini" data-lat="11.965" data-lng="76.316">
             <div class="card-head">
               <div class="card-titles">
@@ -1081,16 +1111,31 @@
       return q || localStorage.getItem("storii_gmaps_key") || "";
     }
 
+    /** Mobile: vertical stacked deck (Figma 4653:33496). Desktop: horizontal strip. */
+    function isMobileCardDeck() {
+      return typeof window.matchMedia !== "undefined" && window.matchMedia("(max-width: 480px)").matches;
+    }
+    const MOBILE_DECK_STRIDE = 56;
+    window.__storiiDeckStride = MOBILE_DECK_STRIDE;
+
     function scrollToCard(id) {
       const el = document.getElementById(id);
       const scroller = document.getElementById("cards-scroller");
       if (!el || !scroller) return;
-      const padLeft = parseFloat(getComputedStyle(scroller).scrollPaddingLeft) || 20;
-      const delta =
-        el.getBoundingClientRect().left -
-        scroller.getBoundingClientRect().left +
-        scroller.scrollLeft;
-      scroller.scrollTo({ left: Math.max(0, delta - padLeft), behavior: "smooth" });
+      if (isMobileCardDeck()) {
+        const cards = Array.from(document.querySelectorAll("#cards-scroller .deal-card"));
+        const idx = cards.indexOf(el);
+        if (idx >= 0) {
+          scroller.scrollTo({ top: idx * MOBILE_DECK_STRIDE, behavior: "smooth" });
+        }
+      } else {
+        const padLeft = parseFloat(getComputedStyle(scroller).scrollPaddingLeft) || 20;
+        const delta =
+          el.getBoundingClientRect().left -
+          scroller.getBoundingClientRect().left +
+          scroller.scrollLeft;
+        scroller.scrollTo({ left: Math.max(0, delta - padLeft), behavior: "smooth" });
+      }
       if (typeof window.__storiiSyncToCard === "function") {
         window.requestAnimationFrame(() => window.__storiiSyncToCard(el));
       }
@@ -1109,14 +1154,34 @@
       scroller.addEventListener("dragstart", (e) => e.preventDefault());
       scroller.addEventListener("selectstart", (e) => e.preventDefault());
 
-      /* Trackpad / mouse wheel: map the dominant axis to horizontal scroll. One code path +
-         always preventDefault when we scroll avoids double-scrolling (native x + our handler). */
+      /* Trackpad / mouse wheel: vertical deck on phone, horizontal strip on desktop. */
       const WHEEL_PIXEL_GAIN = 1.5;
       const WHEEL_LINE_PIXELS = 36;
       scroller.addEventListener(
         "wheel",
         (e) => {
           if (e.ctrlKey) return;
+          if (isMobileCardDeck()) {
+            if (scroller.scrollHeight <= scroller.clientHeight + 1) return;
+            const ax = Math.abs(e.deltaX);
+            const ay = Math.abs(e.deltaY);
+            const dominant = ay >= ax ? e.deltaY : e.deltaX;
+            if (dominant === 0) return;
+            let mult = WHEEL_PIXEL_GAIN;
+            if (e.deltaMode === 1) mult = WHEEL_LINE_PIXELS;
+            else if (e.deltaMode === 2) mult = scroller.clientHeight * 0.85;
+            const max = scroller.scrollHeight - scroller.clientHeight;
+            const next = scroller.scrollTop + dominant * mult;
+            const clamped = Math.max(0, Math.min(max, next));
+            if (clamped === scroller.scrollTop && dominant !== 0) {
+              const atStart = scroller.scrollTop <= 0.5;
+              const atEnd = scroller.scrollTop >= max - 0.5;
+              if ((dominant < 0 && atStart) || (dominant > 0 && atEnd)) return;
+            }
+            e.preventDefault();
+            scroller.scrollTop = clamped;
+            return;
+          }
           if (scroller.scrollWidth <= scroller.clientWidth + 1) return;
           const ax = Math.abs(e.deltaX);
           const ay = Math.abs(e.deltaY);
@@ -1141,13 +1206,20 @@
         { passive: false }
       );
 
-      /* Mouse / pen / touch: drag to scroll (reliable in embedded previews + nested flex hosts). */
+      /* Mouse / pen / touch: drag to scroll (axis follows layout). */
       let drag = null;
       scroller.addEventListener("pointerdown", (e) => {
         if (e.pointerType === "mouse" && e.button !== 0) return;
         const t = e.target;
         if (t && typeof t.closest === "function" && t.closest("a, button, input, textarea, select")) return;
-        drag = { pid: e.pointerId, x0: e.clientX, sl0: scroller.scrollLeft };
+        drag = {
+          pid: e.pointerId,
+          x0: e.clientX,
+          y0: e.clientY,
+          sl0: scroller.scrollLeft,
+          st0: scroller.scrollTop,
+          mobile: isMobileCardDeck()
+        };
         try {
           scroller.setPointerCapture(e.pointerId);
         } catch (_) {}
@@ -1157,7 +1229,11 @@
         (e) => {
           if (!drag || drag.pid !== e.pointerId) return;
           if (e.pointerType === "touch") e.preventDefault();
-          scroller.scrollLeft = drag.sl0 - (e.clientX - drag.x0);
+          if (drag.mobile) {
+            scroller.scrollTop = drag.st0 - (e.clientY - drag.y0);
+          } else {
+            scroller.scrollLeft = drag.sl0 - (e.clientX - drag.x0);
+          }
         },
         { passive: false }
       );
@@ -1171,6 +1247,132 @@
       scroller.addEventListener("pointerup", endDrag);
       scroller.addEventListener("pointercancel", endDrag);
       scroller.addEventListener("lostpointercapture", endDrag);
+    })();
+
+    /** Vertical reverse-stack deck on narrow viewports (Figma 4653:33496). */
+    (function initMobileVerticalDeck() {
+      const mq = window.matchMedia("(max-width: 480px)");
+      const DECK_STRIDE = MOBILE_DECK_STRIDE;
+      const PEEK = 44;
+      const MAX_BACK = 3;
+      let scrollHandler = null;
+
+      function deckCards() {
+        return Array.from(document.querySelectorAll("#cards-scroller .deal-card"));
+      }
+
+      function resetDesktopDeckStyles() {
+        deckCards().forEach((c) => {
+          c.style.marginTop = "";
+          c.style.transform = "";
+          c.style.zIndex = "";
+          c.style.opacity = "";
+          c.style.pointerEvents = "";
+        });
+        const track = document.getElementById("cards-scroller-track");
+        if (track) track.style.paddingBottom = "";
+      }
+
+      function applyPeekMargins() {
+        const cards = deckCards();
+        cards.forEach((c) => {
+          c.style.marginTop = "";
+        });
+        for (let i = 1; i < cards.length; i++) {
+          const prev = cards[i - 1];
+          const overlap = Math.max(0, prev.offsetHeight - PEEK);
+          cards[i].style.marginTop = `-${overlap}px`;
+        }
+        const track = document.getElementById("cards-scroller-track");
+        if (track) {
+          track.style.paddingBottom = `${DECK_STRIDE * (cards.length + 4)}px`;
+        }
+      }
+
+      function updateDeckTransforms() {
+        const scroller = document.getElementById("cards-scroller");
+        const cards = deckCards();
+        if (!scroller || !cards.length) return;
+        const st = scroller.scrollTop;
+        const lead = st / DECK_STRIDE;
+        cards.forEach((el, i) => {
+          const d = i - lead;
+          let scale = 1;
+          let zi = 30;
+          let opacity = 1;
+          let ty = 0;
+          let pe = "auto";
+
+          if (d > MAX_BACK + 0.35) {
+            opacity = 0;
+            scale = 0.76;
+            zi = 1;
+            pe = "none";
+          } else if (d < -1.15) {
+            opacity = 0;
+            scale = 0.72;
+            zi = 0;
+            pe = "none";
+          } else if (d < 0) {
+            const t = Math.min(1, Math.max(0, 1 + d));
+            opacity = 0.42 + 0.55 * t;
+            scale = 0.76 + 0.2 * t;
+            zi = Math.round(18 + t * 22);
+            ty = (1 - t) * -6;
+            pe = t > 0.35 ? "auto" : "none";
+          } else {
+            const k = Math.min(MAX_BACK, Math.floor(d + 1e-6));
+            const sub = d - k;
+            opacity = 1;
+            scale = Math.max(0.77, 1 - k * 0.066 - sub * 0.04);
+            zi = Math.round(48 - k * 12 - sub * 10);
+            ty = k * 3;
+          }
+
+          zi = Math.max(0, Math.min(78, zi));
+          el.style.zIndex = String(zi);
+          el.style.transform = `translateY(${ty.toFixed(1)}px) scale(${scale.toFixed(3)})`;
+          el.style.opacity = opacity.toFixed(3);
+          el.style.pointerEvents = pe;
+        });
+      }
+
+      function bindScroll() {
+        const scroller = document.getElementById("cards-scroller");
+        if (!scroller) return;
+        if (scrollHandler) {
+          scroller.removeEventListener("scroll", scrollHandler);
+        }
+        scrollHandler = () => {
+          window.requestAnimationFrame(updateDeckTransforms);
+        };
+        scroller.addEventListener("scroll", scrollHandler, { passive: true });
+      }
+
+      function refresh() {
+        if (!mq.matches) {
+          resetDesktopDeckStyles();
+          return;
+        }
+        applyPeekMargins();
+        updateDeckTransforms();
+        bindScroll();
+      }
+
+      mq.addEventListener("change", () => window.requestAnimationFrame(refresh));
+      window.addEventListener("load", () => window.requestAnimationFrame(refresh), { once: true });
+      window.addEventListener("resize", () => {
+        if (mq.matches) window.requestAnimationFrame(refresh);
+      });
+      document.querySelectorAll("#cards-scroller .deal-card img").forEach((img) => {
+        img.addEventListener("load", () => window.requestAnimationFrame(refresh), { passive: true });
+      });
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", () => window.requestAnimationFrame(refresh), { once: true });
+      } else {
+        window.requestAnimationFrame(refresh);
+      }
+      window.__storiiRefreshMobileDeck = refresh;
     })();
 
     /** Runs only after Google Maps JS API is loaded (see dynamic script below). */
@@ -1306,8 +1508,10 @@
       function syncToCard(card) {
         if (!card || !card.dataset.lat) return;
         const anchor = card.getAttribute("data-anchor") || null;
+        const mobileStack =
+          typeof window.matchMedia !== "undefined" && window.matchMedia("(max-width: 480px)").matches;
         document.querySelectorAll(".deal-card").forEach((c) => {
-          c.classList.toggle("dim", c.id !== card.id);
+          if (!mobileStack) c.classList.toggle("dim", c.id !== card.id);
         });
         anchoredMarkers.forEach(({ marker, anchorId }) => {
           if (marker.div) marker.div.classList.toggle("pin-focused", Boolean(anchorId) && anchorId === anchor);
@@ -1319,6 +1523,13 @@
       function visibilityRatio(card, root) {
         const cr = card.getBoundingClientRect();
         const rr = root.getBoundingClientRect();
+        const mobileStack =
+          typeof window.matchMedia !== "undefined" && window.matchMedia("(max-width: 480px)").matches;
+        if (mobileStack) {
+          const ih = Math.max(0, Math.min(cr.bottom, rr.bottom) - Math.max(cr.top, rr.top));
+          if (cr.height <= 0) return 0;
+          return ih / cr.height;
+        }
         const iw = Math.max(0, Math.min(cr.right, rr.right) - Math.max(cr.left, rr.left));
         if (cr.width <= 0) return 0;
         return iw / cr.width;
@@ -1389,6 +1600,9 @@
             refitMapFrame();
             anchoredMarkers.forEach(({ marker }) => marker.draw());
             setupCardMapAnchorSync();
+            if (typeof window.__storiiRefreshMobileDeck === "function") {
+              window.requestAnimationFrame(() => window.__storiiRefreshMobileDeck());
+            }
           });
           setTimeout(refitMapFrame, 100);
           setTimeout(refitMapFrame, 400);
