@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#21769B">
+  <meta name="theme-color" content="#269CBF">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -53,6 +53,17 @@
       z-index: 1;
       isolation: isolate;
       direction: ltr;
+    }
+    #map,
+    #gmap,
+    .map-wrap,
+    .map-container {
+      background-color: #269CBF;
+    }
+    html,
+    body,
+    #root {
+      background-color: #269CBF;
     }
     /* Absolute fill: percentage-sized Maps in WebViews often leave a left “gutter” of backgroundColor. */
     #gmap {
@@ -137,7 +148,7 @@
         rgba(0, 0, 0, 1) 100%
       );
     }
-    /* Sheet tint: #1F85AC fade at lip through 22%, then #1F85AC → #0D4074 down to bottom. */
+    /* Sheet tint: #269CBF fade at lip through 22%, then #269CBF → #24619B down to bottom. */
     .sheet::after {
       content: "";
       position: absolute;
@@ -150,12 +161,12 @@
       pointer-events: none;
       background: linear-gradient(
         180deg,
-        rgba(31, 133, 172, 0) 0%,
-        rgba(31, 133, 172, 0.45) 5%,
-        rgba(31, 133, 172, 0.9) 12%,
-        rgba(31, 133, 172, 0.98) 18%,
-        #1f85ac 22%,
-        #0d4074 100%
+        rgba(38, 156, 191, 0) 0%,
+        rgba(38, 156, 191, 0.45) 5%,
+        rgba(38, 156, 191, 0.9) 12%,
+        rgba(38, 156, 191, 0.98) 18%,
+        #269CBF 22%,
+        #24619B 100%
       );
       opacity: 1;
     }
@@ -651,7 +662,7 @@
       flex-direction: column;
       padding: calc(20px + max(16px, env(safe-area-inset-top, 0px))) 24px 24px;
       box-sizing: border-box;
-      background: linear-gradient(180deg, #1f85ac 0%, #1f85ac 22%, #0d4074 100%);
+      background: linear-gradient(180deg, #269CBF 0%, #269CBF 22%, #24619B 100%);
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
@@ -1168,6 +1179,12 @@
       z-index: 1;
       isolation: isolate;
     }
+    #results-map,
+    #gmap-results,
+    .results-map-wrap,
+    .storii-results-map-wrap {
+      background-color: #9ed4b4;
+    }
     #gmap-results {
       position: absolute;
       left: -3px;
@@ -1194,11 +1211,11 @@
       pointer-events: auto;
       background: linear-gradient(
         180deg,
-        rgba(31, 133, 172, 0) 0%,
-        rgba(31, 133, 172, 0.45) 4%,
-        rgba(31, 133, 172, 0.98) 10%,
-        #1f85ac 14%,
-        #0d4074 100%
+        rgba(38, 156, 191, 0) 0%,
+        rgba(38, 156, 191, 0.45) 4%,
+        rgba(38, 156, 191, 0.98) 10%,
+        #269CBF 14%,
+        #24619B 100%
       );
     }
     .storii-results-summary {
@@ -1501,7 +1518,7 @@
         height: 100%;
         height: -webkit-fill-available;
         overflow: hidden;
-        background: #0d4074;
+        background: #24619B;
       }
       body {
         height: 100%;
@@ -1512,7 +1529,7 @@
         padding: 0;
         overflow: hidden;
         overscroll-behavior-y: none;
-        background: #0d4074;
+        background: #24619B;
       }
       /* Full-bleed under status bar; .phone height tracks visualViewport. */
       .screen {
