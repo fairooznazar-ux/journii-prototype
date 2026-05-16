@@ -35,9 +35,11 @@
         0 40px 100px rgba(0,0,0,0.65);
     }
     /* Figma 4623:28866 — screen gradient */
+    .stay-screen,
     .screen {
       position: absolute;
       inset: 0;
+      z-index: 1;
       background: linear-gradient(180deg, #273f78 0%, #152d63 34.569%, #152d63 100%);
     }
     .map-wrap {
@@ -656,11 +658,12 @@
       color: rgba(255, 255, 255, 0.7);
     }
 
-    /* Search overlay — Figma 4562:5555 */
+    /* Search overlay — Figma 4562:5555 (layer 3) */
+    .search-overlay,
     .storii-search-overlay {
       position: absolute;
       inset: 0;
-      z-index: 2000;
+      z-index: 3;
       display: flex;
       flex-direction: column;
       padding: calc(20px + max(16px, env(safe-area-inset-top, 0px))) 24px 24px;
@@ -1148,32 +1151,15 @@
       transition: opacity 200ms ease-in;
     }
 
-    /* Search results screen */
+    /* Results screen — layer 2 (always mounted) */
+    .results-screen,
     .storii-search-results {
       position: absolute;
       inset: 0;
-      z-index: 2100;
-      opacity: 0;
-      visibility: hidden;
+      z-index: 2;
       pointer-events: none;
-      transition:
-        opacity 200ms ease-out,
-        visibility 0ms linear 200ms;
     }
-    .storii-search-results.is-open {
-      opacity: 1;
-      visibility: visible;
-      pointer-events: auto;
-      transition:
-        opacity 200ms ease-out,
-        visibility 0ms;
-    }
-    .storii-search-results.is-closing {
-      opacity: 0;
-      transition: opacity 200ms ease-in;
-    }
-    body.storii-results-screen-open #storii-stay-tab-bar,
-    .storii-search-results .tab-bar {
+    body.storii-results-screen-open #storii-stay-tab-bar {
       display: none !important;
       pointer-events: none;
       visibility: hidden;
@@ -1187,6 +1173,57 @@
       overflow: hidden;
       z-index: 1;
       isolation: isolate;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 300ms ease-out;
+    }
+    .storii-results-map-wrap.is-map-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .storii-results-map-wrap.is-map-fading-out {
+      opacity: 0;
+      transition: opacity 300ms ease-in;
+      pointer-events: none;
+    }
+    .storii-results-search-pill {
+      position: absolute;
+      left: 50%;
+      top: 40%;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+      opacity: 0;
+      pointer-events: none;
+      padding: 12px 24px;
+      border-radius: 24px;
+      background: rgba(36, 97, 155, 0.9);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.2;
+      white-space: nowrap;
+      transition: opacity 150ms ease-in;
+    }
+    .storii-results-search-pill.is-visible {
+      opacity: 1;
+    }
+    .storii-results-search-pill.is-hiding {
+      opacity: 0;
+    }
+    .g-html-marker.storii-pin-drop {
+      opacity: 0;
+      transform: scale(0);
+      transform-origin: center bottom;
+      transition:
+        opacity 200ms ease-out,
+        transform 200ms ease-out;
+    }
+    .g-html-marker.storii-pin-drop.is-pin-visible {
+      opacity: 1;
+      transform: scale(1);
     }
     #results-map,
     #gmap-results,
@@ -1217,7 +1254,9 @@
       gap: 12px;
       padding: 16px 20px 0;
       min-height: 0;
-      pointer-events: auto;
+      pointer-events: none;
+      transform: translateY(100%);
+      transition: transform 350ms ease-out;
       background: linear-gradient(
         180deg,
         rgba(38, 156, 191, 0) 0%,
@@ -1226,6 +1265,15 @@
         #269CBF 14%,
         #24619B 100%
       );
+    }
+    .storii-results-panel.is-sheet-visible {
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .storii-results-panel.is-sheet-closing {
+      transform: translateY(100%);
+      transition: transform 250ms ease-in;
+      pointer-events: none;
     }
     .storii-results-summary {
       flex: 0 0 52px;
@@ -1540,6 +1588,7 @@
         background: #24619B;
       }
       /* Full-bleed under status bar; .phone height tracks visualViewport. */
+      .stay-screen,
       .screen {
         top: 0;
         bottom: 0;
@@ -2009,111 +2058,16 @@
       </nav>
     </div>
 
-    <div id="storii-search-overlay" class="storii-search-overlay" role="dialog" aria-modal="true" aria-labelledby="storii-search-title" hidden>
-      <div class="storii-search-overlay-head">
-        <h1 id="storii-search-title" class="storii-search-title">
-          <span class="storii-search-title-line">Where Do You</span>
-          <span class="storii-search-title-line storii-search-title-line--soft">Want To Go?</span>
-        </h1>
-        <button type="button" class="storii-search-close" aria-label="Close search">
-          <svg viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <path d="M1 1L11 11M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-        </button>
-      </div>
-      <div class="storii-search-compose">
-        <div class="storii-search-compose-top">
-          <span class="storii-search-field-ic" aria-hidden="true">
-            <img src="https://www.figma.com/api/mcp/asset/efd6f838-d909-4ebc-8952-95f9f1abe1c2" alt="">
-          </span>
-          <textarea
-            class="storii-search-input"
-            id="storii-search-input"
-            rows="2"
-            placeholder="Search destinations"
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="off"
-            inputmode="search"
-            enterkeyhint="search"
-            aria-label="Search destinations"
-          >Beachfront Resorts In Phuket</textarea>
-        </div>
-        <hr class="storii-search-compose-divider" aria-hidden="true">
-        <div class="storii-search-compose-meta">
-          <button
-            type="button"
-            class="storii-search-meta-chip storii-search-meta-chip--dates"
-            id="storii-search-dates-trigger"
-            aria-label="Travel dates"
-            aria-expanded="false"
-            aria-controls="storii-date-picker"
-          >
-            <i data-lucide="calendar" class="storii-search-meta-lucide" aria-hidden="true"></i>
-            <span class="storii-search-date-label" id="storii-search-date-label">16-18 May</span>
-          </button>
-          <label class="storii-search-meta-chip storii-search-meta-chip--guests">
-            <i data-lucide="users" class="storii-search-meta-lucide" aria-hidden="true"></i>
-            <input type="text" class="storii-search-meta-input storii-search-meta-input--guests" value="2" aria-label="Guests" inputmode="numeric">
-          </label>
-          <label class="storii-search-meta-chip storii-search-meta-chip--rooms">
-            <i data-lucide="bed-double" class="storii-search-meta-lucide" aria-hidden="true"></i>
-            <input type="text" class="storii-search-meta-input storii-search-meta-input--rooms" value="1" aria-label="Rooms" inputmode="numeric">
-          </label>
-          <button type="button" class="storii-search-submit" aria-label="Search">
-            <i data-lucide="arrow-right" class="storii-search-submit-icon" aria-hidden="true"></i>
-          </button>
-        </div>
-      </div>
-      <div id="storii-date-picker" class="storii-date-picker" hidden>
-        <div class="storii-date-picker-panel">
-          <div class="storii-date-picker-scroll" id="storii-date-picker-scroll" role="application" aria-label="Choose travel dates"></div>
-        </div>
-      </div>
-      <p class="storii-search-suggested-label">SUGGESTED</p>
-      <ul class="storii-search-suggestions">
-        <li>
-          <button type="button" class="storii-search-suggestion" data-query="Weekend Getaway To Goa Next Week">
-            <span class="storii-search-suggestion-text">Weekend Getaway To Goa Next Week</span>
-            <span class="storii-search-suggestion-arrow" aria-hidden="true">
-              <span class="storii-search-suggestion-arrow-inner">
-                <img src="https://www.figma.com/api/mcp/asset/e1220418-55d9-4c16-99ca-3a2e89e7accd" alt="">
-              </span>
-            </span>
-          </button>
-        </li>
-        <li>
-          <button type="button" class="storii-search-suggestion" data-query="Cozy Cabins In Coffee Estate, 3 Hours From Bangalore">
-            <span class="storii-search-suggestion-text">Cozy Cabins In Coffee Estate, 3 Hours From Bangalore</span>
-            <span class="storii-search-suggestion-arrow" aria-hidden="true">
-              <span class="storii-search-suggestion-arrow-inner">
-                <img src="https://www.figma.com/api/mcp/asset/e1220418-55d9-4c16-99ca-3a2e89e7accd" alt="">
-              </span>
-            </span>
-          </button>
-        </li>
-        <li>
-          <button type="button" class="storii-search-suggestion" data-query="Romantic Getaway To Sri Lanka For Valentines">
-            <span class="storii-search-suggestion-text">Romantic Getaway To Sri Lanka For Valentines</span>
-            <span class="storii-search-suggestion-arrow" aria-hidden="true">
-              <span class="storii-search-suggestion-arrow-inner">
-                <img src="https://www.figma.com/api/mcp/asset/e1220418-55d9-4c16-99ca-3a2e89e7accd" alt="">
-              </span>
-            </span>
-          </button>
-        </li>
-      </ul>
-    </div>
-
-    <div id="storii-search-results" class="storii-search-results" hidden aria-hidden="true">
+    <div id="storii-search-results" class="results-screen storii-search-results" aria-hidden="true">
       <div class="storii-results-map-wrap">
         <div id="gmap-results"></div>
         <div id="map-results-fallback" class="map-fallback">
           <div>Add your Google Maps API key to load satellite view.</div>
           <div>Open with <code>?gmapsKey=YOUR_BROWSER_KEY</code> (key is stored in localStorage).</div>
         </div>
+        <div id="storii-results-search-pill" class="storii-results-search-pill" aria-live="polite"></div>
       </div>
-      <div class="storii-results-panel">
+      <div class="storii-results-panel" id="storii-results-sheet">
         <div class="storii-results-summary">
           <button type="button" class="storii-results-back" id="storii-results-back" aria-label="Back to stays">
             <svg viewBox="0 0 18 18" fill="none" aria-hidden="true">
@@ -2247,6 +2201,103 @@
         </div>
       </div>
     </div>
+
+    <div id="storii-search-overlay" class="search-overlay storii-search-overlay" role="dialog" aria-modal="true" aria-labelledby="storii-search-title">
+      <div class="storii-search-overlay-head">
+        <h1 id="storii-search-title" class="storii-search-title">
+          <span class="storii-search-title-line">Where Do You</span>
+          <span class="storii-search-title-line storii-search-title-line--soft">Want To Go?</span>
+        </h1>
+        <button type="button" class="storii-search-close" aria-label="Close search">
+          <svg viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M1 1L11 11M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="storii-search-compose">
+        <div class="storii-search-compose-top">
+          <span class="storii-search-field-ic" aria-hidden="true">
+            <img src="https://www.figma.com/api/mcp/asset/efd6f838-d909-4ebc-8952-95f9f1abe1c2" alt="">
+          </span>
+          <textarea
+            class="storii-search-input"
+            id="storii-search-input"
+            rows="2"
+            placeholder="Search destinations"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            inputmode="search"
+            enterkeyhint="search"
+            aria-label="Search destinations"
+          >Beachfront Resorts In Phuket</textarea>
+        </div>
+        <hr class="storii-search-compose-divider" aria-hidden="true">
+        <div class="storii-search-compose-meta">
+          <button
+            type="button"
+            class="storii-search-meta-chip storii-search-meta-chip--dates"
+            id="storii-search-dates-trigger"
+            aria-label="Travel dates"
+            aria-expanded="false"
+            aria-controls="storii-date-picker"
+          >
+            <i data-lucide="calendar" class="storii-search-meta-lucide" aria-hidden="true"></i>
+            <span class="storii-search-date-label" id="storii-search-date-label">16-18 May</span>
+          </button>
+          <label class="storii-search-meta-chip storii-search-meta-chip--guests">
+            <i data-lucide="users" class="storii-search-meta-lucide" aria-hidden="true"></i>
+            <input type="text" class="storii-search-meta-input storii-search-meta-input--guests" value="2" aria-label="Guests" inputmode="numeric">
+          </label>
+          <label class="storii-search-meta-chip storii-search-meta-chip--rooms">
+            <i data-lucide="bed-double" class="storii-search-meta-lucide" aria-hidden="true"></i>
+            <input type="text" class="storii-search-meta-input storii-search-meta-input--rooms" value="1" aria-label="Rooms" inputmode="numeric">
+          </label>
+          <button type="button" class="storii-search-submit" aria-label="Search">
+            <i data-lucide="arrow-right" class="storii-search-submit-icon" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+      <div id="storii-date-picker" class="storii-date-picker" hidden>
+        <div class="storii-date-picker-panel">
+          <div class="storii-date-picker-scroll" id="storii-date-picker-scroll" role="application" aria-label="Choose travel dates"></div>
+        </div>
+      </div>
+      <p class="storii-search-suggested-label">SUGGESTED</p>
+      <ul class="storii-search-suggestions">
+        <li>
+          <button type="button" class="storii-search-suggestion" data-query="Weekend Getaway To Goa Next Week">
+            <span class="storii-search-suggestion-text">Weekend Getaway To Goa Next Week</span>
+            <span class="storii-search-suggestion-arrow" aria-hidden="true">
+              <span class="storii-search-suggestion-arrow-inner">
+                <img src="https://www.figma.com/api/mcp/asset/e1220418-55d9-4c16-99ca-3a2e89e7accd" alt="">
+              </span>
+            </span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="storii-search-suggestion" data-query="Cozy Cabins In Coffee Estate, 3 Hours From Bangalore">
+            <span class="storii-search-suggestion-text">Cozy Cabins In Coffee Estate, 3 Hours From Bangalore</span>
+            <span class="storii-search-suggestion-arrow" aria-hidden="true">
+              <span class="storii-search-suggestion-arrow-inner">
+                <img src="https://www.figma.com/api/mcp/asset/e1220418-55d9-4c16-99ca-3a2e89e7accd" alt="">
+              </span>
+            </span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="storii-search-suggestion" data-query="Romantic Getaway To Sri Lanka For Valentines">
+            <span class="storii-search-suggestion-text">Romantic Getaway To Sri Lanka For Valentines</span>
+            <span class="storii-search-suggestion-arrow" aria-hidden="true">
+              <span class="storii-search-suggestion-arrow-inner">
+                <img src="https://www.figma.com/api/mcp/asset/e1220418-55d9-4c16-99ca-3a2e89e7accd" alt="">
+              </span>
+            </span>
+          </button>
+        </li>
+      </ul>
+    </div>
+
   </div>
 
   <script>
@@ -2288,16 +2339,14 @@
           closeTimer = null;
         }
         window.storiiCloseDatePicker?.();
-        overlay.classList.remove("is-open", "is-closing");
-        overlay.hidden = true;
+        overlay.classList.remove("is-open", "is-closing", "is-exiting-to-results");
         setExpanded(false);
         input.blur();
       }
 
       function open() {
         if (overlay.classList.contains("is-open")) return;
-        overlay.hidden = false;
-        overlay.classList.remove("is-closing");
+        overlay.classList.remove("is-closing", "is-exiting-to-results");
         overlay.classList.add("is-open");
         setExpanded(true);
         if (window.lucide) lucide.createIcons();
@@ -2305,6 +2354,7 @@
           history.pushState({ storiiSearchOverlay: true }, "");
           historyPushed = true;
         }
+        window.storiiPreloadResultsMap?.();
       }
 
       function focusSearchInput() {
@@ -2371,6 +2421,20 @@
         field.addEventListener("keydown", (e) => e.stopPropagation());
       });
 
+      window.storiiResetSearchOverlay = () => {
+        input.value = "";
+        const dateLabel = document.getElementById("storii-search-date-label");
+        if (dateLabel) dateLabel.textContent = "16-18 May";
+        const guestsInput = overlay.querySelector(".storii-search-meta-input--guests");
+        const roomsInput = overlay.querySelector(".storii-search-meta-input--rooms");
+        if (guestsInput) guestsInput.value = "2";
+        if (roomsInput) roomsInput.value = "1";
+        overlay.classList.remove("is-open", "is-closing", "is-exiting-to-results");
+        overlay.classList.remove("has-date-picker");
+        setExpanded(false);
+        input.blur();
+      };
+
       window.storiiCloseSearchOverlayForResults = () => {
         historyPushed = false;
         overlay.classList.remove("is-open");
@@ -2379,7 +2443,6 @@
         setExpanded(false);
         input.blur();
         window.setTimeout(() => {
-          overlay.hidden = true;
           overlay.classList.remove("is-exiting-to-results", "is-closing");
         }, 200);
       };
@@ -2698,15 +2761,42 @@
       window.storiiCloseDatePicker = forceClosePicker;
     })();
 
-    /** Search results screen — Figma 4569:7683 */
+    /** Search results screen — layered map + animated handoff */
     (function storiiSearchResults() {
       const results = document.getElementById("storii-search-results");
+      const mapWrap = document.querySelector(".storii-results-map-wrap");
+      const sheet = document.getElementById("storii-results-sheet");
+      const pill = document.getElementById("storii-results-search-pill");
       const backBtn = document.getElementById("storii-results-back");
       const queryEl = document.getElementById("storii-results-query");
       const metaEl = document.getElementById("storii-results-meta");
       const scroller = document.getElementById("storii-results-scroller");
       const stayTabBar = document.getElementById("storii-stay-tab-bar");
-      if (!results || !backBtn || !queryEl || !metaEl || !scroller) return;
+      if (!results || !mapWrap || !sheet || !pill || !backBtn || !queryEl || !metaEl || !scroller) return;
+
+      const RESULTS_HOME = { lat: 15, lng: 95 };
+      const RESULTS_HOME_ZOOM = 4;
+      const PHUKET_CENTER = { lat: 7.9, lng: 98.3 };
+      const PHUKET_ZOOM = 10;
+      const PILL_MESSAGES = [
+        "Searching Phuket...",
+        "Finding beachfront properties...",
+        "Checking availability...",
+      ];
+
+      let resultsMap = null;
+      let resultsMapInitialized = false;
+      let resultsMarkers = [];
+      let resultsScrollSync = null;
+      let pillTimer = null;
+      let pillMsgIndex = 0;
+      let pendingSubmitPayload = null;
+      let submitRunning = false;
+      let resizeObserverBound = false;
+
+      function delay(ms) {
+        return new Promise((resolve) => window.setTimeout(resolve, ms));
+      }
 
       function setStayTabBarVisible(visible) {
         if (!stayTabBar) return;
@@ -2714,18 +2804,16 @@
         document.body.classList.toggle("storii-results-screen-open", !visible);
       }
 
-      /** Keep the active pin in the center of the map band above the results panel. */
       function getResultsMapPadding() {
         const mapEl = document.getElementById("gmap-results");
-        const panel = document.querySelector(".storii-results-panel");
+        const panel = sheet;
         if (!mapEl || !panel) {
           return { top: 48, bottom: 0, left: 8, right: 8 };
         }
         const mapRect = mapEl.getBoundingClientRect();
         const panelTop = panel.getBoundingClientRect().top;
         const bottom = Math.max(0, Math.round(mapRect.bottom - panelTop));
-        const top = 40;
-        return { top, bottom, left: 8, right: 8 };
+        return { top: 40, bottom, left: 8, right: 8 };
       }
 
       function applyResultsMapPadding() {
@@ -2741,11 +2829,6 @@
         applyResultsMapPadding();
         resultsMap.panTo({ lat, lng });
       }
-
-      let resultsMap = null;
-      let resultsMarkers = [];
-      let resultsScrollSync = null;
-      let closeTimer = null;
 
       function formatGuestsMeta(count) {
         const n = parseInt(String(count || "2"), 10);
@@ -2813,68 +2896,154 @@
         pickActiveAndSync();
       }
 
-      function mountResultsMarkers() {
-        if (!resultsMap || !window.__storiiHtmlMapMarker) return;
+      function createResultsMarker(card) {
+        if (!resultsMap || !window.__storiiHtmlMapMarker) return null;
         const HtmlMapMarker = window.__storiiHtmlMapMarker;
         const dotHtml = window.__storiiMapPinDotHtml;
         const activeHtml = window.__storiiMapPinActiveHtmlFromSymbol;
-        if (!dotHtml || !activeHtml) return;
+        if (!dotHtml || !activeHtml) return null;
 
+        const lat = parseFloat(card.dataset.lat);
+        const lng = parseFloat(card.dataset.lng);
+        const anchorId = card.getAttribute("data-anchor");
+        const fill = card.getAttribute("data-pin-fill") || "#05cf55";
+        const icon = card.getAttribute("data-pin-icon") || "";
+        if (!Number.isFinite(lat) || !Number.isFinite(lng) || !anchorId) return null;
+
+        const pos = new google.maps.LatLng(lat, lng);
+        const m = new HtmlMapMarker(pos, {
+          anchorId,
+          anchorDot: { x: 0.5, y: 0.5 },
+          anchorIcon: { x: 0.5, y: 1 },
+        });
+        m.html = dotHtml(fill);
+        m._pinActive = false;
+        m.anchor = { x: 0.5, y: 0.5 };
+        m.applyPinActive = function applyPinActive(active) {
+          const next = Boolean(active);
+          if (this._pinActive === next) return;
+          this._pinActive = next;
+          this.html = next ? activeHtml(fill, icon) : dotHtml(fill);
+          this.anchor = next
+            ? { x: this._anchorIcon.x, y: this._anchorIcon.y }
+            : { x: this._anchorDot.x, y: this._anchorDot.y };
+          if (!this.div) return;
+          this.div.classList.toggle("map-pin-anchor-active", next);
+          this.div.innerHTML = this.html;
+          if (next) {
+            const root = this.div.querySelector(".map-pin-active-wrap");
+            if (root) {
+              root.classList.remove("map-pin-pop");
+              void root.offsetWidth;
+              root.classList.add("map-pin-pop");
+            }
+          }
+          this.draw();
+        };
+        return { marker: m, anchorId };
+      }
+
+      function buildResultsMarkers() {
         resultsMarkers.forEach(({ marker }) => marker.setMap(null));
         resultsMarkers = [];
-
         document.querySelectorAll(".storii-result-card").forEach((card) => {
-          const lat = parseFloat(card.dataset.lat);
-          const lng = parseFloat(card.dataset.lng);
-          const anchorId = card.getAttribute("data-anchor");
-          const fill = card.getAttribute("data-pin-fill") || "#05cf55";
-          const icon = card.getAttribute("data-pin-icon") || "";
-          if (!Number.isFinite(lat) || !Number.isFinite(lng) || !anchorId) return;
-
-          const pos = new google.maps.LatLng(lat, lng);
-          const m = new HtmlMapMarker(pos, {
-            anchorId,
-            anchorDot: { x: 0.5, y: 0.5 },
-            anchorIcon: { x: 0.5, y: 1 },
-          });
-          m.html = dotHtml(fill);
-          m._pinActive = false;
-          m.anchor = { x: 0.5, y: 0.5 };
-          m.applyPinActive = function applyPinActive(active) {
-            const next = Boolean(active);
-            if (this._pinActive === next) return;
-            this._pinActive = next;
-            this.html = next ? activeHtml(fill, icon) : dotHtml(fill);
-            this.anchor = next
-              ? { x: this._anchorIcon.x, y: this._anchorIcon.y }
-              : { x: this._anchorDot.x, y: this._anchorDot.y };
-            if (!this.div) return;
-            this.div.classList.toggle("map-pin-anchor-active", next);
-            this.div.innerHTML = this.html;
-            if (next) {
-              const root = this.div.querySelector(".map-pin-active-wrap");
-              if (root) {
-                root.classList.remove("map-pin-pop");
-                void root.offsetWidth;
-                root.classList.add("map-pin-pop");
-              }
-            }
-            this.draw();
-          };
-          m.setMap(resultsMap);
-          resultsMarkers.push({ marker: m, anchorId });
+          const entry = createResultsMarker(card);
+          if (entry) resultsMarkers.push(entry);
         });
+      }
 
-        resultsMarkers.forEach(({ marker }) => marker.draw());
-        const first = document.querySelector(".storii-result-card");
-        if (first) syncResultsPin(first);
+      function clearResultsMarkers() {
+        resultsMarkers.forEach(({ marker }) => {
+          if (marker.div) {
+            marker.div.classList.remove("storii-pin-drop", "is-pin-visible");
+          }
+          marker.setMap(null);
+        });
+        resultsMarkers = [];
+      }
+
+      function animateMarkerIn(marker) {
+        marker.setMap(resultsMap);
+        const tryAnim = () => {
+          if (!marker.div) {
+            requestAnimationFrame(tryAnim);
+            return;
+          }
+          marker.div.classList.add("storii-pin-drop");
+          void marker.div.offsetWidth;
+          marker.div.classList.add("is-pin-visible");
+          marker.draw();
+        };
+        tryAnim();
+      }
+
+      function dropPinsStaggered() {
+        return new Promise((resolve) => {
+          buildResultsMarkers();
+          if (!resultsMarkers.length) {
+            resolve();
+            return;
+          }
+          let i = 0;
+          const dropNext = () => {
+            if (i >= resultsMarkers.length) {
+              resolve();
+              return;
+            }
+            animateMarkerIn(resultsMarkers[i].marker);
+            i += 1;
+            window.setTimeout(dropNext, 120);
+          };
+          dropNext();
+        });
+      }
+
+      function startPillCycle() {
+        if (pillTimer) window.clearInterval(pillTimer);
+        pillMsgIndex = 0;
+        pill.textContent = PILL_MESSAGES[0];
+        pill.classList.remove("is-hiding");
+        pill.classList.add("is-visible");
+        pillTimer = window.setInterval(() => {
+          pillMsgIndex = (pillMsgIndex + 1) % PILL_MESSAGES.length;
+          pill.textContent = PILL_MESSAGES[pillMsgIndex];
+        }, 600);
+      }
+
+      function stopPillCycle() {
+        if (pillTimer) {
+          window.clearInterval(pillTimer);
+          pillTimer = null;
+        }
+      }
+
+      function hidePill() {
+        stopPillCycle();
+        pill.classList.remove("is-visible");
+        pill.classList.add("is-hiding");
+      }
+
+      function bindResultsResizeObserver() {
+        if (resizeObserverBound || typeof ResizeObserver === "undefined") return;
+        resizeObserverBound = true;
+        const ro = new ResizeObserver(() => {
+          if (!resultsMap) return;
+          google.maps.event.trigger(resultsMap, "resize");
+          if (!sheet.classList.contains("is-sheet-visible")) return;
+          applyResultsMapPadding();
+          const active = document.querySelector(".storii-result-card.is-active");
+          if (active) panResultsMapToCard(active);
+          resultsMarkers.forEach(({ marker }) => marker.draw());
+        });
+        ro.observe(mapWrap);
+        ro.observe(sheet);
       }
 
       function initResultsMap() {
-        if (resultsMap || !window.google || !window.google.maps) return;
+        if (resultsMapInitialized || !window.google || !window.google.maps) return false;
         const mapEl = document.getElementById("gmap-results");
         const fallback = document.getElementById("map-results-fallback");
-        if (!mapEl) return;
+        if (!mapEl) return false;
         if (fallback) fallback.classList.remove("visible");
 
         const showZoomButtons =
@@ -2883,8 +3052,8 @@
 
         resultsMap = new google.maps.Map(mapEl, {
           mapId: "c7bfce263011dd3d671c898e",
-          center: { lat: 7.9, lng: 98.3 },
-          zoom: 11,
+          center: RESULTS_HOME,
+          zoom: RESULTS_HOME_ZOOM,
           backgroundColor: "#0d0f12",
           disableDefaultUI: true,
           zoomControl: showZoomButtons,
@@ -2899,90 +3068,141 @@
         });
 
         window.__storiiResultsMap = resultsMap;
+        resultsMapInitialized = true;
 
         google.maps.event.addListenerOnce(resultsMap, "idle", () => {
-          applyResultsMapPadding();
-          mountResultsMarkers();
-          setupResultsCardSync();
           google.maps.event.trigger(resultsMap, "resize");
         });
 
-        const mapWrap = document.querySelector(".storii-results-map-wrap");
-        const resultsPanel = document.querySelector(".storii-results-panel");
-        if (mapWrap && typeof ResizeObserver !== "undefined") {
-          const ro = new ResizeObserver(() => {
-            if (!resultsMap) return;
-            google.maps.event.trigger(resultsMap, "resize");
-            applyResultsMapPadding();
-            const active = document.querySelector(".storii-result-card.is-active");
-            if (active) panResultsMapToCard(active);
-            resultsMarkers.forEach(({ marker }) => marker.draw());
-          });
-          ro.observe(mapWrap);
-          if (resultsPanel) ro.observe(resultsPanel);
-        }
+        bindResultsResizeObserver();
+        return true;
       }
 
-      window.__storiiInitResultsMap = () => {
+      function preloadResultsMap() {
+        if (!window.google || !window.google.maps) return;
         initResultsMap();
-        if (results.classList.contains("is-open") && resultsMap) {
-          mountResultsMarkers();
-          setupResultsCardSync();
-          if (window.lucide) lucide.createIcons();
+        if (resultsMap) google.maps.event.trigger(resultsMap, "resize");
+      }
+
+      window.storiiPreloadResultsMap = preloadResultsMap;
+
+      window.__storiiOnMapsApiReady = function onMapsApiReady() {
+        preloadResultsMap();
+        if (pendingSubmitPayload) {
+          const payload = pendingSubmitPayload;
+          pendingSubmitPayload = null;
+          runSubmitSequence(payload);
         }
       };
 
-      function openResults(payload) {
-        updateSummary(payload);
-        window.storiiCloseSearchOverlayForResults?.();
-        window.storiiCloseDatePicker?.();
+      function resetResultsMapView() {
+        if (!resultsMap) return;
+        clearResultsMarkers();
+        resultsMap.setOptions({ padding: { top: 0, right: 0, bottom: 0, left: 0 } });
+        resultsMap.setCenter(RESULTS_HOME);
+        resultsMap.setZoom(RESULTS_HOME_ZOOM);
+      }
 
-        if (closeTimer) {
-          clearTimeout(closeTimer);
-          closeTimer = null;
+      function resetResultsScreenUi() {
+        mapWrap.classList.remove("is-map-visible", "is-map-fading-out");
+        sheet.classList.remove("is-sheet-visible", "is-sheet-closing");
+        results.classList.remove("is-open");
+        results.setAttribute("aria-hidden", "true");
+        stopPillCycle();
+        pill.classList.remove("is-visible", "is-hiding");
+        if (resultsScrollSync) {
+          resultsScrollSync.abort();
+          resultsScrollSync = null;
+        }
+        document.querySelectorAll(".storii-result-card").forEach((c) => c.classList.remove("is-active"));
+        const first = document.querySelector(".storii-result-card");
+        if (first) first.classList.add("is-active");
+      }
+
+      async function runSubmitSequence(payload) {
+        if (submitRunning) return;
+        submitRunning = true;
+        try {
+          updateSummary(payload);
+          window.storiiCloseSearchOverlayForResults?.();
+          window.storiiCloseDatePicker?.();
+
+          if (!resultsMap) {
+            pendingSubmitPayload = payload;
+            preloadResultsMap();
+            if (!resultsMap) return;
+          }
+
+          setStayTabBarVisible(false);
+          results.setAttribute("aria-hidden", "false");
+
+          await delay(200);
+
+          mapWrap.classList.remove("is-map-fading-out");
+          mapWrap.classList.add("is-map-visible");
+          google.maps.event.trigger(resultsMap, "resize");
+          startPillCycle();
+
+          await delay(300);
+
+          resultsMap.setZoom(PHUKET_ZOOM);
+          resultsMap.panTo(PHUKET_CENTER);
+
+          await new Promise((resolve) => {
+            google.maps.event.addListenerOnce(resultsMap, "idle", resolve);
+          });
+
+          await dropPinsStaggered();
+
+          await delay(300);
+          hidePill();
+          await delay(150);
+
+          sheet.classList.remove("is-sheet-closing");
+          sheet.classList.add("is-sheet-visible");
+          results.classList.add("is-open");
+
+          await delay(350);
+
+          if (window.lucide) lucide.createIcons();
+          setupResultsCardSync();
+          applyResultsMapPadding();
+          const first =
+            document.querySelector(".storii-result-card.is-active") ||
+            document.querySelector(".storii-result-card");
+          if (first) syncResultsPin(first);
+        } finally {
+          submitRunning = false;
+        }
+      }
+
+      async function closeResults() {
+        if (!mapWrap.classList.contains("is-map-visible") && !sheet.classList.contains("is-sheet-visible")) {
+          return;
         }
 
-        setStayTabBarVisible(false);
-        results.hidden = false;
-        results.setAttribute("aria-hidden", "false");
-        results.classList.remove("is-closing");
-        requestAnimationFrame(() => {
-          results.classList.add("is-open");
-          if (window.lucide) lucide.createIcons();
-          if (window.google && window.google.maps) {
-            initResultsMap();
-            if (resultsMap) {
-              google.maps.event.trigger(resultsMap, "resize");
-              mountResultsMarkers();
-              setupResultsCardSync();
-              requestAnimationFrame(() => {
-                applyResultsMapPadding();
-                const active = document.querySelector(".storii-result-card.is-active");
-                if (active) panResultsMapToCard(active);
-              });
-            }
-          } else {
-            const fallback = document.getElementById("map-results-fallback");
-            if (fallback && !getGmapsKey()) fallback.classList.add("visible");
-          }
-        });
-      }
-
-      function closeResults() {
-        if (!results.classList.contains("is-open")) return;
+        sheet.classList.remove("is-sheet-visible");
+        sheet.classList.add("is-sheet-closing");
+        mapWrap.classList.add("is-map-fading-out");
+        mapWrap.classList.remove("is-map-visible");
         results.classList.remove("is-open");
-        results.classList.add("is-closing");
         setStayTabBarVisible(true);
-        if (closeTimer) clearTimeout(closeTimer);
-        closeTimer = window.setTimeout(() => {
-          results.hidden = true;
-          results.setAttribute("aria-hidden", "true");
-          results.classList.remove("is-closing");
-          closeTimer = null;
-        }, 200);
+
+        await Promise.all([delay(250), delay(300)]);
+
+        resetResultsScreenUi();
+        resetResultsMapView();
+        window.storiiResetSearchOverlay?.();
       }
 
-      window.storiiOpenSearchResults = openResults;
+      window.storiiOpenSearchResults = (payload) => {
+        if (!resultsMap && (!window.google || !window.google.maps)) {
+          pendingSubmitPayload = payload;
+          preloadResultsMap();
+          return;
+        }
+        runSubmitSequence(payload);
+      };
       window.storiiCloseSearchResults = closeResults;
 
       backBtn.addEventListener("click", closeResults);
@@ -3918,8 +4138,8 @@
       window.__storiiHtmlMapMarker = HtmlMapMarker;
       window.__storiiMapPinDotHtml = storiiMapPinDotHtmlFromFill;
       window.__storiiMapPinActiveHtmlFromSymbol = storiiMapPinActiveHtmlFromSymbol;
-      if (typeof window.__storiiInitResultsMap === "function") {
-        window.__storiiInitResultsMap();
+      if (typeof window.__storiiOnMapsApiReady === "function") {
+        window.__storiiOnMapsApiReady();
       }
     };
 
