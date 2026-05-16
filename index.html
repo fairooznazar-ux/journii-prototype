@@ -3304,8 +3304,21 @@
       function panToWithOffset(map, lat, lng) {
         map.panTo({ lat, lng });
         requestAnimationFrame(() => {
-          map.panBy(0, -300);
-          console.log("panBy -300 applied");
+          const mapEl = document.getElementById("gmap-results");
+          const sheetEl = sheet || document.getElementById("storii-results-sheet");
+          let dy = 280;
+
+          if (mapEl && sheetEl) {
+            const mapRect = mapEl.getBoundingClientRect();
+            const sheetTop = sheetEl.getBoundingClientRect().top;
+            const visibleHeight = Math.max(120, sheetTop - mapRect.top);
+            const targetY = visibleHeight * 0.5;
+            const mapCenterY = mapRect.height * 0.5;
+            dy = Math.round(mapCenterY - targetY);
+          }
+
+          map.panBy(0, dy);
+          console.log("panBy offset pixels:", dy);
         });
       }
 
