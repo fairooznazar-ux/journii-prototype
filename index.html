@@ -3150,7 +3150,7 @@
       const RESULTS_HOME = { lat: 15, lng: 95 };
       const RESULTS_HOME_ZOOM = 4;
       const PHUKET_CENTER = { lat: 7.9, lng: 98.3 };
-      const PHUKET_ZOOM = 10;
+      const PHUKET_ZOOM = 11;
       const AI_LOADING_LABELS = [
         "Understanding your search",
         "Matching properties...",
@@ -3302,17 +3302,18 @@
       }
 
       function panToWithOffset(map, lat, lng) {
+        map.setZoom(PHUKET_ZOOM);
         map.panTo({ lat, lng });
         requestAnimationFrame(() => {
           const mapEl = document.getElementById("gmap-results");
           const sheetEl = sheet || document.getElementById("storii-results-sheet");
-          let dy = 280;
+          let dy = 240;
 
           if (mapEl && sheetEl) {
             const mapRect = mapEl.getBoundingClientRect();
             const sheetTop = sheetEl.getBoundingClientRect().top;
             const visibleHeight = Math.max(120, sheetTop - mapRect.top);
-            const targetY = visibleHeight * 0.5;
+            const targetY = visibleHeight * 0.58;
             const mapCenterY = mapRect.height * 0.5;
             dy = Math.round(mapCenterY - targetY);
           }
