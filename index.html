@@ -3149,6 +3149,7 @@
       let pendingSubmitPayload = null;
       let submitRunning = false;
       let resizeObserverBound = false;
+      let resultsShown = false;
 
       function delay(ms) {
         return new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -3740,6 +3741,14 @@
         results.setAttribute("aria-hidden", "true");
         removeAiLoadingOverlay();
         mapWrap.classList.remove("is-map-searching");
+        resultsShown = false;
+        results.style.removeProperty("display");
+        results.style.removeProperty("opacity");
+        results.style.removeProperty("pointer-events");
+        sheet.style.removeProperty("display");
+        sheet.style.removeProperty("opacity");
+        sheet.style.removeProperty("transform");
+        sheet.style.removeProperty("pointer-events");
         if (resultsScrollSync) {
           resultsScrollSync.abort();
           resultsScrollSync = null;
@@ -3748,6 +3757,66 @@
         const first = document.querySelector(".storii-result-card");
         if (first) first.classList.add("is-active");
       }
+
+      async function showResults() {
+        if (resultsShown) return;
+        resultsShown = true;
+        console.log("4. Transitioning to results");
+
+        const resultsScreen =
+          document.querySelector(".results-screen") ||
+          document.getElementById("storii-search-results");
+        const resultsSheet =
+          document.getElementById("storii-results-sheet") ||
+          document.querySelector(".storii-results-panel");
+
+        if (!resultsScreen && !resultsSheet) {
+          console.error("Results sheet not found");
+          return;
+        }
+
+        await dropPinsStaggered();
+        await delay(AI_AFTER_PINS_MS);
+
+        if (resultsScreen) {
+          resultsScreen.style.setProperty("display", "block", "important");
+          resultsScreen.style.setProperty("opacity", "1", "important");
+          resultsScreen.style.setProperty("pointer-events", "auto", "important");
+          results.classList.add("is-open");
+          results.setAttribute("aria-hidden", "false");
+        }
+        if (resultsSheet) {
+          resultsSheet.style.setProperty("display", "flex", "important");
+          resultsSheet.style.setProperty("opacity", "1", "important");
+          resultsSheet.style.setProperty("transform", "translateY(0)", "important");
+          resultsSheet.style.setProperty("pointer-events", "auto", "important");
+          sheet.classList.remove("is-sheet-closing");
+          sheet.classList.add("is-sheet-visible");
+        }
+
+        const loadingOverlay =
+          aiLoadingEl ||
+          document.querySelector(".storii-ai-loading") ||
+          document.querySelector(".loading-overlay");
+        if (loadingOverlay) loadingOverlay.style.opacity = "0";
+
+        await fadeOutAndRemoveAiLoading();
+        await delay(350);
+
+        if (window.lucide) lucide.createIcons();
+        setupResultsCardSync();
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            applyResultsMapPadding();
+            const first =
+              document.querySelector(".storii-result-card.is-active") ||
+              document.querySelector(".storii-result-card");
+            if (first) syncResultsPin(first);
+          });
+        });
+      }
+
+      window.showResults = showResults;
 
       async function runSubmitSequence(payload) {
         if (submitRunning) return;
@@ -3772,33 +3841,46 @@
           mapWrap.classList.add("is-map-visible");
           google.maps.event.trigger(resultsMap, "resize");
 
+          console.log("1. Loading state started");
+          resultsShown = false;
           mountAiLoadingOverlay(payload);
 
           await delay(AI_MAP_PAN_DELAY_MS);
 
-          resultsMap.setZoom(PHUKET_ZOOM);
-          resultsMap.panTo(PHUKET_CENTER);
-          await waitResultsMapIdle();
+          google.maps.event.clearListeners(resultsMap, "idle");
 
-          await dropPinsStaggered();
-          await delay(AI_AFTER_PINS_MS);
+          await new Promise((resolve) => {
+            let settled = false;
+            const settle = () => {
+              if (settled) return;
+              settled = true;
+              resolve();
+            };
 
-          sheet.classList.remove("is-sheet-closing");
-          sheet.classList.add("is-sheet-visible");
-          results.classList.add("is-open");
+            const transitionTimeout = window.setTimeout(async () => {
+              console.log("4. Timeout fired — showing results");
+              try {
+                await showResults();
+              } catch (err) {
+                console.error(err);
+              }
+              settle();
+            }, 1800);
 
-          const fadePromise = fadeOutAndRemoveAiLoading();
-          await Promise.all([fadePromise, delay(350)]);
+            console.log("2. Map pan called");
+            resultsMap.setZoom(PHUKET_ZOOM);
+            resultsMap.panTo(PHUKET_CENTER);
 
-          if (window.lucide) lucide.createIcons();
-          setupResultsCardSync();
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              applyResultsMapPadding();
-              const first =
-                document.querySelector(".storii-result-card.is-active") ||
-                document.querySelector(".storii-result-card");
-              if (first) syncResultsPin(first);
+            const idleListener = resultsMap.addListener("idle", async () => {
+              console.log("3. Map idle fired");
+              window.clearTimeout(transitionTimeout);
+              google.maps.event.removeListener(idleListener);
+              try {
+                await showResults();
+              } catch (err) {
+                console.error(err);
+              }
+              settle();
             });
           });
         } finally {
