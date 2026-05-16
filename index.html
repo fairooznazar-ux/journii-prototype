@@ -3019,9 +3019,9 @@
         if (!zone) {
           return { top: 48, bottom: 0, left: 8, right: 8 };
         }
-        const overlayOnMap = Math.max(0, zone.safeBottom - zone.panelTop);
-        const top = Math.max(24, Math.round(12 + overlayOnMap * 0.28));
-        const bottom = Math.max(0, Math.round(zone.mapRect.bottom - zone.panelTop));
+        // Match Google Maps padded viewport to the measured safe band (above summary + filters).
+        const top = Math.max(12, Math.round(zone.safeTop - zone.mapRect.top));
+        const bottom = Math.max(0, Math.round(zone.mapRect.bottom - zone.safeBottom));
         return { top, bottom, left: 8, right: 8 };
       }
 
@@ -3049,15 +3049,16 @@
             ? pinRect.bottom
             : pinRect.top + pinRect.height * 0.5;
 
+          const margin = 8;
           const inSafeBand =
-            pinY >= zone.safeTop + 28 && pinY <= zone.safeBottom - 6;
+            pinY >= zone.safeTop + margin && pinY <= zone.safeBottom - margin;
           if (inSafeBand) {
             resultsMarkers.forEach(({ marker }) => marker.draw());
             return;
           }
 
-          const dy = Math.max(-40, Math.min(40, Math.round(pinY - zone.targetPinY)));
-          if (Math.abs(dy) > 4) {
+          const dy = Math.round(pinY - zone.targetPinY);
+          if (Math.abs(dy) > 2) {
             resultsMap.panBy(0, dy);
           }
           resultsMarkers.forEach(({ marker }) => marker.draw());
@@ -3356,6 +3357,10 @@
         });
         ro.observe(mapWrap);
         ro.observe(sheet);
+        const summary = document.querySelector(".storii-results-summary");
+        const filters = document.querySelector(".storii-results-filters");
+        if (summary) ro.observe(summary);
+        if (filters) ro.observe(filters);
       }
 
       function initResultsMap() {
