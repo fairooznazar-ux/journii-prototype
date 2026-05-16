@@ -2479,6 +2479,7 @@
               class="storii-result-card is-active"
               id="storii-result-anantara"
               data-anchor="anantara"
+              data-name="Anantara Phuket"
               data-lat="7.8073"
               data-lng="98.4092"
               data-pin-fill="#05cf55"
@@ -2526,6 +2527,7 @@
               class="storii-result-card"
               id="storii-result-trisara"
               data-anchor="trisara"
+              data-name="Trisara"
               data-lat="8.0218"
               data-lng="98.2794"
               data-pin-fill="#a27dd1"
@@ -3166,7 +3168,7 @@
       let resultsMap = null;
       let resultsMapInitialized = false;
       let resultsMarkers = [];
-      let resultsScrollSync = null;
+      let resultsCardObserver = null;
       let aiLoadingEl = null;
       let aiLoadingTimers = [];
       let pendingSubmitPayload = null;
@@ -3300,16 +3302,11 @@
       }
 
       function panToWithOffset(map, lat, lng) {
-        const zoom = map.getZoom();
-        const scale = Math.pow(2, zoom);
-
         map.panTo({ lat, lng });
-
         requestAnimationFrame(() => {
-          map.panBy(0, -150);
+          map.panBy(0, -300);
+          console.log("panBy -300 applied");
         });
-
-        console.log("panToWithOffset called for:", lat, lng);
       }
 
       function debouncedPan(lat, lng) {
@@ -3402,64 +3399,65 @@
         metaEl.textContent = `${dates}  •  ${formatGuestsMeta(payload.guests)}`;
       }
 
-      function visibilityRatio(card, root) {
-        const cr = card.getBoundingClientRect();
-        const rr = root.getBoundingClientRect();
-        const ih = Math.max(0, Math.min(cr.bottom, rr.bottom) - Math.max(cr.top, rr.top));
-        if (cr.height <= 0) return 0;
-        return ih / cr.height;
-      }
+      function initResultsObserver() {
+        const rootScroller =
+          scroller ||
+          document.getElementById("storii-results-scroller") ||
+          document.querySelector(".results-cards-scroller") ||
+          document.querySelector(".results-screen .cards-scroller");
 
-      function syncResultsPin(card, panMap) {
-        if (!card) return;
-        const anchor = card.getAttribute("data-anchor");
-        resultsMarkers.forEach(({ marker, anchorId }) => {
-          if (marker && typeof marker.applyPinActive === "function") {
-            marker.applyPinActive(Boolean(anchorId) && anchorId === anchor);
-          }
-        });
-        document.querySelectorAll(".storii-result-card").forEach((c) => {
-          c.classList.toggle("is-active", c === card);
-        });
-        if (!panMap || !resultsMap) return;
-        if (card === resultsFocusedCard) return;
-        const lat = parseFloat(card.dataset.lat);
-        const lng = parseFloat(card.dataset.lng);
-        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-        resultsFocusedCard = card;
-        debouncedPan(lat, lng);
-      }
-
-      function setupResultsCardSync() {
-        const cards = Array.from(document.querySelectorAll(".storii-result-card"));
-        if (!cards.length) return;
-        if (resultsScrollSync) resultsScrollSync.abort();
-        resultsScrollSync = new AbortController();
-        const { signal } = resultsScrollSync;
-
-        function pickActiveAndSync() {
-          let best = null;
-          let bestR = 0;
-          cards.forEach((card) => {
-            const r = visibilityRatio(card, scroller);
-            if (r > bestR) {
-              bestR = r;
-              best = card;
-            }
-          });
-          if (best && bestR > 0.35) syncResultsPin(best, resultsInitialPanDone);
+        if (!rootScroller) {
+          console.error("Results scroller not found");
+          return;
         }
 
-        const thresholds = [];
-        for (let i = 0; i <= 40; i += 1) thresholds.push(i / 40);
-        const observer = new IntersectionObserver(() => pickActiveAndSync(), {
-          root: scroller,
-          rootMargin: "0px",
-          threshold: thresholds,
+        if (resultsCardObserver) {
+          resultsCardObserver.disconnect();
+          resultsCardObserver = null;
+        }
+
+        const cards = rootScroller.querySelectorAll(
+          ".storii-result-card, .deal-card, .result-card"
+        );
+        console.log("Results observer: found", cards.length, "cards");
+
+        if (!cards.length) return;
+
+        resultsCardObserver = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+              const card = entry.target;
+              const lat = parseFloat(card.dataset.lat);
+              const lng = parseFloat(card.dataset.lng);
+              console.log("Card in focus:", card.dataset.name, lat, lng);
+
+              cards.forEach((c) => {
+                c.style.opacity = "0.5";
+                c.classList.remove("is-active");
+              });
+              card.style.opacity = "1";
+              card.classList.add("is-active");
+
+              const anchor = card.getAttribute("data-anchor");
+              resultsMarkers.forEach(({ marker, anchorId }) => {
+                if (marker && typeof marker.applyPinActive === "function") {
+                  marker.applyPinActive(Boolean(anchorId) && anchorId === anchor);
+                }
+              });
+
+              if (Number.isFinite(lat) && Number.isFinite(lng)) {
+                resultsFocusedCard = card;
+                debouncedPan(lat, lng);
+              }
+            }
+          });
+        }, {
+          root: rootScroller,
+          threshold: 0.5,
         });
-        cards.forEach((c) => observer.observe(c));
-        signal.addEventListener("abort", () => observer.disconnect(), { once: true });
-        pickActiveAndSync();
+
+        cards.forEach((card) => resultsCardObserver.observe(card));
+        console.log("Results observer initialised");
       }
 
       function createResultsMarker(card) {
@@ -3751,9 +3749,9 @@
         sheet.style.removeProperty("opacity");
         sheet.style.removeProperty("transform");
         sheet.style.removeProperty("pointer-events");
-        if (resultsScrollSync) {
-          resultsScrollSync.abort();
-          resultsScrollSync = null;
+        if (resultsCardObserver) {
+          resultsCardObserver.disconnect();
+          resultsCardObserver = null;
         }
         document.querySelectorAll(".storii-result-card").forEach((c) => c.classList.remove("is-active"));
         const first = document.querySelector(".storii-result-card");
@@ -3808,8 +3806,10 @@
         await delay(350);
 
         if (window.lucide) lucide.createIcons();
-        setupResultsCardSync();
         google.maps.event.addListenerOnce(resultsMap, "idle", panToFirstCardOnce);
+        window.setTimeout(() => {
+          initResultsObserver();
+        }, 400);
       }
 
       window.showResults = showResults;
