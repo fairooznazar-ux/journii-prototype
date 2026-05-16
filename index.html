@@ -724,19 +724,39 @@
         overflow: visible;
       }
       .cards-scroller {
-        box-sizing: content-box;
+        box-sizing: border-box;
         flex: 1 1 auto;
         width: 100%;
         height: auto;
         max-height: none;
         min-height: 0;
         padding: var(--card-rail-gap, 10px) 0 0 0;
-        padding-bottom: 0 !important;
+        padding-bottom: calc(
+          var(--storii-tab-bar-h, 88px) + env(safe-area-inset-bottom, 0px) + 24px
+        );
+        margin-bottom: calc(-1 * (var(--storii-tab-bar-h, 88px) + env(safe-area-inset-bottom, 0px)));
         overflow-x: hidden;
-        overflow-y: scroll;
+        overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-y;
         scroll-snap-type: y mandatory;
+        scroll-padding-bottom: calc(
+          var(--storii-tab-bar-h, 88px) + env(safe-area-inset-bottom, 0px) + 16px
+        );
+        -webkit-mask-image: linear-gradient(
+          to bottom,
+          transparent 0%,
+          black 60px,
+          black calc(100% - 20px),
+          transparent 100%
+        );
+        mask-image: linear-gradient(
+          to bottom,
+          transparent 0%,
+          black 60px,
+          black calc(100% - 20px),
+          transparent 100%
+        );
         overscroll-behavior-y: contain;
         overscroll-behavior-x: auto;
       }
@@ -748,14 +768,14 @@
         display: flex;
         flex-direction: column;
         width: 100%;
-        min-height: 100%;
+        min-height: min-content;
         box-sizing: border-box;
         gap: 12px;
         align-items: stretch;
       }
       .cards-scroller-tail {
-        height: 150px !important;
-        min-height: 150px !important;
+        height: 1px !important;
+        min-height: 1px !important;
         display: block !important;
       }
       .card-row {
@@ -813,7 +833,7 @@
         min-width: 0;
         width: auto;
         max-width: none;
-        min-height: 100%;
+        min-height: auto;
         align-self: stretch;
         scroll-snap-align: none;
       }
@@ -854,7 +874,7 @@
       }
       .tab-bar {
         bottom: 0;
-        padding-bottom: env(safe-area-inset-bottom, 0px);
+        padding-bottom: 6px;
         padding-left: max(0px, env(safe-area-inset-left, 0px));
         padding-right: max(0px, env(safe-area-inset-right, 0px));
         background: transparent;
@@ -864,6 +884,7 @@
       .tab-inner {
         width: 300px;
         max-width: min(300px, calc(100% - 48px));
+        margin-bottom: env(safe-area-inset-bottom, 0px);
       }
     }
   </style>
@@ -1349,9 +1370,9 @@
       cards.forEach((card, i) => {
         const slot = slots[i] || slots[slots.length - 1];
         const label = storiiFormatCardDateLabel(slot.display);
-        const row = document.createElement("motion");
+        const row = document.createElement("div");
         row.className = "card-row";
-        const dateEl = document.createElement("motion");
+        const dateEl = document.createElement("div");
         dateEl.className = "card-date";
         dateEl.setAttribute("aria-hidden", "true");
         dateEl.innerHTML =
