@@ -27,6 +27,8 @@
     .phone {
       width: 402px;
       height: 874px;
+      container-type: inline-size;
+      container-name: storii-phone;
       border-radius: 44px;
       overflow: hidden;
       position: relative;
@@ -2016,7 +2018,7 @@
         --storii-search-to-cards-gap: 18px;
         gap: var(--storii-search-to-cards-gap);
         padding: 16px 20px 0;
-        overflow: visible;
+        overflow: hidden;
       }
       /* Figma 4653:33496 — vertical snap list; height fills viewport minus map, search, tab. */
       .cards-scroller-bleed {
@@ -2025,16 +2027,15 @@
         margin-right: 0;
         display: flex;
         flex-direction: column;
-        flex: 1 1 auto;
+        flex: 1 1 0;
         min-height: 0;
-        overflow: visible;
+        overflow: hidden;
       }
       .cards-scroller {
         box-sizing: border-box;
-        flex: 1 1 auto;
+        flex: 1 1 0;
         width: 100%;
-        height: auto;
-        max-height: none;
+        height: 0;
         min-height: 0;
         padding: var(--card-rail-gap, 10px) 0 0 0;
         padding-bottom: calc(
@@ -2177,6 +2178,64 @@
         width: 300px;
         max-width: min(300px, calc(100% - 48px));
         margin-bottom: env(safe-area-inset-bottom, 0px);
+      }
+    }
+
+    /* 402px phone frame on desktop: viewport media queries miss it — use container width. */
+    @container storii-phone (max-width: 480px) {
+      .sheet {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+      }
+      .cards-scroller-bleed {
+        flex: 1 1 0;
+        min-height: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+      }
+      .cards-scroller {
+        flex: 1 1 0;
+        height: 0;
+        min-height: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        touch-action: pan-y;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: y mandatory;
+        cursor: default;
+      }
+      .cards-scroller-track {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        min-height: min-content;
+        gap: 12px;
+      }
+      .card-row {
+        display: flex;
+        flex-direction: row;
+        flex: 0 0 auto;
+        scroll-snap-align: start;
+      }
+      .card-date {
+        display: flex;
+      }
+      .card-row .deal-card {
+        flex: 1 1 auto;
+        width: auto;
+        max-width: none;
+        scroll-snap-align: none;
+      }
+      .deal-card {
+        width: 100%;
+        max-width: 100%;
+        flex: 0 0 auto;
       }
     }
   </style>
@@ -3949,9 +4008,18 @@
       return q || localStorage.getItem("storii_gmaps_key") || "";
     }
 
-    /** Mobile: vertical stacked deck (Figma 4653:33496). Desktop: horizontal strip. */
+    /** Vertical card deck: real phone viewport or 402px .phone frame on desktop. */
     function isMobileCardDeck() {
+      const phone = document.querySelector(".phone");
+      if (phone) {
+        const w = phone.getBoundingClientRect().width;
+        if (w > 0 && w <= 480) return true;
+      }
       return typeof window.matchMedia !== "undefined" && window.matchMedia("(max-width: 480px)").matches;
+    }
+
+    function shouldSyncVerticalCardScroller() {
+      return isMobileCardDeck();
     }
 
     /** iOS PWA: shell height + measured tab bar for card scroll clearance. */
@@ -3966,6 +4034,7 @@
         const scroller = document.getElementById("cards-scroller");
         if (scroller) {
           scroller.style.removeProperty("height");
+          scroller.style.removeProperty("maxHeight");
           scroller.style.removeProperty("paddingBottom");
           scroller.style.removeProperty("scrollPaddingBottom");
         }
@@ -3980,6 +4049,9 @@
           if (layoutObserver) {
             layoutObserver.disconnect();
             layoutObserver = null;
+          }
+          if (shouldSyncVerticalCardScroller()) {
+            syncCardsScrollerHeight();
           }
           return;
         }
@@ -4003,13 +4075,41 @@
           sheet.style.minHeight = `${sheetH}px`;
         }
 
+        syncCardsScrollerHeight();
+
         bindLayoutObserver();
+      }
+
+      /** Flex alone can size the scroller to full content on iOS — pin a max height so overflow-y scrolls. */
+      function syncCardsScrollerHeight() {
+        const scroller = document.getElementById("cards-scroller");
+        const sheet = document.querySelector(".sheet");
+        const bleed = scroller?.closest(".cards-scroller-bleed");
+        if (!scroller || !sheet || !bleed || !shouldSyncVerticalCardScroller()) return;
+
+        const sheetStyle = getComputedStyle(sheet);
+        const padTop = parseFloat(sheetStyle.paddingTop) || 0;
+        const padBottom = parseFloat(sheetStyle.paddingBottom) || 0;
+        const gap = parseFloat(sheetStyle.rowGap || sheetStyle.gap) || 0;
+        let used = padTop;
+        for (const child of sheet.children) {
+          if (child === bleed) break;
+          used += child.getBoundingClientRect().height;
+          used += gap;
+        }
+        const avail = Math.floor(sheet.getBoundingClientRect().height - used - padBottom);
+        if (avail > 80) {
+          scroller.style.height = `${avail}px`;
+          scroller.style.maxHeight = `${avail}px`;
+        }
       }
 
       function bindLayoutObserver() {
         if (layoutObserver || !mq.matches) return;
         const phone = document.querySelector(".phone");
         const tabBar = document.getElementById("storii-stay-tab-bar");
+        const scroller = document.getElementById("cards-scroller");
+        const sheet = document.querySelector(".sheet");
         if (!phone || !tabBar) return;
         layoutObserver = new ResizeObserver(() => {
           requestAnimationFrame(apply);
@@ -4018,6 +4118,8 @@
         layoutObserver.observe(tabBar);
         const tabInner = document.querySelector(".tab-inner");
         if (tabInner) layoutObserver.observe(tabInner);
+        if (scroller) layoutObserver.observe(scroller);
+        if (sheet) layoutObserver.observe(sheet);
       }
 
       function applySoon() {
@@ -4036,6 +4138,7 @@
       window.addEventListener("load", applySoon, { once: true });
       window.__storiiSyncMobileViewport = applySoon;
       window.__storiiMobileBottomBleed = applySoon;
+      window.__storiiSyncCardsScrollerHeight = syncCardsScrollerHeight;
     })();
 
     function storiiCardSnapElement(cardEl) {
@@ -4219,7 +4322,9 @@
       const scroller = document.getElementById("cards-scroller");
       if (!scroller) return;
       scroller.addEventListener("dragstart", (e) => e.preventDefault());
-      scroller.addEventListener("selectstart", (e) => e.preventDefault());
+      scroller.addEventListener("selectstart", (e) => {
+        if (e.target && scroller.contains(e.target)) e.preventDefault();
+      });
 
       /* Trackpad / mouse wheel: vertical deck on phone, horizontal strip on desktop. */
       const WHEEL_PIXEL_GAIN = 1.5;
@@ -4276,9 +4381,7 @@
       /* Mouse / pen / touch: drag to scroll (axis follows layout). */
       let drag = null;
       scroller.addEventListener("pointerdown", (e) => {
-        /* Touch uses native overflow scroll (pan-y); capture + manual scrollTop breaks momentum. */
-        if (e.pointerType !== "mouse") return;
-        if (e.button !== 0) return;
+        if (e.pointerType === "mouse" && e.button !== 0) return;
         const t = e.target;
         if (t && typeof t.closest === "function" && t.closest("a, button, input, textarea, select")) return;
         drag = {
@@ -4287,16 +4390,26 @@
           y0: e.clientY,
           sl0: scroller.scrollLeft,
           st0: scroller.scrollTop,
-          mobile: isMobileCardDeck()
+          mobile: isMobileCardDeck(),
+          touch: e.pointerType === "touch"
         };
-        try {
-          scroller.setPointerCapture(e.pointerId);
-        } catch (_) {}
+        if (e.pointerType === "mouse") {
+          try {
+            scroller.setPointerCapture(e.pointerId);
+          } catch (_) {}
+        }
       });
       scroller.addEventListener(
         "pointermove",
         (e) => {
           if (!drag || drag.pid !== e.pointerId) return;
+          if (drag.touch && drag.mobile) {
+            const dy = e.clientY - drag.y0;
+            if (Math.abs(dy) < 2) return;
+            e.preventDefault();
+            scroller.scrollTop = drag.st0 - dy;
+            return;
+          }
           if (drag.mobile) {
             scroller.scrollTop = drag.st0 - (e.clientY - drag.y0);
           } else {
@@ -4347,6 +4460,9 @@
           window.__storiiMobileBottomBleed();
         } else if (typeof window.__storiiSyncMobileViewport === "function") {
           window.__storiiSyncMobileViewport();
+        }
+        if (typeof window.__storiiSyncCardsScrollerHeight === "function") {
+          window.__storiiSyncCardsScrollerHeight();
         }
         if (typeof window.__storiiSetupCardMapAnchorSync === "function") {
           window.__storiiSetupCardMapAnchorSync();
