@@ -1172,6 +1172,12 @@
       opacity: 0;
       transition: opacity 200ms ease-in;
     }
+    body.storii-results-screen-open #storii-stay-tab-bar,
+    .storii-search-results .tab-bar {
+      display: none !important;
+      pointer-events: none;
+      visibility: hidden;
+    }
     .storii-results-map-wrap {
       position: absolute;
       left: 0;
@@ -2147,8 +2153,8 @@
               class="storii-result-card is-active"
               id="storii-result-anantara"
               data-anchor="anantara"
-              data-lat="7.7674"
-              data-lng="98.3526"
+              data-lat="7.8073"
+              data-lng="98.4092"
               data-pin-fill="#05cf55"
               data-pin-icon="https://www.figma.com/api/mcp/asset/f4d1f08a-e77c-44ab-a224-629f4e917224"
             >
@@ -2240,14 +2246,6 @@
           </div>
         </div>
       </div>
-      <nav class="tab-bar" aria-label="Main">
-        <div class="tab-inner">
-          <div class="tab-item active" data-tab="stay">stay</div>
-          <div class="tab-item" data-tab="fly">fly</div>
-          <div class="tab-item" data-tab="trips">trips</div>
-          <div class="tab-item" data-tab="club">club</div>
-        </div>
-      </nav>
     </div>
   </div>
 
@@ -2713,6 +2711,26 @@
       function setStayTabBarVisible(visible) {
         if (!stayTabBar) return;
         stayTabBar.hidden = !visible;
+        document.body.classList.toggle("storii-results-screen-open", !visible);
+      }
+
+      /** Keep the active pin in the center of the map band above the results panel. */
+      function getResultsMapPadding() {
+        const mapEl = document.getElementById("gmap-results");
+        const panel = document.querySelector(".storii-results-panel");
+        if (!mapEl || !panel) {
+          return { top: 48, bottom: 0, left: 8, right: 8 };
+        }
+        const mapRect = mapEl.getBoundingClientRect();
+        const panelTop = panel.getBoundingClientRect().top;
+        const bottom = Math.max(0, Math.round(mapRect.bottom - panelTop));
+        const top = 40;
+        return { top, bottom, left: 8, right: 8 };
+      }
+
+      function applyResultsMapPadding() {
+        if (!resultsMap) return;
+        resultsMap.setOptions({ padding: getResultsMapPadding() });
       }
 
       function panResultsMapToCard(card) {
@@ -2720,6 +2738,7 @@
         const lat = parseFloat(card.dataset.lat);
         const lng = parseFloat(card.dataset.lng);
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+        applyResultsMapPadding();
         resultsMap.panTo({ lat, lng });
       }
 
@@ -2882,19 +2901,25 @@
         window.__storiiResultsMap = resultsMap;
 
         google.maps.event.addListenerOnce(resultsMap, "idle", () => {
+          applyResultsMapPadding();
           mountResultsMarkers();
           setupResultsCardSync();
           google.maps.event.trigger(resultsMap, "resize");
         });
 
         const mapWrap = document.querySelector(".storii-results-map-wrap");
+        const resultsPanel = document.querySelector(".storii-results-panel");
         if (mapWrap && typeof ResizeObserver !== "undefined") {
           const ro = new ResizeObserver(() => {
             if (!resultsMap) return;
             google.maps.event.trigger(resultsMap, "resize");
+            applyResultsMapPadding();
+            const active = document.querySelector(".storii-result-card.is-active");
+            if (active) panResultsMapToCard(active);
             resultsMarkers.forEach(({ marker }) => marker.draw());
           });
           ro.observe(mapWrap);
+          if (resultsPanel) ro.observe(resultsPanel);
         }
       }
 
@@ -2930,6 +2955,11 @@
               google.maps.event.trigger(resultsMap, "resize");
               mountResultsMarkers();
               setupResultsCardSync();
+              requestAnimationFrame(() => {
+                applyResultsMapPadding();
+                const active = document.querySelector(".storii-result-card.is-active");
+                if (active) panResultsMapToCard(active);
+              });
             }
           } else {
             const fallback = document.getElementById("map-results-fallback");
