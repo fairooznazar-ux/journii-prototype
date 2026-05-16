@@ -849,29 +849,16 @@
       line-height: 1;
       pointer-events: none;
     }
-    .storii-search-meta-ic {
-      flex: 0 0 24px;
-      width: 24px;
-      height: 24px;
-      position: relative;
-      overflow: hidden;
+    .storii-search-meta-lucide {
+      flex: 0 0 14px;
+      width: 14px;
+      height: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      stroke: rgba(255, 255, 255, 0.7);
     }
-    .storii-search-meta-ic img {
-      position: absolute;
-      display: block;
-      width: 100%;
-      height: 100%;
-      max-width: none;
-      object-fit: contain;
-    }
-    .storii-search-meta-ic--dates img {
-      inset: 22.92% 19.06% 23.23% 21.15%;
-    }
-    .storii-search-meta-ic--guests img {
-      inset: 27.17% 29.48% 24.88% 29.48%;
-    }
-    .storii-search-meta-ic--rooms img {
-      inset: 27.08% 17.92% 27.08% 17.91%;
+    .storii-search-compose-meta svg {
+      color: rgba(255, 255, 255, 0.7);
+      stroke: rgba(255, 255, 255, 0.7);
     }
     .storii-search-meta-input {
       width: auto;
@@ -1382,6 +1369,7 @@
       }
     }
   </style>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
   <div class="phone">
@@ -1669,21 +1657,15 @@
             aria-expanded="false"
             aria-controls="storii-date-picker"
           >
-            <span class="storii-search-meta-ic storii-search-meta-ic--dates" aria-hidden="true">
-              <img src="https://www.figma.com/api/mcp/asset/b96ad716-2194-4337-bcd6-90f651290eac" alt="">
-            </span>
+            <i data-lucide="calendar" class="storii-search-meta-lucide" aria-hidden="true"></i>
             <span class="storii-search-date-label" id="storii-search-date-label">16-18 May</span>
           </button>
           <label class="storii-search-meta-chip storii-search-meta-chip--guests">
-            <span class="storii-search-meta-ic storii-search-meta-ic--guests" aria-hidden="true">
-              <img src="https://www.figma.com/api/mcp/asset/67226766-0b4b-4baf-85ed-0a078d38d220" alt="">
-            </span>
+            <i data-lucide="users" class="storii-search-meta-lucide" aria-hidden="true"></i>
             <input type="text" class="storii-search-meta-input storii-search-meta-input--guests" value="2" aria-label="Guests" inputmode="numeric">
           </label>
           <label class="storii-search-meta-chip storii-search-meta-chip--rooms">
-            <span class="storii-search-meta-ic storii-search-meta-ic--rooms" aria-hidden="true">
-              <img src="https://www.figma.com/api/mcp/asset/a45a5276-e659-4769-8942-231490b29722" alt="">
-            </span>
+            <i data-lucide="bed-double" class="storii-search-meta-lucide" aria-hidden="true"></i>
             <input type="text" class="storii-search-meta-input storii-search-meta-input--rooms" value="1" aria-label="Rooms" inputmode="numeric">
           </label>
           <button type="button" class="storii-search-submit" aria-label="Search">
@@ -1748,6 +1730,10 @@
       });
     })();
 
+    window.addEventListener("load", () => {
+      if (window.lucide) lucide.createIcons();
+    });
+
     /** Search overlay — Figma 4562:5555 */
     (function storiiSearchOverlay() {
       const overlay = document.getElementById("storii-search-overlay");
@@ -1780,6 +1766,7 @@
         overlay.hidden = false;
         overlay.classList.remove("is-closing");
         setExpanded(true);
+        if (window.lucide) lucide.createIcons();
         requestAnimationFrame(() => {
           overlay.classList.add("is-open");
         });
