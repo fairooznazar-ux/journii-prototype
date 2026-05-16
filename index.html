@@ -3177,6 +3177,7 @@
       let resultsInitialPanDone = false;
       let sheetCollapsed = false;
       let resultsSheetUiBound = false;
+      let panDebounceTimer = null;
 
       function delay(ms) {
         return new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -3299,15 +3300,23 @@
       }
 
       function panToWithOffset(map, lat, lng) {
+        const zoom = map.getZoom();
+        const scale = Math.pow(2, zoom);
+
         map.panTo({ lat, lng });
 
-        const windowHeight = window.innerHeight;
-        const sheetHeight = Math.round(windowHeight * 0.55);
-        const visibleMapHeight = windowHeight - sheetHeight;
-        const offsetPixels = Math.round((sheetHeight - visibleMapHeight) / 2);
+        requestAnimationFrame(() => {
+          map.panBy(0, -150);
+        });
 
-        console.log("panBy offset pixels:", offsetPixels);
-        map.panBy(0, -offsetPixels);
+        console.log("panToWithOffset called for:", lat, lng);
+      }
+
+      function debouncedPan(lat, lng) {
+        clearTimeout(panDebounceTimer);
+        panDebounceTimer = window.setTimeout(() => {
+          panToWithOffset(resultsMap, lat, lng);
+        }, 150);
       }
 
       function panToActiveCard() {
@@ -3418,7 +3427,7 @@
         const lng = parseFloat(card.dataset.lng);
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
         resultsFocusedCard = card;
-        panToWithOffset(resultsMap, lat, lng);
+        debouncedPan(lat, lng);
       }
 
       function setupResultsCardSync() {
