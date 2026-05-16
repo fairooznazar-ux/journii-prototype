@@ -836,10 +836,20 @@
     }
     .storii-search-meta-ic img {
       position: absolute;
-      inset: 0;
+      display: block;
       width: 100%;
       height: 100%;
+      max-width: none;
       object-fit: contain;
+    }
+    .storii-search-meta-ic--dates img {
+      inset: 22.92% 19.06% 23.23% 21.15%;
+    }
+    .storii-search-meta-ic--guests img {
+      inset: 27.17% 29.48% 24.88% 29.48%;
+    }
+    .storii-search-meta-ic--rooms img {
+      inset: 27.08% 17.92% 27.08% 17.91%;
     }
     .storii-search-meta-input {
       width: auto;
@@ -874,15 +884,26 @@
       justify-content: center;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
-      background: #0a1628;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.12);
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 28 28' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Cdefs%3E%3CradialGradient id='grad' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(1.4393 2.8652 -3.1501 6.7195 7.3933 -3.9756)'%3E%3Cstop stop-color='rgba(255,255,255,1)' offset='0'/%3E%3Cstop stop-color='rgba(255,255,255,0.5)' offset='1'/%3E%3C/radialGradient%3E%3C/defs%3E%3C/svg%3E");
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
     }
-    .storii-search-submit img {
-      width: 14px;
-      height: 14px;
+    .storii-search-submit-arrow {
+      position: relative;
+      width: 18.667px;
+      height: 18.667px;
+      overflow: hidden;
+      flex: 0 0 auto;
+    }
+    .storii-search-submit-arrow img {
+      position: absolute;
+      inset: 18.75% 14.58% 18.75% 10.42%;
       display: block;
+      width: 100%;
+      height: 100%;
+      max-width: none;
       object-fit: contain;
-      filter: brightness(0) invert(1);
     }
     .storii-search-suggested-label {
       margin: 0 0 12px;
@@ -1467,25 +1488,27 @@
         <hr class="storii-search-compose-divider" aria-hidden="true">
         <div class="storii-search-compose-meta">
           <label class="storii-search-meta-chip storii-search-meta-chip--dates">
-            <span class="storii-search-meta-ic" aria-hidden="true">
-              <img src="https://www.figma.com/api/mcp/asset/4346304c-6375-4717-bbb6-e9590b71f546" alt="">
+            <span class="storii-search-meta-ic storii-search-meta-ic--dates" aria-hidden="true">
+              <img src="https://www.figma.com/api/mcp/asset/b96ad716-2194-4337-bcd6-90f651290eac" alt="">
             </span>
             <input type="text" class="storii-search-meta-input storii-search-meta-input--dates" value="16-18 May" aria-label="Travel dates">
           </label>
           <label class="storii-search-meta-chip storii-search-meta-chip--guests">
-            <span class="storii-search-meta-ic" aria-hidden="true">
-              <img src="https://www.figma.com/api/mcp/asset/e40fe893-53b5-4784-808b-0b29ad0f5515" alt="">
+            <span class="storii-search-meta-ic storii-search-meta-ic--guests" aria-hidden="true">
+              <img src="https://www.figma.com/api/mcp/asset/67226766-0b4b-4baf-85ed-0a078d38d220" alt="">
             </span>
             <input type="text" class="storii-search-meta-input storii-search-meta-input--guests" value="2" aria-label="Guests" inputmode="numeric">
           </label>
           <label class="storii-search-meta-chip storii-search-meta-chip--rooms">
-            <span class="storii-search-meta-ic" aria-hidden="true">
-              <img src="https://www.figma.com/api/mcp/asset/f506a7e9-38c7-41e8-9e99-8a63b55a3174" alt="">
+            <span class="storii-search-meta-ic storii-search-meta-ic--rooms" aria-hidden="true">
+              <img src="https://www.figma.com/api/mcp/asset/a45a5276-e659-4769-8942-231490b29722" alt="">
             </span>
             <input type="text" class="storii-search-meta-input storii-search-meta-input--rooms" value="1" aria-label="Rooms" inputmode="numeric">
           </label>
           <button type="button" class="storii-search-submit" aria-label="Search">
-            <img src="https://www.figma.com/api/mcp/asset/cd839171-6047-4cf8-97ce-c08e2ddb5a85" alt="">
+            <span class="storii-search-submit-arrow" aria-hidden="true">
+              <img src="https://www.figma.com/api/mcp/asset/e291c719-31e3-4e37-bb68-2f697124b397" alt="">
+            </span>
           </button>
         </div>
       </div>
