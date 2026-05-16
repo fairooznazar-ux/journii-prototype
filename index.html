@@ -1860,6 +1860,9 @@
       margin: 0;
       padding: 0;
     }
+    .storii-result-card-stats .storii-result-stat:nth-child(2) {
+      margin-left: 12px;
+    }
     .storii-result-stat {
       display: flex;
       align-items: center;
@@ -3163,6 +3166,7 @@
       const AI_PIN_STAGGER_MS = 200;
       const AI_AFTER_PINS_MS = 400;
       const AI_OVERLAY_FADE_MS = 300;
+      const AI_RESULTS_TRANSITION_MS = 2800;
 
       let resultsMap = null;
       let resultsMapInitialized = false;
@@ -3854,6 +3858,7 @@
           console.log("1. Loading state started");
           resultsShown = false;
           mountAiLoadingOverlay(payload);
+          const loadingStartedAt = Date.now();
 
           await delay(AI_MAP_PAN_DELAY_MS);
 
@@ -3867,15 +3872,21 @@
               resolve();
             };
 
+            const waitMinLoading = async () => {
+              const remaining = AI_RESULTS_TRANSITION_MS - (Date.now() - loadingStartedAt);
+              if (remaining > 0) await delay(remaining);
+            };
+
             const transitionTimeout = window.setTimeout(async () => {
               console.log("4. Timeout fired — showing results");
               try {
+                await waitMinLoading();
                 await showResults();
               } catch (err) {
                 console.error(err);
               }
               settle();
-            }, 1800);
+            }, AI_RESULTS_TRANSITION_MS);
 
             console.log("2. Map pan called");
             resultsInitialPanDone = false;
@@ -3887,6 +3898,7 @@
               console.log("3. Map idle fired");
               window.clearTimeout(transitionTimeout);
               try {
+                await waitMinLoading();
                 await showResults();
               } catch (err) {
                 console.error(err);
