@@ -1186,32 +1186,164 @@
       transition: opacity 300ms ease-in;
       pointer-events: none;
     }
+    .storii-results-map-wrap.is-map-searching::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background: rgba(8, 14, 18, 0.14);
+      opacity: 1;
+      transition: opacity 280ms ease;
+    }
     .storii-results-search-pill {
       position: absolute;
       left: 50%;
       top: 40%;
-      transform: translate(-50%, -50%);
       z-index: 5;
       opacity: 0;
       pointer-events: none;
-      padding: 12px 24px;
+      transform: translate(-50%, -50%) scale(0.96);
+      min-width: 200px;
+      max-width: calc(100% - 48px);
+      padding: 14px 20px 12px;
       border-radius: 24px;
-      background: rgba(36, 97, 155, 0.9);
-      -webkit-backdrop-filter: blur(10px);
-      backdrop-filter: blur(10px);
+      background: linear-gradient(
+        135deg,
+        rgba(36, 97, 155, 0.94) 0%,
+        rgba(38, 156, 191, 0.88) 100%
+      );
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      box-shadow:
+        0 8px 32px rgba(8, 14, 18, 0.22),
+        0 0 0 1px rgba(255, 255, 255, 0.12) inset;
       color: #fff;
-      font-family: "Instrument Sans", system-ui, sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      line-height: 1.2;
-      white-space: nowrap;
-      transition: opacity 150ms ease-in;
+      transition:
+        opacity 220ms ease,
+        transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
     }
     .storii-results-search-pill.is-visible {
       opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .storii-results-search-pill.is-entering {
+      transform: translate(-50%, -50%) scale(1);
     }
     .storii-results-search-pill.is-hiding {
       opacity: 0;
+      transform: translate(-50%, -50%) scale(0.98);
+      transition: opacity 220ms ease-in, transform 220ms ease-in;
+    }
+    .storii-results-search-pill-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .storii-results-search-pill-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      justify-content: center;
+    }
+    .storii-results-search-pill-ic {
+      flex: 0 0 18px;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.9;
+    }
+    .storii-results-search-pill-ic svg {
+      width: 16px;
+      height: 16px;
+      stroke: #fff;
+    }
+    .storii-results-search-pill-copy {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 3px;
+      min-width: 0;
+    }
+    .storii-results-search-pill-primary {
+      display: block;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      transition:
+        opacity 150ms ease,
+        transform 150ms ease;
+    }
+    .storii-results-search-pill-primary.is-swapping-out {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    .storii-results-search-pill-primary.is-swapping-in {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    .storii-results-search-pill-secondary {
+      display: block;
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: -0.1px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.72);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 220px;
+    }
+    .storii-results-search-pill-progress {
+      width: 100%;
+      height: 2px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.2);
+      overflow: hidden;
+    }
+    .storii-results-search-pill-progress span {
+      display: block;
+      height: 100%;
+      width: 36%;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.85);
+      animation: storii-pill-progress 1.4s ease-in-out infinite;
+    }
+    @keyframes storii-pill-progress {
+      0% {
+        transform: translateX(-120%);
+      }
+      100% {
+        transform: translateX(320%);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .storii-results-search-pill {
+        transition: opacity 120ms ease;
+      }
+      .storii-results-search-pill.is-visible,
+      .storii-results-search-pill.is-entering,
+      .storii-results-search-pill.is-hiding {
+        transform: translate(-50%, -50%);
+      }
+      .storii-results-search-pill-primary.is-swapping-out,
+      .storii-results-search-pill-primary.is-swapping-in {
+        opacity: 1;
+        transform: none;
+      }
+      .storii-results-search-pill-progress span {
+        animation: none;
+        width: 60%;
+        margin: 0 auto;
+      }
     }
     .g-html-marker.storii-pin-drop {
       opacity: 0;
@@ -2778,9 +2910,9 @@
       const RESULTS_HOME_ZOOM = 4;
       const PHUKET_CENTER = { lat: 7.9, lng: 98.3 };
       const PHUKET_ZOOM = 10;
-      const PILL_MESSAGES = [
+      const PILL_PRIMARY = [
         "Searching Phuket...",
-        "Finding beachfront properties...",
+        "Finding beachfront stays...",
         "Checking availability...",
       ];
 
@@ -2789,13 +2921,41 @@
       let resultsMarkers = [];
       let resultsScrollSync = null;
       let pillTimer = null;
-      let pillMsgIndex = 0;
+      let pillStructureReady = false;
       let pendingSubmitPayload = null;
       let submitRunning = false;
       let resizeObserverBound = false;
 
       function delay(ms) {
         return new Promise((resolve) => window.setTimeout(resolve, ms));
+      }
+
+      function prefersReducedMotion() {
+        return (
+          typeof window.matchMedia !== "undefined" &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        );
+      }
+
+      function getPillTimings() {
+        if (prefersReducedMotion()) {
+          return {
+            perMessage: 550,
+            minTotal: 2200,
+            beforePan: 450,
+            afterReady: 220,
+            fade: 120,
+            swap: 0,
+          };
+        }
+        return {
+          perMessage: 1050,
+          minTotal: 3600,
+          beforePan: 1100,
+          afterReady: 450,
+          fade: 220,
+          swap: 150,
+        };
       }
 
       function setStayTabBarVisible(visible) {
@@ -2998,29 +3158,99 @@
         });
       }
 
-      function startPillCycle() {
-        if (pillTimer) window.clearInterval(pillTimer);
-        pillMsgIndex = 0;
-        pill.textContent = PILL_MESSAGES[0];
+      function ensurePillStructure() {
+        if (pillStructureReady) return;
+        pill.innerHTML =
+          '<div class="storii-results-search-pill-inner">' +
+          '<div class="storii-results-search-pill-row">' +
+          '<span class="storii-results-search-pill-ic" aria-hidden="true"><i data-lucide="search"></i></span>' +
+          '<div class="storii-results-search-pill-copy">' +
+          '<span class="storii-results-search-pill-primary"></span>' +
+          '<span class="storii-results-search-pill-secondary"></span>' +
+          "</div>" +
+          "</div>" +
+          '<div class="storii-results-search-pill-progress" aria-hidden="true"><span></span></div>' +
+          "</div>";
+        pillStructureReady = true;
+      }
+
+      function setPillPrimary(text, animate) {
+        const el = pill.querySelector(".storii-results-search-pill-primary");
+        if (!el) return;
+        const t = getPillTimings();
+        if (!animate || t.swap === 0) {
+          el.textContent = text;
+          el.classList.remove("is-swapping-out", "is-swapping-in");
+          return;
+        }
+        el.classList.add("is-swapping-out");
+        window.setTimeout(() => {
+          el.textContent = text;
+          el.classList.remove("is-swapping-out");
+          el.classList.add("is-swapping-in");
+          requestAnimationFrame(() => {
+            el.classList.remove("is-swapping-in");
+          });
+        }, t.swap);
+      }
+
+      function showPill(payload) {
+        ensurePillStructure();
+        const secondary = pill.querySelector(".storii-results-search-pill-secondary");
+        const dates = payload.dates || "16-18 May";
+        if (secondary) {
+          secondary.textContent = `${dates} · ${formatGuestsMeta(payload.guests)}`;
+        }
+        mapWrap.classList.add("is-map-searching");
         pill.classList.remove("is-hiding");
-        pill.classList.add("is-visible");
-        pillTimer = window.setInterval(() => {
-          pillMsgIndex = (pillMsgIndex + 1) % PILL_MESSAGES.length;
-          pill.textContent = PILL_MESSAGES[pillMsgIndex];
-        }, 600);
+        pill.classList.add("is-visible", "is-entering");
+        requestAnimationFrame(() => pill.classList.remove("is-entering"));
+        setPillPrimary(PILL_PRIMARY[0], false);
+        if (window.lucide) lucide.createIcons();
+      }
+
+      async function runPillSequence(payload) {
+        const t = getPillTimings();
+        const startedAt = Date.now();
+        showPill(payload);
+
+        for (let i = 1; i < PILL_PRIMARY.length; i += 1) {
+          await delay(t.perMessage);
+          setPillPrimary(PILL_PRIMARY[i], true);
+        }
+
+        await delay(t.perMessage);
+
+        const elapsed = Date.now() - startedAt;
+        if (elapsed < t.minTotal) {
+          await delay(t.minTotal - elapsed);
+        }
       }
 
       function stopPillCycle() {
         if (pillTimer) {
-          window.clearInterval(pillTimer);
+          window.clearTimeout(pillTimer);
           pillTimer = null;
         }
       }
 
-      function hidePill() {
+      async function hidePill() {
         stopPillCycle();
-        pill.classList.remove("is-visible");
+        const t = getPillTimings();
+        pill.classList.remove("is-visible", "is-entering");
         pill.classList.add("is-hiding");
+        mapWrap.classList.remove("is-map-searching");
+        await delay(t.fade);
+        pill.classList.remove("is-hiding");
+      }
+
+      async function runMapPanAndPins() {
+        resultsMap.setZoom(PHUKET_ZOOM);
+        resultsMap.panTo(PHUKET_CENTER);
+        await new Promise((resolve) => {
+          google.maps.event.addListenerOnce(resultsMap, "idle", resolve);
+        });
+        await dropPinsStaggered();
       }
 
       function bindResultsResizeObserver() {
@@ -3109,7 +3339,8 @@
         results.classList.remove("is-open");
         results.setAttribute("aria-hidden", "true");
         stopPillCycle();
-        pill.classList.remove("is-visible", "is-hiding");
+        mapWrap.classList.remove("is-map-searching");
+        pill.classList.remove("is-visible", "is-hiding", "is-entering");
         if (resultsScrollSync) {
           resultsScrollSync.abort();
           resultsScrollSync = null;
@@ -3138,25 +3369,19 @@
 
           await delay(200);
 
+          const pillTimings = getPillTimings();
+
           mapWrap.classList.remove("is-map-fading-out");
           mapWrap.classList.add("is-map-visible");
           google.maps.event.trigger(resultsMap, "resize");
-          startPillCycle();
 
-          await delay(300);
+          const pillPromise = runPillSequence(payload);
+          await delay(pillTimings.beforePan);
+          const mapPromise = runMapPanAndPins();
+          await Promise.all([pillPromise, mapPromise]);
 
-          resultsMap.setZoom(PHUKET_ZOOM);
-          resultsMap.panTo(PHUKET_CENTER);
-
-          await new Promise((resolve) => {
-            google.maps.event.addListenerOnce(resultsMap, "idle", resolve);
-          });
-
-          await dropPinsStaggered();
-
-          await delay(300);
-          hidePill();
-          await delay(150);
+          await delay(pillTimings.afterReady);
+          await hidePill();
 
           sheet.classList.remove("is-sheet-closing");
           sheet.classList.add("is-sheet-visible");
