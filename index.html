@@ -3124,9 +3124,8 @@
 
       const RESULTS_HOME = { lat: 15, lng: 95 };
       const RESULTS_HOME_ZOOM = 4;
-      const PHUKET_CENTER = { lat: 8.15, lng: 98.3 };
+      const PHUKET_CENTER = { lat: 7.9, lng: 98.3 };
       const PHUKET_ZOOM = 10;
-      const RESULTS_PAN_LAT_OFFSET = 0.18;
       const AI_LOADING_LABELS = [
         "Understanding your search",
         "Matching properties...",
@@ -3338,6 +3337,42 @@
         resultsMap.setOptions({ padding: getResultsMapPadding() });
       }
 
+      function getResultsSheetHeight() {
+        const sheetEl =
+          sheet ||
+          document.getElementById("storii-results-sheet") ||
+          document.querySelector(".storii-results-panel");
+        const sheetHeight = sheetEl ? sheetEl.getBoundingClientRect().height : 0;
+        return sheetHeight > 0 ? Math.round(sheetHeight) : 380;
+      }
+
+      function getPanToPinPadding() {
+        return {
+          top: 60,
+          bottom: getResultsSheetHeight(),
+          left: 40,
+          right: 40,
+        };
+      }
+
+      function panToPin(map, latLng) {
+        const lat =
+          typeof latLng.lat === "function" ? latLng.lat() : Number(latLng.lat);
+        const lng =
+          typeof latLng.lng === "function" ? latLng.lng() : Number(latLng.lng);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          return Promise.resolve();
+        }
+        const bounds = new google.maps.LatLngBounds({ lat, lng }, { lat, lng });
+        map.fitBounds(bounds, getPanToPinPadding());
+        return new Promise((resolve) => {
+          google.maps.event.addListenerOnce(map, "idle", () => {
+            if (map.getZoom() > PHUKET_ZOOM) map.setZoom(PHUKET_ZOOM);
+            resolve();
+          });
+        });
+      }
+
       function nudgeResultsMapToSafeZone(card) {
         if (!resultsMap || !card || prefersReducedMotion()) return;
         const zone = getResultsMapSafeZone();
@@ -3380,9 +3415,7 @@
         const lat = parseFloat(card.dataset.lat);
         const lng = parseFloat(card.dataset.lng);
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-        applyResultsMapPadding();
-        resultsMap.panTo({ lat: lat + RESULTS_PAN_LAT_OFFSET, lng });
-        google.maps.event.addListenerOnce(resultsMap, "idle", () => {
+        panToPin(resultsMap, { lat, lng }).then(() => {
           nudgeResultsMapToSafeZone(card);
         });
       }
@@ -3642,12 +3675,20 @@
       }
 
       async function runMapPanAndPins() {
-        applyResultsMapPadding();
-        resultsMap.setZoom(PHUKET_ZOOM);
-        resultsMap.panTo(PHUKET_CENTER);
-        await new Promise((resolve) => {
-          google.maps.event.addListenerOnce(resultsMap, "idle", resolve);
-        });
+        const firstCard =
+          document.querySelector(".storii-result-card.is-active") ||
+          document.querySelector(".storii-result-card");
+        if (firstCard) {
+          const lat = parseFloat(firstCard.dataset.lat);
+          const lng = parseFloat(firstCard.dataset.lng);
+          if (Number.isFinite(lat) && Number.isFinite(lng)) {
+            await panToPin(resultsMap, { lat, lng });
+          } else {
+            await panToPin(resultsMap, PHUKET_CENTER);
+          }
+        } else {
+          await panToPin(resultsMap, PHUKET_CENTER);
+        }
         await dropPinsStaggered();
       }
 
@@ -3869,20 +3910,30 @@
             }, 1800);
 
             console.log("2. Map pan called");
-            resultsMap.setZoom(PHUKET_ZOOM);
-            resultsMap.panTo(PHUKET_CENTER);
-
-            const idleListener = resultsMap.addListener("idle", async () => {
-              console.log("3. Map idle fired");
-              window.clearTimeout(transitionTimeout);
-              google.maps.event.removeListener(idleListener);
-              try {
-                await showResults();
-              } catch (err) {
-                console.error(err);
+            const firstCard =
+              document.querySelector(".storii-result-card.is-active") ||
+              document.querySelector(".storii-result-card");
+            let panPromise = panToPin(resultsMap, PHUKET_CENTER);
+            if (firstCard) {
+              const lat = parseFloat(firstCard.dataset.lat);
+              const lng = parseFloat(firstCard.dataset.lng);
+              if (Number.isFinite(lat) && Number.isFinite(lng)) {
+                panPromise = panToPin(resultsMap, { lat, lng });
               }
-              settle();
-            });
+            }
+
+            panPromise
+              .then(() => {
+                console.log("3. Map idle fired");
+                window.clearTimeout(transitionTimeout);
+                return showResults();
+              })
+              .catch((err) => {
+                console.error(err);
+              })
+              .finally(() => {
+                settle();
+              });
           });
         } finally {
           submitRunning = false;
