@@ -1930,6 +1930,47 @@
           { once: true }
         );
 
+        const isMobileDeck =
+          typeof window.matchMedia !== "undefined" && window.matchMedia("(max-width: 480px)").matches;
+        if (isMobileDeck) {
+          const fadeThresholds = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
+          const fadeObserver = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                const card = entry.target;
+                if (entry.isIntersecting) {
+                  const ratio = entry.intersectionRatio;
+                  card.style.opacity = String(Math.min(1, ratio * 2));
+                  card.style.transition = "opacity 0.2s ease";
+                } else {
+                  card.style.opacity = "0.2";
+                  card.style.transition = "opacity 0.2s ease";
+                }
+              });
+            },
+            {
+              root: scroller,
+              threshold: fadeThresholds,
+            }
+          );
+
+          document.querySelectorAll(".card-row").forEach((row) => {
+            fadeObserver.observe(row);
+          });
+
+          signal.addEventListener(
+            "abort",
+            () => {
+              fadeObserver.disconnect();
+              document.querySelectorAll(".card-row").forEach((row) => {
+                row.style.opacity = "";
+                row.style.transition = "";
+              });
+            },
+            { once: true }
+          );
+        }
+
         pickActiveAndSync();
       }
 
