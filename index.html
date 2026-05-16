@@ -1408,36 +1408,35 @@
       pointer-events: none;
     }
     .storii-results-summary {
-      flex: 0 0 52px;
+      flex: 0 0 auto;
       width: 100%;
-      min-height: 52px;
-      max-height: 52px;
-      border-radius: 8px;
-      padding: 0 16px;
+      min-height: 64px;
+      border-radius: 12px;
+      padding: 12px 20px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      border: none;
+      gap: 16px;
+      border: 0.5px solid rgba(255, 255, 255, 0.35);
       cursor: pointer;
       text-align: left;
       -webkit-tap-highlight-color: transparent;
       background: linear-gradient(
-        111.989deg,
-        rgba(255, 255, 255, 0.225) 23.024%,
-        rgba(255, 255, 255, 0.15) 94.82%
+        90deg,
+        rgba(237, 250, 255, 0.94) 0%,
+        rgba(245, 255, 254, 0.9) 100%
       );
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
       font: inherit;
-      color: inherit;
+      color: #080e12;
     }
     .storii-results-back {
-      flex: 0 0 20px;
-      width: 20px;
-      height: 20px;
+      flex: 0 0 24px;
+      width: 24px;
+      height: 24px;
       border: none;
       padding: 0;
       background: transparent;
-      color: #fff;
+      color: #080e12;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1454,14 +1453,16 @@
       min-width: 0;
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 8px;
+      justify-content: center;
     }
     .storii-results-query {
       font-family: "Instrument Sans", system-ui, sans-serif;
-      font-size: 16px;
+      font-size: 12px;
       font-weight: 600;
-      line-height: 1.2;
-      color: #fff;
+      line-height: 16px;
+      min-height: 16px;
+      color: #080e12;
       text-transform: capitalize;
       white-space: nowrap;
       overflow: hidden;
@@ -1472,8 +1473,7 @@
       font-size: 12px;
       font-weight: 500;
       line-height: 1.2;
-      color: rgba(255, 255, 255, 0.65);
-      text-transform: capitalize;
+      color: rgba(0, 0, 0, 0.4);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -2964,16 +2964,37 @@
         document.body.classList.toggle("storii-results-screen-open", !visible);
       }
 
+      function getResultsPanelMapCutoffY() {
+        const mapEl = document.getElementById("gmap-results");
+        if (!mapEl || !sheet) return 368;
+        const mapRect = mapEl.getBoundingClientRect();
+        if (sheet.classList.contains("is-sheet-visible")) {
+          return sheet.getBoundingClientRect().top;
+        }
+        const cssTop = parseFloat(getComputedStyle(sheet).top);
+        if (Number.isFinite(cssTop) && cssTop > 0) {
+          return mapRect.top + cssTop;
+        }
+        return mapRect.top + 368;
+      }
+
       function getResultsMapPadding() {
         const mapEl = document.getElementById("gmap-results");
-        const panel = sheet;
-        if (!mapEl || !panel) {
+        if (!mapEl || !sheet) {
           return { top: 48, bottom: 0, left: 8, right: 8 };
         }
         const mapRect = mapEl.getBoundingClientRect();
-        const panelTop = panel.getBoundingClientRect().top;
+        const panelTop = getResultsPanelMapCutoffY();
+        const visibleMapHeight = Math.max(0, panelTop - mapRect.top);
         const bottom = Math.max(0, Math.round(mapRect.bottom - panelTop));
-        return { top: 40, bottom, left: 8, right: 8 };
+
+        const summary = document.querySelector(".storii-results-summary");
+        const summaryH = summary ? Math.ceil(summary.getBoundingClientRect().height) : 64;
+        const clearSummary = summaryH + 20;
+        const upwardBias = Math.round(visibleMapHeight * 0.32);
+        const top = Math.max(48, clearSummary + upwardBias);
+
+        return { top, bottom, left: 8, right: 8 };
       }
 
       function applyResultsMapPadding() {
@@ -2999,7 +3020,7 @@
       function updateSummary(payload) {
         queryEl.textContent = payload.query || "Beachfront Resorts In Phuket";
         const dates = payload.dates || "16-18 May";
-        metaEl.textContent = `${dates} · ${formatGuestsMeta(payload.guests)}`;
+        metaEl.textContent = `${dates}  •  ${formatGuestsMeta(payload.guests)}`;
       }
 
       function visibilityRatio(card, root) {
@@ -3245,6 +3266,7 @@
       }
 
       async function runMapPanAndPins() {
+        applyResultsMapPadding();
         resultsMap.setZoom(PHUKET_ZOOM);
         resultsMap.panTo(PHUKET_CENTER);
         await new Promise((resolve) => {
