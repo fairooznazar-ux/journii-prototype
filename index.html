@@ -649,7 +649,7 @@
       z-index: 2000;
       display: flex;
       flex-direction: column;
-      padding: max(16px, env(safe-area-inset-top, 0px)) 24px 24px;
+      padding: calc(20px + max(16px, env(safe-area-inset-top, 0px))) 24px 24px;
       box-sizing: border-box;
       background: linear-gradient(180deg, #1f85ac 0%, #1f85ac 22%, #0d4074 100%);
       opacity: 0;
@@ -726,13 +726,8 @@
       height: 12px;
       display: block;
     }
-    .storii-search-field {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .storii-search-compose {
       width: 100%;
-      min-height: 52px;
-      padding: 0 16px;
       border-radius: 12px;
       box-sizing: border-box;
       background: linear-gradient(
@@ -742,11 +737,22 @@
       );
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
       margin-bottom: 32px;
+      padding: 12px 12px 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .storii-search-compose-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      width: 100%;
     }
     .storii-search-field-ic {
       flex: 0 0 20px;
       width: 20px;
       height: 20px;
+      margin-top: 8px;
       position: relative;
       overflow: hidden;
     }
@@ -760,17 +766,123 @@
     .storii-search-input {
       flex: 1 1 auto;
       min-width: 0;
+      width: 100%;
+      min-height: 48px;
+      max-height: 72px;
+      resize: none;
       border: none;
       background: transparent;
       outline: none;
       font-family: "Instrument Sans", system-ui, sans-serif;
       font-size: 16px;
       font-weight: 500;
+      line-height: 24px;
       color: #fff;
       text-transform: capitalize;
+      padding: 4px 0 0;
+      margin: 0;
     }
     .storii-search-input::placeholder {
       color: rgba(255, 255, 255, 0.55);
+    }
+    .storii-search-compose-divider {
+      border: none;
+      height: 1px;
+      margin: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.22);
+    }
+    .storii-search-compose-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      min-width: 0;
+    }
+    .storii-search-meta-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 1 auto;
+      min-width: 0;
+      padding: 4px 0;
+      border: none;
+      background: transparent;
+      cursor: text;
+      -webkit-tap-highlight-color: transparent;
+      font: inherit;
+      color: #fff;
+      text-align: left;
+    }
+    .storii-search-meta-chip--guests,
+    .storii-search-meta-chip--rooms {
+      flex: 0 0 auto;
+    }
+    .storii-search-meta-chip--guests::before,
+    .storii-search-meta-chip--rooms::before {
+      content: "·";
+      margin-right: 12px;
+      color: rgba(255, 255, 255, 0.45);
+      font-size: 14px;
+      line-height: 1;
+      pointer-events: none;
+    }
+    .storii-search-meta-ic {
+      flex: 0 0 24px;
+      width: 24px;
+      height: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .storii-search-meta-ic img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .storii-search-meta-input {
+      width: auto;
+      min-width: 1ch;
+      max-width: 100%;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      text-transform: capitalize;
+      padding: 0;
+      margin: 0;
+    }
+    .storii-search-meta-input--guests,
+    .storii-search-meta-input--rooms {
+      width: 1.5ch;
+      text-align: center;
+    }
+    .storii-search-submit {
+      flex: 0 0 28px;
+      width: 28px;
+      height: 28px;
+      margin-left: auto;
+      border: none;
+      border-radius: 50%;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      background: #0a1628;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.12);
+    }
+    .storii-search-submit img {
+      width: 14px;
+      height: 14px;
+      display: block;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
     }
     .storii-search-suggested-label {
       margin: 0 0 12px;
@@ -823,9 +935,18 @@
       align-items: center;
       justify-content: center;
     }
-    .storii-search-suggestion-arrow img {
-      width: 100%;
-      height: 100%;
+    .storii-search-suggestion-arrow-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      transform: rotate(-130deg);
+    }
+    .storii-search-suggestion-arrow-inner img {
+      width: 14px;
+      height: 14px;
+      display: block;
       object-fit: contain;
       opacity: 0.85;
     }
@@ -1327,19 +1448,56 @@
           </svg>
         </button>
       </div>
-      <label class="storii-search-field">
-        <span class="storii-search-field-ic" aria-hidden="true">
-          <img src="https://www.figma.com/api/mcp/asset/8223193d-3947-44cd-8cb4-68c10b81743a" alt="">
-        </span>
-        <input type="search" class="storii-search-input" id="storii-search-input" placeholder="Search destinations" autocomplete="off" enterkeyhint="search">
-      </label>
+      <div class="storii-search-compose">
+        <div class="storii-search-compose-top">
+          <span class="storii-search-field-ic" aria-hidden="true">
+            <img src="https://www.figma.com/api/mcp/asset/efd6f838-d909-4ebc-8952-95f9f1abe1c2" alt="">
+          </span>
+          <textarea
+            class="storii-search-input"
+            id="storii-search-input"
+            rows="2"
+            placeholder="Search destinations"
+            autocomplete="off"
+            inputmode="search"
+            enterkeyhint="search"
+            aria-label="Search destinations"
+          >Beachfront Resorts In Phuket</textarea>
+        </div>
+        <hr class="storii-search-compose-divider" aria-hidden="true">
+        <div class="storii-search-compose-meta">
+          <label class="storii-search-meta-chip storii-search-meta-chip--dates">
+            <span class="storii-search-meta-ic" aria-hidden="true">
+              <img src="https://www.figma.com/api/mcp/asset/4346304c-6375-4717-bbb6-e9590b71f546" alt="">
+            </span>
+            <input type="text" class="storii-search-meta-input storii-search-meta-input--dates" value="16-18 May" aria-label="Travel dates">
+          </label>
+          <label class="storii-search-meta-chip storii-search-meta-chip--guests">
+            <span class="storii-search-meta-ic" aria-hidden="true">
+              <img src="https://www.figma.com/api/mcp/asset/e40fe893-53b5-4784-808b-0b29ad0f5515" alt="">
+            </span>
+            <input type="text" class="storii-search-meta-input storii-search-meta-input--guests" value="2" aria-label="Guests" inputmode="numeric">
+          </label>
+          <label class="storii-search-meta-chip storii-search-meta-chip--rooms">
+            <span class="storii-search-meta-ic" aria-hidden="true">
+              <img src="https://www.figma.com/api/mcp/asset/f506a7e9-38c7-41e8-9e99-8a63b55a3174" alt="">
+            </span>
+            <input type="text" class="storii-search-meta-input storii-search-meta-input--rooms" value="1" aria-label="Rooms" inputmode="numeric">
+          </label>
+          <button type="button" class="storii-search-submit" aria-label="Search">
+            <img src="https://www.figma.com/api/mcp/asset/cd839171-6047-4cf8-97ce-c08e2ddb5a85" alt="">
+          </button>
+        </div>
+      </div>
       <p class="storii-search-suggested-label">SUGGESTED</p>
       <ul class="storii-search-suggestions">
         <li>
           <button type="button" class="storii-search-suggestion" data-query="Weekend Getaway To Goa Next Week">
             <span class="storii-search-suggestion-text">Weekend Getaway To Goa Next Week</span>
             <span class="storii-search-suggestion-arrow" aria-hidden="true">
-              <img src="https://www.figma.com/api/mcp/asset/bf71e513-4ea7-454a-8618-fe79ed86bbe4" alt="">
+              <span class="storii-search-suggestion-arrow-inner">
+                <img src="https://www.figma.com/api/mcp/asset/e1220418-55d9-4c16-99ca-3a2e89e7accd" alt="">
+              </span>
             </span>
           </button>
         </li>
@@ -1347,7 +1505,9 @@
           <button type="button" class="storii-search-suggestion" data-query="Cozy Cabins In Coffee Estate, 3 Hours From Bangalore">
             <span class="storii-search-suggestion-text">Cozy Cabins In Coffee Estate, 3 Hours From Bangalore</span>
             <span class="storii-search-suggestion-arrow" aria-hidden="true">
-              <img src="https://www.figma.com/api/mcp/asset/bf71e513-4ea7-454a-8618-fe79ed86bbe4" alt="">
+              <span class="storii-search-suggestion-arrow-inner">
+                <img src="https://www.figma.com/api/mcp/asset/e1220418-55d9-4c16-99ca-3a2e89e7accd" alt="">
+              </span>
             </span>
           </button>
         </li>
@@ -1355,7 +1515,9 @@
           <button type="button" class="storii-search-suggestion" data-query="Romantic Getaway To Sri Lanka For Valentines">
             <span class="storii-search-suggestion-text">Romantic Getaway To Sri Lanka For Valentines</span>
             <span class="storii-search-suggestion-arrow" aria-hidden="true">
-              <img src="https://www.figma.com/api/mcp/asset/bf71e513-4ea7-454a-8618-fe79ed86bbe4" alt="">
+              <span class="storii-search-suggestion-arrow-inner">
+                <img src="https://www.figma.com/api/mcp/asset/e1220418-55d9-4c16-99ca-3a2e89e7accd" alt="">
+              </span>
             </span>
           </button>
         </li>
@@ -1408,9 +1570,9 @@
         overlay.hidden = false;
         overlay.classList.remove("is-closing");
         setExpanded(true);
+        input.focus({ preventScroll: true });
         requestAnimationFrame(() => {
           overlay.classList.add("is-open");
-          input.focus({ preventScroll: true });
         });
         if (!historyPushed) {
           history.pushState({ storiiSearchOverlay: true }, "");
@@ -1455,6 +1617,10 @@
             input.focus({ preventScroll: true });
           }
         });
+      });
+      overlay.querySelectorAll(".storii-search-meta-input").forEach((field) => {
+        field.addEventListener("click", (e) => e.stopPropagation());
+        field.addEventListener("keydown", (e) => e.stopPropagation());
       });
     })();
 
