@@ -998,7 +998,6 @@
     .storii-date-picker {
       flex: 0 0 0;
       min-height: 0;
-      margin: 0 -24px;
       overflow: hidden;
       opacity: 0;
       transform: translateY(12px);
@@ -1039,7 +1038,8 @@
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior: contain;
-      padding: 20px 20px 28px;
+      padding: 20px 24px;
+      box-sizing: border-box;
     }
     .storii-cal-month {
       margin: 0 0 28px;
@@ -1652,6 +1652,8 @@
             rows="2"
             placeholder="Search destinations"
             autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
             inputmode="search"
             enterkeyhint="search"
             aria-label="Search destinations"
@@ -1778,7 +1780,6 @@
         overlay.hidden = false;
         overlay.classList.remove("is-closing");
         setExpanded(true);
-        input.focus({ preventScroll: true });
         requestAnimationFrame(() => {
           overlay.classList.add("is-open");
         });
@@ -1786,6 +1787,11 @@
           history.pushState({ storiiSearchOverlay: true }, "");
           historyPushed = true;
         }
+      }
+
+      function focusSearchInput() {
+        input.focus({ preventScroll: true });
+        input.click();
       }
 
       function startClosing() {
@@ -1807,7 +1813,10 @@
         if (overlay.classList.contains("is-open")) startClosing();
       }
 
-      trigger.addEventListener("click", open);
+      trigger.addEventListener("click", () => {
+        open();
+        focusSearchInput();
+      });
       closeBtn.addEventListener("click", dismiss);
       window.addEventListener("popstate", onPopState);
       overlay.addEventListener("transitionend", (e) => {
