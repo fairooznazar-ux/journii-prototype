@@ -4736,10 +4736,6 @@
 
       /** After first fitBounds + nudge, keep this zoom/center on resize (no re-fit). */
       let storiiLockedMapView = null;
-      let stayMapPanDebounceTimer = null;
-      const STAY_CARD_ZOOM_NARROW = 7;
-      const STAY_CARD_ZOOM_WIDE = 6;
-      const STAY_CARD_PAN_DEBOUNCE_MS = 180;
 
       /** True when layout matches the stacked full-bleed phone UI (sheet + tabs). */
       function isNarrowViewport() {
@@ -4812,64 +4808,9 @@
         anchoredMarkers.forEach(({ marker }) => marker.draw());
       }
 
-      function isStaysMapActive() {
-        const results = document.getElementById("storii-search-results");
-        return !(results && results.classList.contains("is-layer-active"));
-      }
-
-      function stayMapFocusZoom() {
-        return isMobileCardDeck() || isNarrowViewport()
-          ? STAY_CARD_ZOOM_NARROW
-          : STAY_CARD_ZOOM_WIDE;
-      }
-
-      function panStayMapToCard(lat, lng) {
-        if (!map || !isStaysMapActive()) return;
-        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-
-        const zoom = stayMapFocusZoom();
-        map.setZoom(zoom);
-        map.panTo({ lat, lng });
-
-        requestAnimationFrame(() => {
-          const mapEl = document.getElementById("gmap");
-          const sheetEl = document.querySelector(".screen .sheet");
-          if (!mapEl || !sheetEl) {
-            storiiLockedMapView = { zoom, lat, lng };
-            return;
-          }
-
-          const mapRect = mapEl.getBoundingClientRect();
-          const sheetTop = sheetEl.getBoundingClientRect().top;
-          const visibleHeight = Math.max(120, sheetTop - mapRect.top);
-          const targetY = visibleHeight * 0.42;
-          const dy = Math.round(mapRect.height * 0.5 - targetY);
-          if (dy) map.panBy(0, dy);
-
-          google.maps.event.addListenerOnce(map, "idle", () => {
-            const c = map.getCenter();
-            if (!c) return;
-            storiiLockedMapView = {
-              zoom: map.getZoom(),
-              lat: c.lat(),
-              lng: c.lng()
-            };
-          });
-        });
-      }
-
-      function debouncedPanStayMap(lat, lng) {
-        clearTimeout(stayMapPanDebounceTimer);
-        stayMapPanDebounceTimer = window.setTimeout(() => {
-          panStayMapToCard(lat, lng);
-        }, STAY_CARD_PAN_DEBOUNCE_MS);
-      }
-
       function syncToCard(card) {
         if (!card || !card.dataset.lat) return;
         const anchor = card.getAttribute("data-anchor") || null;
-        const lat = parseFloat(card.dataset.lat);
-        const lng = parseFloat(card.dataset.lng);
         const mobileStack =
           typeof window.matchMedia !== "undefined" && window.matchMedia("(max-width: 480px)").matches;
         document.querySelectorAll(".deal-card").forEach((c) => {
@@ -4880,9 +4821,6 @@
             marker.applyPinActive(Boolean(anchorId) && anchorId === anchor);
           }
         });
-        if (Number.isFinite(lat) && Number.isFinite(lng)) {
-          debouncedPanStayMap(lat, lng);
-        }
       }
 
       window.__storiiSyncToCard = syncToCard;
