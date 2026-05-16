@@ -3300,17 +3300,13 @@
 
       function setResultsMapPadding(collapsed = false) {
         if (!resultsMap) return;
-        const sheetEl =
-          document.querySelector(".results-sheet") ||
-          document.querySelector(".results-screen .sheet") ||
-          sheet ||
-          document.getElementById("storii-results-sheet");
-        const sheetTop = sheetEl ? sheetEl.getBoundingClientRect().top : 400;
-        const bottomPadding = collapsed ? 80 : window.innerHeight - sheetTop;
+        const windowHeight = window.innerHeight;
+        const sheetHeight = Math.round(windowHeight * 0.58);
+        const bottomPadding = collapsed ? 80 : sheetHeight;
 
         console.log("Setting map padding bottom:", bottomPadding);
-        console.log("Sheet top:", sheetTop);
-        console.log("Window height:", window.innerHeight);
+        console.log("Window height:", windowHeight);
+        console.log("Calculated sheet height:", sheetHeight);
 
         resultsMap.setOptions({
           padding: {
