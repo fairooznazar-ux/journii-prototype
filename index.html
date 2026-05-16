@@ -190,6 +190,12 @@
         rgba(255, 255, 255, 0.15) 94.82%
       );
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      border: none;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      text-align: left;
+      font: inherit;
+      color: inherit;
     }
     .where-box .search-ic {
       width: 20px;
@@ -636,6 +642,194 @@
       color: rgba(255, 255, 255, 0.7);
     }
 
+    /* Search overlay — Figma 4562:5555 */
+    .storii-search-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      padding: max(16px, env(safe-area-inset-top, 0px)) 24px 24px;
+      box-sizing: border-box;
+      background: linear-gradient(180deg, #1f85ac 0%, #1f85ac 22%, #0d4074 100%);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(20px);
+      transition:
+        opacity 200ms ease-out,
+        transform 200ms ease-out,
+        visibility 0ms linear 200ms;
+    }
+    .storii-search-overlay.is-open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateY(0);
+      transition:
+        opacity 200ms ease-out,
+        transform 200ms ease-out,
+        visibility 0ms;
+    }
+    .storii-search-overlay.is-closing {
+      opacity: 0;
+      transform: translateY(20px);
+      transition:
+        opacity 150ms ease-in,
+        transform 150ms ease-in,
+        visibility 0ms linear 150ms;
+    }
+    .storii-search-overlay-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .storii-search-title {
+      margin: 0;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 24px;
+      line-height: 34px;
+      color: #fff;
+      text-transform: capitalize;
+      font-weight: 600;
+    }
+    .storii-search-title-line {
+      display: block;
+    }
+    .storii-search-title-line--soft {
+      font-weight: 400;
+    }
+    .storii-search-close {
+      flex: 0 0 auto;
+      width: 44px;
+      height: 44px;
+      border: none;
+      border-radius: 50%;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      background: linear-gradient(
+        93.188deg,
+        rgba(255, 255, 255, 0.225) 23.024%,
+        rgba(255, 255, 255, 0.15) 94.82%
+      );
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      color: #fff;
+    }
+    .storii-search-close svg {
+      width: 12px;
+      height: 12px;
+      display: block;
+    }
+    .storii-search-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      min-height: 52px;
+      padding: 0 16px;
+      border-radius: 12px;
+      box-sizing: border-box;
+      background: linear-gradient(
+        99.54deg,
+        rgba(255, 255, 255, 0.225) 23.024%,
+        rgba(255, 255, 255, 0.15) 94.82%
+      );
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      margin-bottom: 32px;
+    }
+    .storii-search-field-ic {
+      flex: 0 0 20px;
+      width: 20px;
+      height: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .storii-search-field-ic img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .storii-search-input {
+      flex: 1 1 auto;
+      min-width: 0;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      color: #fff;
+      text-transform: capitalize;
+    }
+    .storii-search-input::placeholder {
+      color: rgba(255, 255, 255, 0.55);
+    }
+    .storii-search-suggested-label {
+      margin: 0 0 12px;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.55);
+    }
+    .storii-search-suggestions {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .storii-search-suggestion {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+      padding: 14px 10px;
+      border: none;
+      border-radius: 12px;
+      background: transparent;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      text-align: left;
+      font: inherit;
+      color: rgba(255, 255, 255, 0.7);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+    }
+    .storii-search-suggestion-text {
+      flex: 1 1 auto;
+      min-width: 0;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.35;
+      text-transform: capitalize;
+    }
+    .storii-search-suggestion-arrow {
+      flex: 0 0 24px;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .storii-search-suggestion-arrow img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      opacity: 0.85;
+    }
+
     /* Real phones: full-bleed map, sheet over map, floating tab pill over sheet. */
     @media (max-width: 480px) {
       html {
@@ -888,14 +1082,14 @@
 
       <div class="sheet">
         <div class="search-row">
-          <div class="where-box">
+          <button type="button" class="where-box" id="storii-where-trigger" aria-haspopup="dialog" aria-controls="storii-search-overlay" aria-expanded="false">
             <div class="search-ic" aria-hidden="true">
               <div class="search-ic-inner">
                 <img src="https://www.figma.com/api/mcp/asset/8223193d-3947-44cd-8cb4-68c10b81743a" alt="">
               </div>
             </div>
             <span>where to?</span>
-          </div>
+          </button>
         </div>
 
         <div class="cards-scroller-bleed">
@@ -1120,6 +1314,53 @@
         </div>
       </nav>
     </div>
+
+    <div id="storii-search-overlay" class="storii-search-overlay" role="dialog" aria-modal="true" aria-labelledby="storii-search-title" hidden>
+      <div class="storii-search-overlay-head">
+        <h1 id="storii-search-title" class="storii-search-title">
+          <span class="storii-search-title-line">Where Do You</span>
+          <span class="storii-search-title-line storii-search-title-line--soft">Want To Go?</span>
+        </h1>
+        <button type="button" class="storii-search-close" aria-label="Close search">
+          <svg viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M1 1L11 11M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <label class="storii-search-field">
+        <span class="storii-search-field-ic" aria-hidden="true">
+          <img src="https://www.figma.com/api/mcp/asset/8223193d-3947-44cd-8cb4-68c10b81743a" alt="">
+        </span>
+        <input type="search" class="storii-search-input" id="storii-search-input" placeholder="Search destinations" autocomplete="off" enterkeyhint="search">
+      </label>
+      <p class="storii-search-suggested-label">SUGGESTED</p>
+      <ul class="storii-search-suggestions">
+        <li>
+          <button type="button" class="storii-search-suggestion" data-query="Weekend Getaway To Goa Next Week">
+            <span class="storii-search-suggestion-text">Weekend Getaway To Goa Next Week</span>
+            <span class="storii-search-suggestion-arrow" aria-hidden="true">
+              <img src="https://www.figma.com/api/mcp/asset/bf71e513-4ea7-454a-8618-fe79ed86bbe4" alt="">
+            </span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="storii-search-suggestion" data-query="Cozy Cabins In Coffee Estate, 3 Hours From Bangalore">
+            <span class="storii-search-suggestion-text">Cozy Cabins In Coffee Estate, 3 Hours From Bangalore</span>
+            <span class="storii-search-suggestion-arrow" aria-hidden="true">
+              <img src="https://www.figma.com/api/mcp/asset/bf71e513-4ea7-454a-8618-fe79ed86bbe4" alt="">
+            </span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="storii-search-suggestion" data-query="Romantic Getaway To Sri Lanka For Valentines">
+            <span class="storii-search-suggestion-text">Romantic Getaway To Sri Lanka For Valentines</span>
+            <span class="storii-search-suggestion-arrow" aria-hidden="true">
+              <img src="https://www.figma.com/api/mcp/asset/bf71e513-4ea7-454a-8618-fe79ed86bbe4" alt="">
+            </span>
+          </button>
+        </li>
+      </ul>
+    </div>
   </div>
 
   <script>
@@ -1132,6 +1373,87 @@
           if (!/\/500px-[^/]+$/i.test(u)) return;
           img.dataset.commonsThumbFallback = "1";
           img.src = u.replace("/500px-", "/960px-");
+        });
+      });
+    })();
+
+    /** Search overlay — Figma 4562:5555 */
+    (function storiiSearchOverlay() {
+      const overlay = document.getElementById("storii-search-overlay");
+      const input = document.getElementById("storii-search-input");
+      const trigger = document.getElementById("storii-where-trigger");
+      const closeBtn = overlay?.querySelector(".storii-search-close");
+      if (!overlay || !input || !trigger || !closeBtn) return;
+
+      let historyPushed = false;
+      let closeTimer = null;
+
+      function setExpanded(open) {
+        trigger.setAttribute("aria-expanded", open ? "true" : "false");
+      }
+
+      function finishClose() {
+        if (closeTimer) {
+          clearTimeout(closeTimer);
+          closeTimer = null;
+        }
+        overlay.classList.remove("is-open", "is-closing");
+        overlay.hidden = true;
+        setExpanded(false);
+        input.blur();
+      }
+
+      function open() {
+        if (overlay.classList.contains("is-open")) return;
+        overlay.hidden = false;
+        overlay.classList.remove("is-closing");
+        setExpanded(true);
+        requestAnimationFrame(() => {
+          overlay.classList.add("is-open");
+          input.focus({ preventScroll: true });
+        });
+        if (!historyPushed) {
+          history.pushState({ storiiSearchOverlay: true }, "");
+          historyPushed = true;
+        }
+      }
+
+      function startClosing() {
+        overlay.classList.remove("is-open");
+        overlay.classList.add("is-closing");
+        closeTimer = window.setTimeout(finishClose, 150);
+      }
+
+      function dismiss() {
+        if (!overlay.classList.contains("is-open") || overlay.classList.contains("is-closing")) return;
+        const hadHistory = historyPushed;
+        historyPushed = false;
+        startClosing();
+        if (hadHistory) history.back();
+      }
+
+      function onPopState() {
+        historyPushed = false;
+        if (overlay.classList.contains("is-open")) startClosing();
+      }
+
+      trigger.addEventListener("click", open);
+      closeBtn.addEventListener("click", dismiss);
+      window.addEventListener("popstate", onPopState);
+      overlay.addEventListener("transitionend", (e) => {
+        if (e.target !== overlay || e.propertyName !== "opacity") return;
+        if (overlay.classList.contains("is-closing")) finishClose();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && overlay.classList.contains("is-open")) dismiss();
+      });
+      overlay.querySelectorAll(".storii-search-suggestion").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const q = btn.getAttribute("data-query");
+          if (q) {
+            input.value = q;
+            input.focus({ preventScroll: true });
+          }
         });
       });
     })();
