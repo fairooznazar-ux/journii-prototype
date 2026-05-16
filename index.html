@@ -3124,8 +3124,9 @@
 
       const RESULTS_HOME = { lat: 15, lng: 95 };
       const RESULTS_HOME_ZOOM = 4;
-      const PHUKET_CENTER = { lat: 7.9, lng: 98.3 };
+      const PHUKET_CENTER = { lat: 8.15, lng: 98.3 };
       const PHUKET_ZOOM = 10;
+      const RESULTS_PAN_LAT_OFFSET = 0.18;
       const AI_LOADING_LABELS = [
         "Understanding your search",
         "Matching properties...",
@@ -3380,7 +3381,7 @@
         const lng = parseFloat(card.dataset.lng);
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
         applyResultsMapPadding();
-        resultsMap.panTo({ lat, lng });
+        resultsMap.panTo({ lat: lat + RESULTS_PAN_LAT_OFFSET, lng });
         google.maps.event.addListenerOnce(resultsMap, "idle", () => {
           nudgeResultsMapToSafeZone(card);
         });
