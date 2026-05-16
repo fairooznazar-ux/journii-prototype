@@ -881,9 +881,9 @@
       text-align: center;
     }
     .storii-search-submit {
-      flex: 0 0 28px;
-      width: 28px;
-      height: 28px;
+      flex: 0 0 32px;
+      width: 32px;
+      height: 32px;
       margin-left: auto;
       border: none;
       border-radius: 50%;
@@ -893,26 +893,23 @@
       justify-content: center;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 28 28' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Cdefs%3E%3CradialGradient id='grad' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(1.4393 2.8652 -3.1501 6.7195 7.3933 -3.9756)'%3E%3Cstop stop-color='rgba(255,255,255,1)' offset='0'/%3E%3Cstop stop-color='rgba(255,255,255,0.5)' offset='1'/%3E%3C/radialGradient%3E%3C/defs%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Cdefs%3E%3CradialGradient id='grad' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(1.4393 2.8652 -3.1501 6.7195 8.45 -4.5435)'%3E%3Cstop stop-color='rgba(255,255,255,1)' offset='0'/%3E%3Cstop stop-color='rgba(255,255,255,0.5)' offset='1'/%3E%3C/radialGradient%3E%3C/defs%3E%3C/svg%3E");
       background-size: 100% 100%;
       background-repeat: no-repeat;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
     }
-    .storii-search-submit-arrow {
-      position: relative;
-      width: 18.667px;
-      height: 18.667px;
-      overflow: hidden;
-      flex: 0 0 auto;
-    }
-    .storii-search-submit-arrow img {
-      position: absolute;
-      inset: 18.75% 14.58% 18.75% 10.42%;
+    .storii-search-submit-icon {
+      flex: 0 0 16px;
+      width: 16px;
+      height: 16px;
       display: block;
-      width: 100%;
-      height: 100%;
-      max-width: none;
-      object-fit: contain;
+      color: #0a1628;
+      stroke: #0a1628;
+    }
+    .storii-search-submit svg {
+      display: block;
+      color: #0a1628;
+      stroke: #0a1628;
     }
     .storii-search-suggested-label {
       margin: 0 0 12px;
@@ -1669,9 +1666,7 @@
             <input type="text" class="storii-search-meta-input storii-search-meta-input--rooms" value="1" aria-label="Rooms" inputmode="numeric">
           </label>
           <button type="button" class="storii-search-submit" aria-label="Search">
-            <span class="storii-search-submit-arrow" aria-hidden="true">
-              <img src="https://www.figma.com/api/mcp/asset/e291c719-31e3-4e37-bb68-2f697124b397" alt="">
-            </span>
+            <i data-lucide="arrow-right" class="storii-search-submit-icon" aria-hidden="true"></i>
           </button>
         </div>
       </div>
@@ -1765,11 +1760,9 @@
         if (overlay.classList.contains("is-open")) return;
         overlay.hidden = false;
         overlay.classList.remove("is-closing");
+        overlay.classList.add("is-open");
         setExpanded(true);
         if (window.lucide) lucide.createIcons();
-        requestAnimationFrame(() => {
-          overlay.classList.add("is-open");
-        });
         if (!historyPushed) {
           history.pushState({ storiiSearchOverlay: true }, "");
           historyPushed = true;
@@ -1777,8 +1770,21 @@
       }
 
       function focusSearchInput() {
+        const isIOS =
+          /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+        if (isIOS) {
+          input.readOnly = true;
+        }
         input.focus({ preventScroll: true });
-        input.click();
+        if (typeof input.setSelectionRange === "function") {
+          const len = input.value.length;
+          input.setSelectionRange(len, len);
+        }
+        if (isIOS) {
+          input.readOnly = false;
+          input.focus({ preventScroll: true });
+        }
       }
 
       function startClosing() {
