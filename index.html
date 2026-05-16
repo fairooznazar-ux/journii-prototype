@@ -1345,6 +1345,223 @@
         margin: 0 auto;
       }
     }
+
+    /* AI loading — between search submit and results sheet */
+    .storii-ai-loading {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 300ms ease;
+    }
+    .storii-ai-loading.is-fading-out {
+      opacity: 0;
+    }
+    .storii-ai-loading-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        ellipse at 50% 40%,
+        rgba(20, 50, 90, 0) 0%,
+        rgba(15, 40, 75, 0.72) 100%
+      );
+    }
+    .storii-ai-loading-orb-wrap {
+      position: absolute;
+      left: 50%;
+      top: 36%;
+      width: 0;
+      height: 0;
+    }
+    .storii-ai-loading-glow,
+    .storii-ai-loading-core,
+    .storii-ai-loading-ring {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .storii-ai-loading-glow {
+      width: 240px;
+      height: 240px;
+      background: radial-gradient(
+        circle,
+        rgba(38, 156, 191, 0.35) 0%,
+        transparent 70%
+      );
+      filter: blur(30px);
+      animation: storii-ai-pulse-glow 2.2s ease-in-out infinite;
+    }
+    .storii-ai-loading-core {
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(
+        circle at 40% 38%,
+        rgba(120, 210, 240, 0.95) 0%,
+        rgba(38, 156, 191, 0.85) 35%,
+        rgba(20, 90, 140, 0.5) 70%,
+        transparent 100%
+      );
+      filter: blur(28px);
+      animation: storii-ai-pulse-core 2.2s ease-in-out infinite;
+    }
+    .storii-ai-loading-ring--1 {
+      width: 180px;
+      height: 180px;
+      border: 1px solid rgba(120, 210, 240, 0.5);
+      animation: storii-ai-ring-pulse 2.2s ease-in-out infinite;
+    }
+    .storii-ai-loading-ring--2 {
+      width: 230px;
+      height: 230px;
+      border: 0.5px solid rgba(38, 156, 191, 0.2);
+      animation: storii-ai-ring-pulse 2.2s ease-in-out infinite 0.5s;
+    }
+    @keyframes storii-ai-pulse-core {
+      0%,
+      100% {
+        transform: translate(-50%, -50%) scale(0.82);
+        opacity: 0.8;
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(1.08);
+        opacity: 1;
+      }
+    }
+    @keyframes storii-ai-pulse-glow {
+      0%,
+      100% {
+        transform: translate(-50%, -50%) scale(0.85);
+        opacity: 0.6;
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 1;
+      }
+    }
+    @keyframes storii-ai-ring-pulse {
+      0%,
+      100% {
+        transform: translate(-50%, -50%) scale(0.88);
+        opacity: 0.2;
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.6;
+      }
+    }
+    .storii-ai-loading-copy {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 54%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 28px;
+      text-align: center;
+      gap: 10px;
+    }
+    .storii-ai-loading-label {
+      margin: 0;
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.38);
+      line-height: 1.2;
+      min-height: 1.2em;
+      transition: opacity 300ms ease;
+    }
+    .storii-ai-loading-label.is-fading {
+      opacity: 0;
+    }
+    .storii-ai-loading-query {
+      margin: 0;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 19px;
+      font-weight: 600;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      color: #fff;
+      max-width: 100%;
+    }
+    .storii-ai-loading-tags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 7px;
+      margin-top: 4px;
+      max-width: 100%;
+    }
+    .storii-ai-loading-tag {
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: rgba(255, 255, 255, 0.55);
+      opacity: 0;
+      transform: translateY(5px);
+      transition:
+        opacity 400ms ease,
+        transform 400ms ease;
+    }
+    .storii-ai-loading-tag.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .storii-ai-loading-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .storii-ai-loading-dots span {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.25);
+      animation: storii-ai-dot-pulse 1.2s ease-in-out infinite;
+    }
+    .storii-ai-loading-dots span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .storii-ai-loading-dots span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+    @keyframes storii-ai-dot-pulse {
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 0.25;
+      }
+      50% {
+        transform: scale(1.6);
+        opacity: 0.8;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .storii-ai-loading-glow,
+      .storii-ai-loading-core,
+      .storii-ai-loading-ring--1,
+      .storii-ai-loading-ring--2,
+      .storii-ai-loading-dots span {
+        animation: none;
+      }
+      .storii-ai-loading-tag {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+      .storii-ai-loading-label.is-fading {
+        opacity: 1;
+      }
+    }
+
     .g-html-marker.storii-pin-drop {
       opacity: 0;
       transform: scale(0);
@@ -2898,30 +3115,37 @@
       const results = document.getElementById("storii-search-results");
       const mapWrap = document.querySelector(".storii-results-map-wrap");
       const sheet = document.getElementById("storii-results-sheet");
-      const pill = document.getElementById("storii-results-search-pill");
       const backBtn = document.getElementById("storii-results-back");
       const queryEl = document.getElementById("storii-results-query");
       const metaEl = document.getElementById("storii-results-meta");
       const scroller = document.getElementById("storii-results-scroller");
       const stayTabBar = document.getElementById("storii-stay-tab-bar");
-      if (!results || !mapWrap || !sheet || !pill || !backBtn || !queryEl || !metaEl || !scroller) return;
+      if (!results || !mapWrap || !sheet || !backBtn || !queryEl || !metaEl || !scroller) return;
 
       const RESULTS_HOME = { lat: 15, lng: 95 };
       const RESULTS_HOME_ZOOM = 4;
       const PHUKET_CENTER = { lat: 7.9, lng: 98.3 };
       const PHUKET_ZOOM = 10;
-      const PILL_PRIMARY = [
-        "Searching Phuket...",
-        "Finding beachfront stays...",
+      const AI_LOADING_LABELS = [
+        "Understanding your search",
+        "Matching properties...",
         "Checking availability...",
       ];
+      const AI_LABEL_CYCLE_MS = 2200;
+      const AI_LABEL_FADE_MS = 300;
+      const AI_TAG_STAGGER_MS = 350;
+      const AI_TAG_START_MS = 500;
+      const AI_MAP_PAN_DELAY_MS = 300;
+      const AI_PIN_STAGGER_MS = 200;
+      const AI_AFTER_PINS_MS = 400;
+      const AI_OVERLAY_FADE_MS = 300;
 
       let resultsMap = null;
       let resultsMapInitialized = false;
       let resultsMarkers = [];
       let resultsScrollSync = null;
-      let pillTimer = null;
-      let pillStructureReady = false;
+      let aiLoadingEl = null;
+      let aiLoadingTimers = [];
       let pendingSubmitPayload = null;
       let submitRunning = false;
       let resizeObserverBound = false;
@@ -2937,25 +3161,107 @@
         );
       }
 
-      function getPillTimings() {
-        if (prefersReducedMotion()) {
-          return {
-            perMessage: 550,
-            minTotal: 2200,
-            beforePan: 450,
-            afterReady: 220,
-            fade: 120,
-            swap: 0,
-          };
+      function clearAiLoadingTimers() {
+        aiLoadingTimers.forEach((id) => window.clearTimeout(id));
+        aiLoadingTimers = [];
+      }
+
+      function scheduleAiLoadingTimer(fn, ms) {
+        const id = window.setTimeout(fn, ms);
+        aiLoadingTimers.push(id);
+        return id;
+      }
+
+      function formatDatesTag(dates) {
+        return String(dates || "16-18 May").replace(/\s*-\s*/g, "–");
+      }
+
+      function buildInterpretationTags(query, dates, guests) {
+        const tags = [];
+        const q = String(query || "").toLowerCase();
+        if (q.includes("beach") || q.includes("beachfront")) tags.push("Beachfront access");
+        if (q.includes("phuket")) tags.push("Phuket, Thailand");
+        if (q.includes("luxury") || q.includes("resort")) tags.push("Luxury");
+        if (q.includes("pool") || q.includes("villa")) tags.push("Pool villa");
+        tags.push(formatDatesTag(dates));
+        tags.push(formatGuestsMeta(guests));
+        return tags;
+      }
+
+      function removeAiLoadingOverlay() {
+        clearAiLoadingTimers();
+        if (aiLoadingEl?.parentNode) {
+          aiLoadingEl.parentNode.removeChild(aiLoadingEl);
         }
-        return {
-          perMessage: 1050,
-          minTotal: 3600,
-          beforePan: 1100,
-          afterReady: 450,
-          fade: 220,
-          swap: 150,
+        aiLoadingEl = null;
+      }
+
+      function mountAiLoadingOverlay(payload) {
+        removeAiLoadingOverlay();
+        const query = payload.query || "Beachfront Resorts In Phuket";
+        const el = document.createElement("div");
+        el.className = "storii-ai-loading";
+        el.setAttribute("role", "status");
+        el.setAttribute("aria-live", "polite");
+        el.innerHTML =
+          '<div class="storii-ai-loading-vignette" aria-hidden="true"></div>' +
+          '<div class="storii-ai-loading-orb-wrap" aria-hidden="true">' +
+          '<div class="storii-ai-loading-glow"></div>' +
+          '<div class="storii-ai-loading-core"></div>' +
+          '<div class="storii-ai-loading-ring storii-ai-loading-ring--1"></div>' +
+          '<div class="storii-ai-loading-ring storii-ai-loading-ring--2"></div>' +
+          "</div>" +
+          '<div class="storii-ai-loading-copy">' +
+          '<p class="storii-ai-loading-label"></p>' +
+          '<p class="storii-ai-loading-query"></p>' +
+          '<div class="storii-ai-loading-tags"></div>' +
+          '<div class="storii-ai-loading-dots" aria-hidden="true">' +
+          "<span></span><span></span><span></span>" +
+          "</div>" +
+          "</div>";
+        el.querySelector(".storii-ai-loading-query").textContent = query;
+        const labelEl = el.querySelector(".storii-ai-loading-label");
+        labelEl.textContent = AI_LOADING_LABELS[0];
+        const tagsWrap = el.querySelector(".storii-ai-loading-tags");
+        buildInterpretationTags(query, payload.dates, payload.guests).forEach((text, i) => {
+          const tag = document.createElement("span");
+          tag.className = "storii-ai-loading-tag";
+          tag.textContent = text;
+          tagsWrap.appendChild(tag);
+          scheduleAiLoadingTimer(() => {
+            tag.classList.add("is-visible");
+          }, AI_TAG_START_MS + i * AI_TAG_STAGGER_MS);
+        });
+        mapWrap.appendChild(el);
+        aiLoadingEl = el;
+        startAiLoadingLabelCycle(labelEl);
+        return el;
+      }
+
+      function startAiLoadingLabelCycle(labelEl) {
+        if (!labelEl || prefersReducedMotion()) return;
+        let index = 0;
+        const cycle = () => {
+          if (!labelEl.isConnected) return;
+          const next = (index + 1) % AI_LOADING_LABELS.length;
+          labelEl.classList.add("is-fading");
+          scheduleAiLoadingTimer(() => {
+            if (!labelEl.isConnected) return;
+            index = next;
+            labelEl.textContent = AI_LOADING_LABELS[index];
+            labelEl.classList.remove("is-fading");
+            scheduleAiLoadingTimer(cycle, AI_LABEL_CYCLE_MS);
+          }, AI_LABEL_FADE_MS);
         };
+        scheduleAiLoadingTimer(cycle, AI_LABEL_CYCLE_MS);
+      }
+
+      async function fadeOutAndRemoveAiLoading() {
+        if (!aiLoadingEl) return;
+        aiLoadingEl.classList.add("is-fading-out");
+        clearAiLoadingTimers();
+        await delay(AI_OVERLAY_FADE_MS);
+        removeAiLoadingOverlay();
       }
 
       function setStayTabBarVisible(visible) {
@@ -3226,7 +3532,7 @@
         tryAnim();
       }
 
-      function dropPinsStaggered() {
+      function dropPinsStaggered(staggerMs = AI_PIN_STAGGER_MS) {
         return new Promise((resolve) => {
           buildResultsMarkers();
           if (!resultsMarkers.length) {
@@ -3241,7 +3547,7 @@
             }
             animateMarkerIn(resultsMarkers[i].marker);
             i += 1;
-            window.setTimeout(dropNext, 120);
+            window.setTimeout(dropNext, staggerMs);
           };
           dropNext();
         });
@@ -3432,9 +3738,8 @@
         sheet.classList.remove("is-sheet-visible", "is-sheet-closing");
         results.classList.remove("is-open");
         results.setAttribute("aria-hidden", "true");
-        stopPillCycle();
+        removeAiLoadingOverlay();
         mapWrap.classList.remove("is-map-searching");
-        pill.classList.remove("is-visible", "is-hiding", "is-entering");
         if (resultsScrollSync) {
           resultsScrollSync.abort();
           resultsScrollSync = null;
@@ -3460,28 +3765,30 @@
 
           setStayTabBarVisible(false);
           results.setAttribute("aria-hidden", "false");
+          sheet.classList.remove("is-sheet-visible", "is-sheet-closing");
+          results.classList.remove("is-open");
 
-          await delay(200);
-
-          const pillTimings = getPillTimings();
-
-          mapWrap.classList.remove("is-map-fading-out");
+          mapWrap.classList.remove("is-map-fading-out", "is-map-searching");
           mapWrap.classList.add("is-map-visible");
           google.maps.event.trigger(resultsMap, "resize");
 
-          const pillPromise = runPillSequence(payload);
-          await delay(pillTimings.beforePan);
-          const mapPromise = runMapPanAndPins();
-          await Promise.all([pillPromise, mapPromise]);
+          mountAiLoadingOverlay(payload);
 
-          await delay(pillTimings.afterReady);
-          await hidePill();
+          await delay(AI_MAP_PAN_DELAY_MS);
+
+          resultsMap.setZoom(PHUKET_ZOOM);
+          resultsMap.panTo(PHUKET_CENTER);
+          await waitResultsMapIdle();
+
+          await dropPinsStaggered();
+          await delay(AI_AFTER_PINS_MS);
 
           sheet.classList.remove("is-sheet-closing");
           sheet.classList.add("is-sheet-visible");
           results.classList.add("is-open");
 
-          await delay(350);
+          const fadePromise = fadeOutAndRemoveAiLoading();
+          await Promise.all([fadePromise, delay(350)]);
 
           if (window.lucide) lucide.createIcons();
           setupResultsCardSync();
