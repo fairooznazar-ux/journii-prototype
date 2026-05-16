@@ -3307,13 +3307,13 @@
         requestAnimationFrame(() => {
           const mapEl = document.getElementById("gmap-results");
           const sheetEl = sheet || document.getElementById("storii-results-sheet");
-          let dy = 240;
+          let dy = 160;
 
           if (mapEl && sheetEl) {
             const mapRect = mapEl.getBoundingClientRect();
             const sheetTop = sheetEl.getBoundingClientRect().top;
             const visibleHeight = Math.max(120, sheetTop - mapRect.top);
-            const targetY = visibleHeight * 0.58;
+            const targetY = visibleHeight * 0.72;
             const mapCenterY = mapRect.height * 0.5;
             dy = Math.round(mapCenterY - targetY);
           }
