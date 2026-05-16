@@ -2978,28 +2978,84 @@
         return mapRect.top + 368;
       }
 
-      function getResultsMapPadding() {
+      /**
+       * Visible map band above the sheet UI. Full-height tiles stay immersive; only camera
+       * framing uses this safe zone (summary + filters overlap excluded).
+       */
+      function getResultsMapSafeZone() {
         const mapEl = document.getElementById("gmap-results");
-        if (!mapEl || !sheet) {
-          return { top: 48, bottom: 0, left: 8, right: 8 };
-        }
+        if (!mapEl || !sheet) return null;
+
         const mapRect = mapEl.getBoundingClientRect();
         const panelTop = getResultsPanelMapCutoffY();
-        const visibleMapHeight = Math.max(0, panelTop - mapRect.top);
-        const bottom = Math.max(0, Math.round(mapRect.bottom - panelTop));
-
         const summary = document.querySelector(".storii-results-summary");
-        const summaryH = summary ? Math.ceil(summary.getBoundingClientRect().height) : 64;
-        const clearSummary = summaryH + 20;
-        const upwardBias = Math.round(visibleMapHeight * 0.32);
-        const top = Math.max(48, clearSummary + upwardBias);
+        const filters = document.querySelector(".storii-results-filters");
+        const sheetVisible = sheet.classList.contains("is-sheet-visible");
+        const overlayGap = 10;
 
+        let safeBottom;
+        if (sheetVisible && filters) {
+          safeBottom = filters.getBoundingClientRect().bottom + overlayGap;
+        } else if (sheetVisible && summary) {
+          safeBottom = summary.getBoundingClientRect().bottom + overlayGap;
+        } else {
+          const panelStyle = getComputedStyle(sheet);
+          const padTop = parseFloat(panelStyle.paddingTop) || 16;
+          const gap = parseFloat(panelStyle.gap) || 12;
+          const summaryH = summary ? 64 : 64;
+          const filtersH = 40;
+          safeBottom = panelTop + padTop + summaryH + gap + filtersH + overlayGap;
+        }
+
+        safeBottom = Math.min(safeBottom, panelTop - 4);
+        const safeTop = mapRect.top + 16;
+        const safeHeight = Math.max(96, safeBottom - safeTop);
+        const targetPinY = safeTop + safeHeight * 0.38;
+
+        return { mapRect, safeTop, safeBottom, safeHeight, panelTop, targetPinY };
+      }
+
+      function getResultsMapPadding() {
+        const zone = getResultsMapSafeZone();
+        if (!zone) {
+          return { top: 48, bottom: 0, left: 8, right: 8 };
+        }
+        const top = Math.max(16, Math.round(zone.safeTop - zone.mapRect.top));
+        const bottom = Math.max(0, Math.round(zone.mapRect.bottom - zone.safeBottom));
         return { top, bottom, left: 8, right: 8 };
       }
 
       function applyResultsMapPadding() {
         if (!resultsMap) return;
         resultsMap.setOptions({ padding: getResultsMapPadding() });
+      }
+
+      function nudgeResultsMapToSafeZone(card) {
+        if (!resultsMap || !card || prefersReducedMotion()) return;
+        const zone = getResultsMapSafeZone();
+        if (!zone) return;
+
+        const anchor = card.getAttribute("data-anchor");
+        const entry = resultsMarkers.find((m) => m.anchorId === anchor);
+        if (!entry?.marker) return;
+
+        const nudgeOnce = (attempt = 0) => {
+          if (!entry.marker.div) {
+            if (attempt < 16) requestAnimationFrame(() => nudgeOnce(attempt + 1));
+            return;
+          }
+          const pinRect = entry.marker.div.getBoundingClientRect();
+          const pinY = entry.marker._pinActive
+            ? pinRect.bottom
+            : pinRect.top + pinRect.height * 0.5;
+          const dy = Math.round(pinY - zone.targetPinY);
+          if (Math.abs(dy) > 3) {
+            resultsMap.panBy(0, dy);
+          }
+          resultsMarkers.forEach(({ marker }) => marker.draw());
+        };
+
+        nudgeOnce();
       }
 
       function panResultsMapToCard(card) {
@@ -3009,6 +3065,9 @@
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
         applyResultsMapPadding();
         resultsMap.panTo({ lat, lng });
+        google.maps.event.addListenerOnce(resultsMap, "idle", () => {
+          nudgeResultsMapToSafeZone(card);
+        });
       }
 
       function formatGuestsMeta(count) {
@@ -3413,11 +3472,15 @@
 
           if (window.lucide) lucide.createIcons();
           setupResultsCardSync();
-          applyResultsMapPadding();
-          const first =
-            document.querySelector(".storii-result-card.is-active") ||
-            document.querySelector(".storii-result-card");
-          if (first) syncResultsPin(first);
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              applyResultsMapPadding();
+              const first =
+                document.querySelector(".storii-result-card.is-active") ||
+                document.querySelector(".storii-result-card");
+              if (first) syncResultsPin(first);
+            });
+          });
         } finally {
           submitRunning = false;
         }
