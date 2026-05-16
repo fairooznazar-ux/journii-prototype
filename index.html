@@ -741,6 +741,17 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
+      flex-shrink: 0;
+    }
+    .storii-search-overlay.has-date-picker .storii-search-compose {
+      margin-bottom: 12px;
+    }
+    .storii-search-overlay.has-date-picker {
+      overflow: hidden;
+    }
+    .storii-search-overlay.has-date-picker .storii-search-suggested-label,
+    .storii-search-overlay.has-date-picker .storii-search-suggestions {
+      display: none;
     }
     .storii-search-compose-top {
       display: flex;
@@ -813,6 +824,17 @@
       font: inherit;
       color: #fff;
       text-align: left;
+    }
+    .storii-search-meta-chip--dates {
+      cursor: pointer;
+    }
+    .storii-search-date-label {
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      text-transform: capitalize;
+      white-space: nowrap;
     }
     .storii-search-meta-chip--guests,
     .storii-search-meta-chip--rooms {
@@ -970,6 +992,156 @@
       display: block;
       object-fit: contain;
       opacity: 0.85;
+    }
+
+    /* Date range picker sheet — below search compose */
+    .storii-date-picker {
+      flex: 0 0 0;
+      min-height: 0;
+      margin: 0 -24px;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition:
+        opacity 200ms ease-out,
+        transform 200ms ease-out,
+        flex 200ms ease-out;
+    }
+    .storii-date-picker.is-open {
+      flex: 1 1 auto;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .storii-date-picker.is-closing {
+      flex: 0 0 0;
+      opacity: 0;
+      transform: translateY(12px);
+      transition:
+        opacity 200ms ease-in,
+        transform 200ms ease-in,
+        flex 200ms ease-in;
+    }
+    .storii-date-picker-panel {
+      height: 100%;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      border-radius: 16px 16px 0 0;
+      box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
+    }
+    .storii-date-picker-scroll {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      padding: 20px 20px 28px;
+    }
+    .storii-cal-month {
+      margin: 0 0 28px;
+    }
+    .storii-cal-month:last-child {
+      margin-bottom: 8px;
+    }
+    .storii-cal-month-title {
+      margin: 0 0 16px;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 1.2;
+      color: #0a1628;
+      text-align: left;
+    }
+    .storii-cal-dow {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      margin: 0 0 8px;
+      padding: 0;
+      list-style: none;
+    }
+    .storii-cal-dow li {
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-align: center;
+      color: rgba(10, 22, 40, 0.45);
+    }
+    .storii-cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px 0;
+    }
+    .storii-cal-day {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      font: inherit;
+    }
+    .storii-cal-day.is-empty {
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .storii-cal-day.is-past {
+      cursor: default;
+      pointer-events: none;
+    }
+    .storii-cal-day.is-past .storii-cal-day-num {
+      color: rgba(10, 22, 40, 0.28);
+    }
+    .storii-cal-day-num {
+      position: relative;
+      z-index: 2;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1;
+      color: #0a1628;
+    }
+    .storii-cal-day.is-in-range::before,
+    .storii-cal-day.is-range-start::before,
+    .storii-cal-day.is-range-end::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 40px;
+      background: rgba(10, 22, 40, 0.12);
+      z-index: 0;
+    }
+    .storii-cal-day.is-in-range::before {
+      left: 0;
+      right: 0;
+    }
+    .storii-cal-day.is-range-start::before {
+      left: 50%;
+      right: 0;
+    }
+    .storii-cal-day.is-range-end::before {
+      left: 0;
+      right: 50%;
+    }
+    .storii-cal-day.is-endpoint .storii-cal-day-num {
+      background: #0a1628;
+      color: #fff;
     }
 
     /* Real phones: full-bleed map, sheet over map, floating tab pill over sheet. */
@@ -1487,12 +1659,19 @@
         </div>
         <hr class="storii-search-compose-divider" aria-hidden="true">
         <div class="storii-search-compose-meta">
-          <label class="storii-search-meta-chip storii-search-meta-chip--dates">
+          <button
+            type="button"
+            class="storii-search-meta-chip storii-search-meta-chip--dates"
+            id="storii-search-dates-trigger"
+            aria-label="Travel dates"
+            aria-expanded="false"
+            aria-controls="storii-date-picker"
+          >
             <span class="storii-search-meta-ic storii-search-meta-ic--dates" aria-hidden="true">
               <img src="https://www.figma.com/api/mcp/asset/b96ad716-2194-4337-bcd6-90f651290eac" alt="">
             </span>
-            <input type="text" class="storii-search-meta-input storii-search-meta-input--dates" value="16-18 May" aria-label="Travel dates">
-          </label>
+            <span class="storii-search-date-label" id="storii-search-date-label">16-18 May</span>
+          </button>
           <label class="storii-search-meta-chip storii-search-meta-chip--guests">
             <span class="storii-search-meta-ic storii-search-meta-ic--guests" aria-hidden="true">
               <img src="https://www.figma.com/api/mcp/asset/67226766-0b4b-4baf-85ed-0a078d38d220" alt="">
@@ -1510,6 +1689,11 @@
               <img src="https://www.figma.com/api/mcp/asset/e291c719-31e3-4e37-bb68-2f697124b397" alt="">
             </span>
           </button>
+        </div>
+      </div>
+      <div id="storii-date-picker" class="storii-date-picker" hidden>
+        <div class="storii-date-picker-panel">
+          <div class="storii-date-picker-scroll" id="storii-date-picker-scroll" role="application" aria-label="Choose travel dates"></div>
         </div>
       </div>
       <p class="storii-search-suggested-label">SUGGESTED</p>
@@ -1582,6 +1766,7 @@
           clearTimeout(closeTimer);
           closeTimer = null;
         }
+        window.storiiCloseDatePicker?.();
         overlay.classList.remove("is-open", "is-closing");
         overlay.hidden = true;
         setExpanded(false);
@@ -1645,6 +1830,308 @@
         field.addEventListener("click", (e) => e.stopPropagation());
         field.addEventListener("keydown", (e) => e.stopPropagation());
       });
+    })();
+
+    /** Date range picker — search overlay second row */
+    (function storiiSearchDatePicker() {
+      const overlay = document.getElementById("storii-search-overlay");
+      const picker = document.getElementById("storii-date-picker");
+      const scrollEl = document.getElementById("storii-date-picker-scroll");
+      const trigger = document.getElementById("storii-search-dates-trigger");
+      const labelEl = document.getElementById("storii-search-date-label");
+      const searchInput = document.getElementById("storii-search-input");
+      if (!overlay || !picker || !scrollEl || !trigger || !labelEl) return;
+
+      const MONTHS_FULL = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December",
+      ];
+      const MONTHS_SHORT = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+      ];
+      const DOW = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+      const MONTHS_AHEAD = 18;
+
+      let checkIn = null;
+      let checkOut = null;
+      let monthsBuilt = false;
+      let closeTimer = null;
+
+      function startOfDay(d) {
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      }
+
+      function sameDay(a, b) {
+        return (
+          a.getFullYear() === b.getFullYear() &&
+          a.getMonth() === b.getMonth() &&
+          a.getDate() === b.getDate()
+        );
+      }
+
+      function dateKey(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+      }
+
+      function parseDateKey(key) {
+        const [y, m, d] = key.split("-").map(Number);
+        return new Date(y, m - 1, d);
+      }
+
+      function monthIndexFromName(name) {
+        const n = name.toLowerCase();
+        let i = MONTHS_SHORT.findIndex((m) => m.toLowerCase() === n);
+        if (i >= 0) return i;
+        i = MONTHS_FULL.findIndex((m) => m.toLowerCase() === n);
+        return i;
+      }
+
+      function parseInitialRange(text) {
+        const cross = text.match(/^(\d{1,2})\s+(\w+)\s*-\s*(\d{1,2})\s+(\w+)$/i);
+        if (cross) {
+          const y = new Date().getFullYear();
+          const sm = monthIndexFromName(cross[2]);
+          const em = monthIndexFromName(cross[4]);
+          if (sm >= 0 && em >= 0) {
+            return {
+              checkIn: new Date(y, sm, Number(cross[1])),
+              checkOut: new Date(y, em, Number(cross[3])),
+            };
+          }
+        }
+        const same = text.match(/^(\d{1,2})-(\d{1,2})\s+(\w+)$/i);
+        if (same) {
+          const y = new Date().getFullYear();
+          const m = monthIndexFromName(same[3]);
+          if (m >= 0) {
+            return {
+              checkIn: new Date(y, m, Number(same[1])),
+              checkOut: new Date(y, m, Number(same[2])),
+            };
+          }
+        }
+        return null;
+      }
+
+      function formatRangeLabel(start, end) {
+        const sm = MONTHS_SHORT[start.getMonth()];
+        const em = MONTHS_SHORT[end.getMonth()];
+        if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+          return `${start.getDate()}-${end.getDate()} ${sm}`;
+        }
+        return `${start.getDate()} ${sm} - ${end.getDate()} ${em}`;
+      }
+
+      function isPast(d, today) {
+        return d < today;
+      }
+
+      function isOpen() {
+        return picker.classList.contains("is-open");
+      }
+
+      function dismissKeyboard() {
+        searchInput?.blur();
+        overlay.querySelectorAll(".storii-search-meta-input").forEach((el) => el.blur());
+        if (document.activeElement && document.activeElement !== document.body) {
+          document.activeElement.blur();
+        }
+      }
+
+      function buildMonths() {
+        scrollEl.innerHTML = "";
+        const today = startOfDay(new Date());
+        let y = today.getFullYear();
+        let m = today.getMonth();
+
+        for (let i = 0; i < MONTHS_AHEAD; i++) {
+          const section = document.createElement("section");
+          section.className = "storii-cal-month";
+          section.dataset.year = String(y);
+          section.dataset.month = String(m);
+
+          const title = document.createElement("h2");
+          title.className = "storii-cal-month-title";
+          title.textContent = `${MONTHS_FULL[m]} ${y}`;
+          section.appendChild(title);
+
+          const dow = document.createElement("ul");
+          dow.className = "storii-cal-dow";
+          dow.setAttribute("aria-hidden", "true");
+          DOW.forEach((label) => {
+            const li = document.createElement("li");
+            li.textContent = label;
+            dow.appendChild(li);
+          });
+          section.appendChild(dow);
+
+          const grid = document.createElement("div");
+          grid.className = "storii-cal-grid";
+          grid.setAttribute("role", "grid");
+
+          const firstDow = new Date(y, m, 1).getDay();
+          const daysInMonth = new Date(y, m + 1, 0).getDate();
+
+          for (let pad = 0; pad < firstDow; pad++) {
+            const empty = document.createElement("span");
+            empty.className = "storii-cal-day is-empty";
+            empty.setAttribute("aria-hidden", "true");
+            grid.appendChild(empty);
+          }
+
+          for (let day = 1; day <= daysInMonth; day++) {
+            const d = new Date(y, m, day);
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "storii-cal-day";
+            btn.dataset.date = dateKey(d);
+            btn.setAttribute("aria-label", d.toLocaleDateString(undefined, { dateStyle: "long" }));
+
+            const num = document.createElement("span");
+            num.className = "storii-cal-day-num";
+            num.textContent = String(day);
+            btn.appendChild(num);
+
+            if (isPast(d, today)) btn.classList.add("is-past");
+
+            btn.addEventListener("click", () => onDayTap(d));
+            grid.appendChild(btn);
+          }
+
+          section.appendChild(grid);
+          scrollEl.appendChild(section);
+
+          m += 1;
+          if (m > 11) {
+            m = 0;
+            y += 1;
+          }
+        }
+
+        monthsBuilt = true;
+      }
+
+      function updateDayStates() {
+        scrollEl.querySelectorAll(".storii-cal-day[data-date]").forEach((btn) => {
+          const d = parseDateKey(btn.dataset.date);
+          btn.classList.remove(
+            "is-in-range",
+            "is-range-start",
+            "is-range-end",
+            "is-endpoint",
+            "is-check-in",
+            "is-check-out",
+          );
+
+          if (btn.classList.contains("is-past")) return;
+
+          if (checkIn && sameDay(d, checkIn)) {
+            btn.classList.add("is-check-in", "is-endpoint");
+            if (checkOut && d < checkOut) btn.classList.add("is-range-start");
+          }
+          if (checkOut && sameDay(d, checkOut)) {
+            btn.classList.add("is-check-out", "is-endpoint");
+            if (checkIn && d > checkIn) btn.classList.add("is-range-end");
+          }
+          if (checkIn && checkOut && d > checkIn && d < checkOut) {
+            btn.classList.add("is-in-range");
+          }
+        });
+      }
+
+      function onDayTap(d) {
+        const today = startOfDay(new Date());
+        if (isPast(d, today)) return;
+
+        if (!checkIn || (checkIn && checkOut)) {
+          checkIn = d;
+          checkOut = null;
+          updateDayStates();
+          return;
+        }
+
+        if (d <= checkIn) {
+          checkIn = d;
+          checkOut = null;
+          updateDayStates();
+          return;
+        }
+
+        checkOut = d;
+        labelEl.textContent = formatRangeLabel(checkIn, checkOut);
+        updateDayStates();
+        closePicker();
+      }
+
+      function openPicker() {
+        if (isOpen()) return;
+        dismissKeyboard();
+        if (!monthsBuilt) buildMonths();
+        updateDayStates();
+
+        if (closeTimer) {
+          clearTimeout(closeTimer);
+          closeTimer = null;
+        }
+
+        picker.hidden = false;
+        picker.classList.remove("is-closing");
+        overlay.classList.add("has-date-picker");
+        trigger.setAttribute("aria-expanded", "true");
+        requestAnimationFrame(() => picker.classList.add("is-open"));
+      }
+
+      function closePicker() {
+        if (!isOpen() && !picker.classList.contains("is-closing")) return;
+        picker.classList.remove("is-open");
+        picker.classList.add("is-closing");
+        trigger.setAttribute("aria-expanded", "false");
+        overlay.classList.remove("has-date-picker");
+
+        if (closeTimer) clearTimeout(closeTimer);
+        closeTimer = window.setTimeout(() => {
+          picker.classList.remove("is-closing");
+          picker.hidden = true;
+          closeTimer = null;
+        }, 200);
+      }
+
+      function forceClosePicker() {
+        if (closeTimer) {
+          clearTimeout(closeTimer);
+          closeTimer = null;
+        }
+        picker.classList.remove("is-open", "is-closing");
+        picker.hidden = true;
+        overlay.classList.remove("has-date-picker");
+        trigger.setAttribute("aria-expanded", "false");
+      }
+
+      const initial = parseInitialRange(labelEl.textContent.trim());
+      if (initial) {
+        checkIn = startOfDay(initial.checkIn);
+        checkOut = startOfDay(initial.checkOut);
+        if (checkOut < checkIn) checkOut = null;
+      }
+
+      trigger.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (isOpen()) closePicker();
+        else openPicker();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "Escape" || !isOpen()) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        closePicker();
+      }, true);
+
+      window.storiiCloseDatePicker = forceClosePicker;
     })();
 
     function getGmapsKey() {
