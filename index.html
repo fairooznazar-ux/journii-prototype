@@ -1128,6 +1128,373 @@
       color: #fff;
     }
 
+    .storii-search-overlay.is-exiting-to-results {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 200ms ease-in;
+    }
+
+    /* Search results screen */
+    .storii-search-results {
+      position: absolute;
+      inset: 0;
+      z-index: 2100;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition:
+        opacity 200ms ease-out,
+        visibility 0ms linear 200ms;
+    }
+    .storii-search-results.is-open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transition:
+        opacity 200ms ease-out,
+        visibility 0ms;
+    }
+    .storii-search-results.is-closing {
+      opacity: 0;
+      transition: opacity 200ms ease-in;
+    }
+    .storii-results-map-wrap {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -30px;
+      bottom: 0;
+      overflow: hidden;
+      z-index: 1;
+      isolation: isolate;
+    }
+    #gmap-results {
+      position: absolute;
+      left: -3px;
+      right: -3px;
+      top: 0;
+      bottom: 0;
+      width: auto;
+      height: 100%;
+      direction: ltr;
+      transform: translateZ(0);
+    }
+    .storii-results-panel {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 368px;
+      bottom: 0;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px 20px 0;
+      min-height: 0;
+      pointer-events: auto;
+      background: linear-gradient(
+        180deg,
+        rgba(31, 133, 172, 0) 0%,
+        rgba(31, 133, 172, 0.45) 4%,
+        rgba(31, 133, 172, 0.98) 10%,
+        #1f85ac 14%,
+        #0d4074 100%
+      );
+    }
+    .storii-results-summary {
+      flex: 0 0 52px;
+      width: 100%;
+      min-height: 52px;
+      max-height: 52px;
+      border-radius: 8px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      -webkit-tap-highlight-color: transparent;
+      background: linear-gradient(
+        111.989deg,
+        rgba(255, 255, 255, 0.225) 23.024%,
+        rgba(255, 255, 255, 0.15) 94.82%
+      );
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      font: inherit;
+      color: inherit;
+    }
+    .storii-results-back {
+      flex: 0 0 20px;
+      width: 20px;
+      height: 20px;
+      border: none;
+      padding: 0;
+      background: transparent;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .storii-results-back svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+    .storii-results-summary-text {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .storii-results-query {
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.2;
+      color: #fff;
+      text-transform: capitalize;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .storii-results-meta {
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.2;
+      color: rgba(255, 255, 255, 0.65);
+      text-transform: capitalize;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .storii-results-filters {
+      flex: 0 0 auto;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding: 2px 0 4px;
+      margin: 0 -4px;
+    }
+    .storii-results-filters::-webkit-scrollbar {
+      display: none;
+    }
+    .storii-results-filter-chip {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      background: transparent;
+      color: #fff;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1;
+      white-space: nowrap;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .storii-results-filter-chip .storii-results-filter-arrow {
+      display: flex;
+      width: 12px;
+      height: 12px;
+      transform: rotate(-130deg);
+      opacity: 0.85;
+    }
+    .storii-results-filter-chip svg {
+      width: 12px;
+      height: 12px;
+      stroke: #fff;
+    }
+    .storii-results-cards-scroller {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      padding: 4px 0 calc(100px + env(safe-area-inset-bottom, 0px));
+      margin: 0 -20px;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+    .storii-results-cards-track {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .storii-result-card {
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 1.92px 7.68px rgba(49, 44, 63, 0.12);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .storii-result-card-hero {
+      position: relative;
+      width: 100%;
+      height: 195px;
+      overflow: hidden;
+      border-radius: 6px 6px 0 0;
+    }
+    .storii-result-card-hero img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .storii-result-card-dots {
+      position: absolute;
+      left: 50%;
+      bottom: 12px;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      z-index: 1;
+    }
+    .storii-result-card-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.45);
+    }
+    .storii-result-card-dots span.is-active {
+      background: #fff;
+    }
+    .storii-result-card-body {
+      padding: 12px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .storii-result-card-title {
+      margin: 0;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.1;
+      color: #080e12;
+      text-transform: capitalize;
+    }
+    .storii-result-card-sub {
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: -0.1px;
+      color: #6e6e6e;
+      text-transform: uppercase;
+    }
+    .storii-result-card-sub .star {
+      font-family: "Geist Mono", ui-monospace, monospace;
+    }
+    .storii-result-card-sub .sep {
+      color: #b4b4b4;
+      margin: 0 4px;
+      text-transform: none;
+    }
+    .storii-result-card-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      align-items: center;
+      padding-top: 4px;
+    }
+    .storii-result-stat {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .storii-result-stat--price {
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+    .storii-result-vibe-ic {
+      flex: 0 0 24px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: linear-gradient(160deg, #76d57f 8.72%, #05cf37 81.12%);
+      border: 0.75px solid #dfffe3;
+    }
+    .storii-result-vibe-ic img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .storii-result-vibe-ic--couples {
+      background: linear-gradient(160deg, #e8b4ff 8.72%, #a27dd1 81.12%);
+      border-color: #f0e4ff;
+    }
+    .storii-result-stat-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .storii-result-stat-label {
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: #080e12;
+      text-transform: capitalize;
+      white-space: nowrap;
+    }
+    .storii-result-stat-sublabel {
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: -0.1px;
+      color: #6e6e6e;
+      text-transform: uppercase;
+    }
+    .storii-result-mult-badge {
+      flex: 0 0 24px;
+      width: 24px;
+      height: 24px;
+      position: relative;
+    }
+    .storii-result-mult-badge img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .storii-result-mult-badge span {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-family: "Forum", serif;
+      font-size: 14px;
+      color: #080e12;
+      line-height: 1;
+    }
+    .storii-search-results .tab-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1001;
+    }
+
     /* Real phones: full-bleed map, sheet over map, floating tab pill over sheet. */
     @media (max-width: 480px) {
       html {
@@ -1180,6 +1547,9 @@
         bottom: 0;
         width: 100%;
         height: auto;
+      }
+      .storii-results-panel {
+        top: min(368px, max(268px, calc(var(--storii-app-h, 100svh) - 480px)));
       }
       .sheet {
         position: absolute;
@@ -1709,6 +2079,157 @@
         </li>
       </ul>
     </div>
+
+    <div id="storii-search-results" class="storii-search-results" hidden aria-hidden="true">
+      <div class="storii-results-map-wrap">
+        <div id="gmap-results"></div>
+        <div id="map-results-fallback" class="map-fallback">
+          <div>Add your Google Maps API key to load satellite view.</div>
+          <div>Open with <code>?gmapsKey=YOUR_BROWSER_KEY</code> (key is stored in localStorage).</div>
+        </div>
+      </div>
+      <div class="storii-results-panel">
+        <div class="storii-results-summary">
+          <button type="button" class="storii-results-back" id="storii-results-back" aria-label="Back to stays">
+            <svg viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M11 4L6 9L11 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="storii-results-summary-text">
+            <div class="storii-results-query" id="storii-results-query">Beachfront Resorts In Phuket</div>
+            <div class="storii-results-meta" id="storii-results-meta">16-18 May · 2 Guests</div>
+          </div>
+        </div>
+        <div class="storii-results-filters" role="list" aria-label="Filters">
+          <button type="button" class="storii-results-filter-chip" role="listitem">
+            <span class="storii-results-filter-arrow" aria-hidden="true"><i data-lucide="arrow-up-right"></i></span>
+            Family Friendly
+          </button>
+          <button type="button" class="storii-results-filter-chip" role="listitem">
+            <span class="storii-results-filter-arrow" aria-hidden="true"><i data-lucide="arrow-up-right"></i></span>
+            Under ₹20k Per Night
+          </button>
+          <button type="button" class="storii-results-filter-chip" role="listitem">
+            <span class="storii-results-filter-arrow" aria-hidden="true"><i data-lucide="arrow-up-right"></i></span>
+            Under ₹10k Per Night
+          </button>
+          <button type="button" class="storii-results-filter-chip" role="listitem">
+            <span class="storii-results-filter-arrow" aria-hidden="true"><i data-lucide="arrow-up-right"></i></span>
+            Pool Villa
+          </button>
+          <button type="button" class="storii-results-filter-chip" role="listitem">
+            <span class="storii-results-filter-arrow" aria-hidden="true"><i data-lucide="arrow-up-right"></i></span>
+            Beachfront
+          </button>
+        </div>
+        <div class="storii-results-cards-scroller" id="storii-results-scroller" role="region" aria-label="Search results">
+          <div class="storii-results-cards-track" id="storii-results-track">
+            <article
+              class="storii-result-card is-active"
+              id="storii-result-anantara"
+              data-anchor="anantara"
+              data-lat="7.767"
+              data-lng="98.352"
+              data-pin-fill="#05cf55"
+              data-pin-icon="https://www.figma.com/api/mcp/asset/f4d1f08a-e77c-44ab-a224-629f4e917224"
+            >
+              <div class="storii-result-card-hero">
+                <img src="https://www.figma.com/api/mcp/asset/7c88de51-d3c7-4c25-823e-ef6ee551250f" alt="" decoding="async">
+                <div class="storii-result-card-dots" aria-hidden="true">
+                  <span class="is-active"></span><span></span><span></span>
+                </div>
+              </div>
+              <div class="storii-result-card-body">
+                <h2 class="storii-result-card-title">Anantara Phuket</h2>
+                <p class="storii-result-card-sub">
+                  <span class="star">★ 4.89 (739)</span><span class="sep">·</span>Panway Bay, Phuket
+                </p>
+                <div class="storii-result-card-stats">
+                  <div class="storii-result-stat">
+                    <div class="storii-result-vibe-ic">
+                      <img src="https://www.figma.com/api/mcp/asset/f4d1f08a-e77c-44ab-a224-629f4e917224" alt="">
+                    </div>
+                    <div class="storii-result-stat-copy">
+                      <span class="storii-result-stat-label">Staycation</span>
+                      <span class="storii-result-stat-sublabel">Vibe</span>
+                    </div>
+                  </div>
+                  <div class="storii-result-stat">
+                    <div class="storii-result-mult-badge">
+                      <img src="https://www.figma.com/api/mcp/asset/078fb683-41ed-4066-9640-1c2918e3ec07" alt="">
+                      <span>15x</span>
+                    </div>
+                    <div class="storii-result-stat-copy">
+                      <span class="storii-result-stat-label">1500 Pts</span>
+                      <span class="storii-result-stat-sublabel">1pt = ₹1</span>
+                    </div>
+                  </div>
+                  <div class="storii-result-stat storii-result-stat--price">
+                    <span class="storii-result-stat-label">₹ 21,000</span>
+                    <span class="storii-result-stat-sublabel">Per night</span>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <article
+              class="storii-result-card"
+              id="storii-result-trisara"
+              data-anchor="trisara"
+              data-lat="8.021"
+              data-lng="98.279"
+              data-pin-fill="#a27dd1"
+              data-pin-icon="https://www.figma.com/api/mcp/asset/8b4fb1e8-5200-4c2c-b413-e6a577a6eaa3"
+            >
+              <div class="storii-result-card-hero">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Maya_Bay.jpg/500px-Maya_Bay.jpg" alt="" decoding="async">
+                <div class="storii-result-card-dots" aria-hidden="true">
+                  <span class="is-active"></span><span></span><span></span>
+                </div>
+              </div>
+              <div class="storii-result-card-body">
+                <h2 class="storii-result-card-title">Trisara Phuket</h2>
+                <p class="storii-result-card-sub">
+                  <span class="star">★ 4.95 (412)</span><span class="sep">·</span>Nai Thon Beach, Phuket
+                </p>
+                <div class="storii-result-card-stats">
+                  <div class="storii-result-stat">
+                    <div class="storii-result-vibe-ic storii-result-vibe-ic--couples">
+                      <img src="https://www.figma.com/api/mcp/asset/8b4fb1e8-5200-4c2c-b413-e6a577a6eaa3" alt="">
+                    </div>
+                    <div class="storii-result-stat-copy">
+                      <span class="storii-result-stat-label">Couples Retreat</span>
+                      <span class="storii-result-stat-sublabel">Vibe</span>
+                    </div>
+                  </div>
+                  <div class="storii-result-stat">
+                    <div class="storii-result-mult-badge">
+                      <img src="https://www.figma.com/api/mcp/asset/078fb683-41ed-4066-9640-1c2918e3ec07" alt="">
+                      <span>20x</span>
+                    </div>
+                    <div class="storii-result-stat-copy">
+                      <span class="storii-result-stat-label">2000 Pts</span>
+                      <span class="storii-result-stat-sublabel">1pt = ₹1</span>
+                    </div>
+                  </div>
+                  <div class="storii-result-stat storii-result-stat--price">
+                    <span class="storii-result-stat-label">₹ 45,000</span>
+                    <span class="storii-result-stat-sublabel">Per night</span>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+      <nav class="tab-bar" aria-label="Main">
+        <div class="tab-inner">
+          <div class="tab-item active" data-tab="stay">stay</div>
+          <div class="tab-item" data-tab="fly">fly</div>
+          <div class="tab-item" data-tab="trips">trips</div>
+          <div class="tab-item" data-tab="club">club</div>
+        </div>
+      </nav>
+    </div>
   </div>
 
   <script>
@@ -1831,6 +2352,30 @@
       overlay.querySelectorAll(".storii-search-meta-input").forEach((field) => {
         field.addEventListener("click", (e) => e.stopPropagation());
         field.addEventListener("keydown", (e) => e.stopPropagation());
+      });
+
+      window.storiiCloseSearchOverlayForResults = () => {
+        historyPushed = false;
+        overlay.classList.remove("is-open");
+        overlay.classList.add("is-exiting-to-results");
+        window.storiiCloseDatePicker?.();
+        setExpanded(false);
+        input.blur();
+        window.setTimeout(() => {
+          overlay.hidden = true;
+          overlay.classList.remove("is-exiting-to-results", "is-closing");
+        }, 200);
+      };
+
+      const submitBtn = overlay.querySelector(".storii-search-submit");
+      submitBtn?.addEventListener("click", () => {
+        const datesLabel = document.getElementById("storii-search-date-label");
+        const guestsInput = overlay.querySelector(".storii-search-meta-input--guests");
+        window.storiiOpenSearchResults?.({
+          query: input.value.trim() || "Beachfront Resorts In Phuket",
+          dates: datesLabel?.textContent?.trim() || "16-18 May",
+          guests: guestsInput?.value?.trim() || "2",
+        });
       });
     })();
 
@@ -2134,6 +2679,247 @@
       }, true);
 
       window.storiiCloseDatePicker = forceClosePicker;
+    })();
+
+    /** Search results screen — Figma 4569:7683 */
+    (function storiiSearchResults() {
+      const results = document.getElementById("storii-search-results");
+      const backBtn = document.getElementById("storii-results-back");
+      const queryEl = document.getElementById("storii-results-query");
+      const metaEl = document.getElementById("storii-results-meta");
+      const scroller = document.getElementById("storii-results-scroller");
+      if (!results || !backBtn || !queryEl || !metaEl || !scroller) return;
+
+      let resultsMap = null;
+      let resultsMarkers = [];
+      let resultsScrollSync = null;
+      let closeTimer = null;
+
+      function formatGuestsMeta(count) {
+        const n = parseInt(String(count || "2"), 10);
+        if (!Number.isFinite(n) || n <= 0) return "2 Guests";
+        return n === 1 ? "1 Guest" : `${n} Guests`;
+      }
+
+      function updateSummary(payload) {
+        queryEl.textContent = payload.query || "Beachfront Resorts In Phuket";
+        const dates = payload.dates || "16-18 May";
+        metaEl.textContent = `${dates} · ${formatGuestsMeta(payload.guests)}`;
+      }
+
+      function visibilityRatio(card, root) {
+        const cr = card.getBoundingClientRect();
+        const rr = root.getBoundingClientRect();
+        const ih = Math.max(0, Math.min(cr.bottom, rr.bottom) - Math.max(cr.top, rr.top));
+        if (cr.height <= 0) return 0;
+        return ih / cr.height;
+      }
+
+      function syncResultsPin(card) {
+        if (!card) return;
+        const anchor = card.getAttribute("data-anchor");
+        resultsMarkers.forEach(({ marker, anchorId }) => {
+          if (marker && typeof marker.applyPinActive === "function") {
+            marker.applyPinActive(Boolean(anchorId) && anchorId === anchor);
+          }
+        });
+        document.querySelectorAll(".storii-result-card").forEach((c) => {
+          c.classList.toggle("is-active", c === card);
+        });
+      }
+
+      function setupResultsCardSync() {
+        const cards = Array.from(document.querySelectorAll(".storii-result-card"));
+        if (!cards.length) return;
+        if (resultsScrollSync) resultsScrollSync.abort();
+        resultsScrollSync = new AbortController();
+        const { signal } = resultsScrollSync;
+
+        function pickActiveAndSync() {
+          let best = null;
+          let bestR = 0;
+          cards.forEach((card) => {
+            const r = visibilityRatio(card, scroller);
+            if (r > bestR) {
+              bestR = r;
+              best = card;
+            }
+          });
+          if (best && bestR > 0.35) syncResultsPin(best);
+        }
+
+        const thresholds = [];
+        for (let i = 0; i <= 40; i += 1) thresholds.push(i / 40);
+        const observer = new IntersectionObserver(() => pickActiveAndSync(), {
+          root: scroller,
+          rootMargin: "0px",
+          threshold: thresholds,
+        });
+        cards.forEach((c) => observer.observe(c));
+        signal.addEventListener("abort", () => observer.disconnect(), { once: true });
+        pickActiveAndSync();
+      }
+
+      function mountResultsMarkers() {
+        if (!resultsMap || !window.__storiiHtmlMapMarker) return;
+        const HtmlMapMarker = window.__storiiHtmlMapMarker;
+        const dotHtml = window.__storiiMapPinDotHtml;
+        const activeHtml = window.__storiiMapPinActiveHtmlFromSymbol;
+        if (!dotHtml || !activeHtml) return;
+
+        resultsMarkers.forEach(({ marker }) => marker.setMap(null));
+        resultsMarkers = [];
+
+        document.querySelectorAll(".storii-result-card").forEach((card) => {
+          const lat = parseFloat(card.dataset.lat);
+          const lng = parseFloat(card.dataset.lng);
+          const anchorId = card.getAttribute("data-anchor");
+          const fill = card.getAttribute("data-pin-fill") || "#05cf55";
+          const icon = card.getAttribute("data-pin-icon") || "";
+          if (!Number.isFinite(lat) || !Number.isFinite(lng) || !anchorId) return;
+
+          const pos = new google.maps.LatLng(lat, lng);
+          const m = new HtmlMapMarker(pos, {
+            anchorId,
+            anchorDot: { x: 0.5, y: 0.5 },
+            anchorIcon: { x: 0.5, y: 1 },
+          });
+          m.html = dotHtml(fill);
+          m._pinActive = false;
+          m.anchor = { x: 0.5, y: 0.5 };
+          m.applyPinActive = function applyPinActive(active) {
+            const next = Boolean(active);
+            if (this._pinActive === next) return;
+            this._pinActive = next;
+            this.html = next ? activeHtml(fill, icon) : dotHtml(fill);
+            this.anchor = next
+              ? { x: this._anchorIcon.x, y: this._anchorIcon.y }
+              : { x: this._anchorDot.x, y: this._anchorDot.y };
+            if (!this.div) return;
+            this.div.classList.toggle("map-pin-anchor-active", next);
+            this.div.innerHTML = this.html;
+            if (next) {
+              const root = this.div.querySelector(".map-pin-active-wrap");
+              if (root) {
+                root.classList.remove("map-pin-pop");
+                void root.offsetWidth;
+                root.classList.add("map-pin-pop");
+              }
+            }
+            this.draw();
+          };
+          m.setMap(resultsMap);
+          resultsMarkers.push({ marker: m, anchorId });
+        });
+
+        resultsMarkers.forEach(({ marker }) => marker.draw());
+        const first = document.querySelector(".storii-result-card");
+        if (first) syncResultsPin(first);
+      }
+
+      function initResultsMap() {
+        if (resultsMap || !window.google || !window.google.maps) return;
+        const mapEl = document.getElementById("gmap-results");
+        const fallback = document.getElementById("map-results-fallback");
+        if (!mapEl) return;
+        if (fallback) fallback.classList.remove("visible");
+
+        const showZoomButtons =
+          typeof window.matchMedia === "undefined" ||
+          !window.matchMedia("(max-width: 480px)").matches;
+
+        resultsMap = new google.maps.Map(mapEl, {
+          mapId: "c7bfce263011dd3d671c898e",
+          center: { lat: 7.9, lng: 98.3 },
+          zoom: 11,
+          backgroundColor: "#0d0f12",
+          disableDefaultUI: true,
+          zoomControl: showZoomButtons,
+          gestureHandling: "greedy",
+          draggable: true,
+          scrollwheel: true,
+          tilt: 0,
+          heading: 0,
+          ...(showZoomButtons
+            ? { zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_TOP } }
+            : {}),
+        });
+
+        window.__storiiResultsMap = resultsMap;
+
+        google.maps.event.addListenerOnce(resultsMap, "idle", () => {
+          mountResultsMarkers();
+          setupResultsCardSync();
+          google.maps.event.trigger(resultsMap, "resize");
+        });
+
+        const mapWrap = document.querySelector(".storii-results-map-wrap");
+        if (mapWrap && typeof ResizeObserver !== "undefined") {
+          const ro = new ResizeObserver(() => {
+            if (!resultsMap) return;
+            google.maps.event.trigger(resultsMap, "resize");
+            resultsMarkers.forEach(({ marker }) => marker.draw());
+          });
+          ro.observe(mapWrap);
+        }
+      }
+
+      window.__storiiInitResultsMap = () => {
+        initResultsMap();
+        if (results.classList.contains("is-open") && resultsMap) {
+          mountResultsMarkers();
+          setupResultsCardSync();
+          if (window.lucide) lucide.createIcons();
+        }
+      };
+
+      function openResults(payload) {
+        updateSummary(payload);
+        window.storiiCloseSearchOverlayForResults?.();
+        window.storiiCloseDatePicker?.();
+
+        if (closeTimer) {
+          clearTimeout(closeTimer);
+          closeTimer = null;
+        }
+
+        results.hidden = false;
+        results.setAttribute("aria-hidden", "false");
+        results.classList.remove("is-closing");
+        requestAnimationFrame(() => {
+          results.classList.add("is-open");
+          if (window.lucide) lucide.createIcons();
+          if (window.google && window.google.maps) {
+            initResultsMap();
+            if (resultsMap) {
+              google.maps.event.trigger(resultsMap, "resize");
+              mountResultsMarkers();
+              setupResultsCardSync();
+            }
+          } else {
+            const fallback = document.getElementById("map-results-fallback");
+            if (fallback && !getGmapsKey()) fallback.classList.add("visible");
+          }
+        });
+      }
+
+      function closeResults() {
+        if (!results.classList.contains("is-open")) return;
+        results.classList.remove("is-open");
+        results.classList.add("is-closing");
+        if (closeTimer) clearTimeout(closeTimer);
+        closeTimer = window.setTimeout(() => {
+          results.hidden = true;
+          results.setAttribute("aria-hidden", "true");
+          results.classList.remove("is-closing");
+          closeTimer = null;
+        }, 200);
+      }
+
+      window.storiiOpenSearchResults = openResults;
+      window.storiiCloseSearchResults = closeResults;
+
+      backBtn.addEventListener("click", closeResults);
     })();
 
     function getGmapsKey() {
@@ -2632,6 +3418,23 @@
       return `<div class="map-pin-dot-wrap" aria-hidden="true"><div class="map-pin-dot-inner" style="background-color:${f};"></div></div>`;
     }
 
+    function storiiMapPinActiveHtmlFromSymbol(fill, imgSrc) {
+      const f = storiiEscapeHtmlAttr(fill);
+      let symbolInner = "";
+      if (imgSrc) {
+        symbolInner = `<img class="map-pin-active-img" src="${storiiEscapeHtmlAttr(imgSrc)}" alt="">`;
+      }
+      return (
+        `<div class="map-pin-active-wrap" aria-hidden="true">` +
+        `<svg class="map-pin-active-svg" width="50" height="62" viewBox="0 0 50 62" xmlns="http://www.w3.org/2000/svg">` +
+        `<polygon points="15,45 35,45 25,58" fill="#ffffff" stroke="#ffffff" stroke-width="3" stroke-linejoin="round"/>` +
+        `<circle cx="25" cy="26" r="22" fill="${f}" stroke="#ffffff" stroke-width="3"/>` +
+        `</svg>` +
+        `<div class="map-pin-active-symbol">${symbolInner}</div>` +
+        `</div>`
+      );
+    }
+
     /** Custom SVG bubble + tail; symbol from the same `.filter-ic` as the card (img and/or text nodes). */
     function storiiMapPinActiveHtmlFromCard(anchorId, fill) {
       const id = String(anchorId || "").replace(/[^a-z0-9-]/gi, "");
@@ -3045,6 +3848,13 @@
         ro.observe(mapWrap);
       }
       window.addEventListener("resize", debouncedRelayout, { passive: true });
+
+      window.__storiiHtmlMapMarker = HtmlMapMarker;
+      window.__storiiMapPinDotHtml = storiiMapPinDotHtmlFromFill;
+      window.__storiiMapPinActiveHtmlFromSymbol = storiiMapPinActiveHtmlFromSymbol;
+      if (typeof window.__storiiInitResultsMap === "function") {
+        window.__storiiInitResultsMap();
+      }
     };
 
     (function loadMaps() {
