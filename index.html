@@ -3150,6 +3150,8 @@
       let submitRunning = false;
       let resizeObserverBound = false;
       let resultsShown = false;
+      let resultsFocusedCard = null;
+      let resultsInitialPanDone = false;
 
       function delay(ms) {
         return new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -3337,87 +3339,51 @@
         resultsMap.setOptions({ padding: getResultsMapPadding() });
       }
 
-      function getResultsSheetHeight() {
+      function panToPin(map, lat, lng) {
+        if (!map || !Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+        const mapContainer =
+          mapWrap ||
+          document.querySelector(".storii-results-map-wrap") ||
+          document.getElementById("gmap-results");
         const sheetEl =
           sheet ||
           document.getElementById("storii-results-sheet") ||
           document.querySelector(".storii-results-panel");
-        const sheetHeight = sheetEl ? sheetEl.getBoundingClientRect().height : 0;
-        return sheetHeight > 0 ? Math.round(sheetHeight) : 380;
-      }
 
-      function getPanToPinPadding() {
-        return {
-          top: 60,
-          bottom: getResultsSheetHeight(),
-          left: 40,
-          right: 40,
-        };
-      }
-
-      function panToPin(map, latLng) {
-        const lat =
-          typeof latLng.lat === "function" ? latLng.lat() : Number(latLng.lat);
-        const lng =
-          typeof latLng.lng === "function" ? latLng.lng() : Number(latLng.lng);
-        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-          return Promise.resolve();
+        if (!mapContainer || !sheetEl) {
+          map.panTo({ lat, lng });
+          return;
         }
-        const bounds = new google.maps.LatLngBounds({ lat, lng }, { lat, lng });
-        map.fitBounds(bounds, getPanToPinPadding());
-        return new Promise((resolve) => {
-          google.maps.event.addListenerOnce(map, "idle", () => {
-            if (map.getZoom() > PHUKET_ZOOM) map.setZoom(PHUKET_ZOOM);
-            resolve();
-          });
-        });
+
+        const mapRect = mapContainer.getBoundingClientRect();
+        const sheetRect = sheetEl.getBoundingClientRect();
+        const mapHeight = mapRect.height;
+        const visibleMapHeight = Math.max(0, sheetRect.top - mapRect.top);
+
+        const fullCenterY = mapHeight / 2;
+        const targetY = visibleMapHeight * 0.55;
+        const pixelOffset = fullCenterY - targetY;
+
+        const zoom = map.getZoom();
+        const latPerPixel = 360 / (256 * Math.pow(2, zoom));
+        const latOffset = pixelOffset * latPerPixel;
+
+        map.panTo({ lat: lat - latOffset, lng });
       }
 
-      function nudgeResultsMapToSafeZone(card) {
-        if (!resultsMap || !card || prefersReducedMotion()) return;
-        const zone = getResultsMapSafeZone();
-        if (!zone) return;
-
-        const anchor = card.getAttribute("data-anchor");
-        const entry = resultsMarkers.find((m) => m.anchorId === anchor);
-        if (!entry?.marker) return;
-
-        const nudgeOnce = (attempt = 0) => {
-          if (!entry.marker.div) {
-            if (attempt < 16) requestAnimationFrame(() => nudgeOnce(attempt + 1));
-            return;
-          }
-          const pinRect = entry.marker.div.getBoundingClientRect();
-          const pinY = entry.marker._pinActive
-            ? pinRect.bottom
-            : pinRect.top + pinRect.height * 0.5;
-
-          const margin = 8;
-          const inSafeBand =
-            pinY >= zone.safeTop + margin && pinY <= zone.safeBottom - margin;
-          if (inSafeBand) {
-            resultsMarkers.forEach(({ marker }) => marker.draw());
-            return;
-          }
-
-          const dy = Math.round(pinY - zone.targetPinY);
-          if (Math.abs(dy) > 2) {
-            resultsMap.panBy(0, dy);
-          }
-          resultsMarkers.forEach(({ marker }) => marker.draw());
-        };
-
-        nudgeOnce();
-      }
-
-      function panResultsMapToCard(card) {
-        if (!resultsMap || !card) return;
-        const lat = parseFloat(card.dataset.lat);
-        const lng = parseFloat(card.dataset.lng);
+      function panToFirstCardOnce() {
+        if (resultsInitialPanDone || !resultsMap) return;
+        const firstCard =
+          document.querySelector(".storii-result-card.is-active") ||
+          document.querySelector(".storii-result-card");
+        if (!firstCard) return;
+        const lat = parseFloat(firstCard.dataset.lat);
+        const lng = parseFloat(firstCard.dataset.lng);
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-        panToPin(resultsMap, { lat, lng }).then(() => {
-          nudgeResultsMapToSafeZone(card);
-        });
+        resultsInitialPanDone = true;
+        resultsFocusedCard = firstCard;
+        panToPin(resultsMap, lat, lng);
       }
 
       function formatGuestsMeta(count) {
@@ -3440,7 +3406,7 @@
         return ih / cr.height;
       }
 
-      function syncResultsPin(card) {
+      function syncResultsPin(card, panMap) {
         if (!card) return;
         const anchor = card.getAttribute("data-anchor");
         resultsMarkers.forEach(({ marker, anchorId }) => {
@@ -3451,7 +3417,13 @@
         document.querySelectorAll(".storii-result-card").forEach((c) => {
           c.classList.toggle("is-active", c === card);
         });
-        panResultsMapToCard(card);
+        if (!panMap || !resultsMap) return;
+        if (card === resultsFocusedCard) return;
+        const lat = parseFloat(card.dataset.lat);
+        const lng = parseFloat(card.dataset.lng);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+        resultsFocusedCard = card;
+        panToPin(resultsMap, lat, lng);
       }
 
       function setupResultsCardSync() {
@@ -3471,7 +3443,7 @@
               best = card;
             }
           });
-          if (best && bestR > 0.35) syncResultsPin(best);
+          if (best && bestR > 0.35) syncResultsPin(best, resultsInitialPanDone);
         }
 
         const thresholds = [];
@@ -3674,24 +3646,6 @@
         pill.classList.remove("is-hiding");
       }
 
-      async function runMapPanAndPins() {
-        const firstCard =
-          document.querySelector(".storii-result-card.is-active") ||
-          document.querySelector(".storii-result-card");
-        if (firstCard) {
-          const lat = parseFloat(firstCard.dataset.lat);
-          const lng = parseFloat(firstCard.dataset.lng);
-          if (Number.isFinite(lat) && Number.isFinite(lng)) {
-            await panToPin(resultsMap, { lat, lng });
-          } else {
-            await panToPin(resultsMap, PHUKET_CENTER);
-          }
-        } else {
-          await panToPin(resultsMap, PHUKET_CENTER);
-        }
-        await dropPinsStaggered();
-      }
-
       function bindResultsResizeObserver() {
         if (resizeObserverBound || typeof ResizeObserver === "undefined") return;
         resizeObserverBound = true;
@@ -3699,9 +3653,6 @@
           if (!resultsMap) return;
           google.maps.event.trigger(resultsMap, "resize");
           if (!sheet.classList.contains("is-sheet-visible")) return;
-          applyResultsMapPadding();
-          const active = document.querySelector(".storii-result-card.is-active");
-          if (active) panResultsMapToCard(active);
           resultsMarkers.forEach(({ marker }) => marker.draw());
         });
         ro.observe(mapWrap);
@@ -3784,6 +3735,8 @@
         removeAiLoadingOverlay();
         mapWrap.classList.remove("is-map-searching");
         resultsShown = false;
+        resultsFocusedCard = null;
+        resultsInitialPanDone = false;
         results.style.removeProperty("display");
         results.style.removeProperty("opacity");
         results.style.removeProperty("pointer-events");
@@ -3847,15 +3800,7 @@
 
         if (window.lucide) lucide.createIcons();
         setupResultsCardSync();
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            applyResultsMapPadding();
-            const first =
-              document.querySelector(".storii-result-card.is-active") ||
-              document.querySelector(".storii-result-card");
-            if (first) syncResultsPin(first);
-          });
-        });
+        google.maps.event.addListenerOnce(resultsMap, "idle", panToFirstCardOnce);
       }
 
       window.showResults = showResults;
@@ -3910,30 +3855,21 @@
             }, 1800);
 
             console.log("2. Map pan called");
-            const firstCard =
-              document.querySelector(".storii-result-card.is-active") ||
-              document.querySelector(".storii-result-card");
-            let panPromise = panToPin(resultsMap, PHUKET_CENTER);
-            if (firstCard) {
-              const lat = parseFloat(firstCard.dataset.lat);
-              const lng = parseFloat(firstCard.dataset.lng);
-              if (Number.isFinite(lat) && Number.isFinite(lng)) {
-                panPromise = panToPin(resultsMap, { lat, lng });
-              }
-            }
+            resultsInitialPanDone = false;
+            resultsFocusedCard = null;
+            resultsMap.setZoom(PHUKET_ZOOM);
+            resultsMap.panTo(PHUKET_CENTER);
 
-            panPromise
-              .then(() => {
-                console.log("3. Map idle fired");
-                window.clearTimeout(transitionTimeout);
-                return showResults();
-              })
-              .catch((err) => {
+            google.maps.event.addListenerOnce(resultsMap, "idle", async () => {
+              console.log("3. Map idle fired");
+              window.clearTimeout(transitionTimeout);
+              try {
+                await showResults();
+              } catch (err) {
                 console.error(err);
-              })
-              .finally(() => {
-                settle();
-              });
+              }
+              settle();
+            });
           });
         } finally {
           submitRunning = false;
