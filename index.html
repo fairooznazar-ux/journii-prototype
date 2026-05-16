@@ -3298,26 +3298,16 @@
         document.body.classList.toggle("storii-results-screen-open", !visible);
       }
 
-      function setResultsMapPadding(collapsed = false) {
-        if (!resultsMap) return;
+      function panToWithOffset(map, lat, lng) {
+        map.panTo({ lat, lng });
+
         const windowHeight = window.innerHeight;
-        const sheetHeight = Math.round(windowHeight * 0.58);
-        const bottomPadding = collapsed ? 80 : sheetHeight;
+        const sheetHeight = Math.round(windowHeight * 0.55);
+        const visibleMapHeight = windowHeight - sheetHeight;
+        const offsetPixels = Math.round((sheetHeight - visibleMapHeight) / 2);
 
-        console.log("Setting map padding bottom:", bottomPadding);
-        console.log("Window height:", windowHeight);
-        console.log("Calculated sheet height:", sheetHeight);
-
-        resultsMap.setOptions({
-          padding: {
-            top: 0,
-            right: 0,
-            bottom: bottomPadding,
-            left: 0,
-          },
-        });
-
-        console.log("Map options after set:", resultsMap.get("padding"));
+        console.log("panBy offset pixels:", offsetPixels);
+        map.panBy(0, -offsetPixels);
       }
 
       function panToActiveCard() {
@@ -3329,8 +3319,7 @@
         const lat = parseFloat(card.dataset.lat);
         const lng = parseFloat(card.dataset.lng);
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-        setResultsMapPadding(sheetCollapsed);
-        resultsMap.panTo({ lat, lng });
+        panToWithOffset(resultsMap, lat, lng);
       }
 
       function setSheetState(collapsed) {
@@ -3345,7 +3334,6 @@
           );
         }
         window.setTimeout(() => {
-          setResultsMapPadding(collapsed);
           panToActiveCard();
         }, 310);
       }
@@ -3390,8 +3378,7 @@
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
         resultsInitialPanDone = true;
         resultsFocusedCard = firstCard;
-        setResultsMapPadding(false);
-        resultsMap.panTo({ lat, lng });
+        panToWithOffset(resultsMap, lat, lng);
       }
 
       function formatGuestsMeta(count) {
@@ -3431,8 +3418,7 @@
         const lng = parseFloat(card.dataset.lng);
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
         resultsFocusedCard = card;
-        setResultsMapPadding(sheetCollapsed);
-        resultsMap.panTo({ lat, lng });
+        panToWithOffset(resultsMap, lat, lng);
       }
 
       function setupResultsCardSync() {
@@ -3662,7 +3648,6 @@
           if (!resultsMap) return;
           google.maps.event.trigger(resultsMap, "resize");
           if (!sheet.classList.contains("is-sheet-visible")) return;
-          setResultsMapPadding(sheetCollapsed);
           resultsMarkers.forEach(({ marker }) => marker.draw());
         });
         ro.observe(mapWrap);
@@ -3703,6 +3688,7 @@
 
         window.__storiiResultsMap = resultsMap;
         resultsMapInitialized = true;
+        console.log("Maps API version:", google.maps.version);
 
         google.maps.event.addListenerOnce(resultsMap, "idle", () => {
           google.maps.event.trigger(resultsMap, "resize");
@@ -3766,7 +3752,6 @@
       }
 
       async function showResults() {
-        setResultsMapPadding(false);
         if (resultsShown) return;
         resultsShown = true;
         console.log("4. Transitioning to results");
@@ -3801,7 +3786,6 @@
           sheet.classList.remove("is-sheet-closing", "is-sheet-collapsed");
           sheet.classList.add("is-sheet-visible");
           sheetCollapsed = false;
-          setResultsMapPadding(false);
           bindResultsSheetUi();
         }
 
@@ -3846,7 +3830,6 @@
           google.maps.event.trigger(resultsMap, "resize");
 
           console.log("1. Loading state started");
-          setResultsMapPadding(false);
           resultsShown = false;
           mountAiLoadingOverlay(payload);
 
@@ -3875,13 +3858,11 @@
             console.log("2. Map pan called");
             resultsInitialPanDone = false;
             resultsFocusedCard = null;
-            setResultsMapPadding(false);
             resultsMap.setZoom(PHUKET_ZOOM);
-            resultsMap.panTo(PHUKET_CENTER);
+            panToWithOffset(resultsMap, PHUKET_CENTER.lat, PHUKET_CENTER.lng);
 
             google.maps.event.addListenerOnce(resultsMap, "idle", async () => {
               console.log("3. Map idle fired");
-              setResultsMapPadding(false);
               window.clearTimeout(transitionTimeout);
               try {
                 await showResults();
