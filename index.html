@@ -1153,13 +1153,21 @@
       transition: opacity 200ms ease-in;
     }
 
-    /* Results screen — layer 2 (always mounted) */
+    /* Results screen — layer 2 (mounted but inert until search handoff) */
     .results-screen,
     .storii-search-results {
       position: absolute;
       inset: 0;
       z-index: 2;
       pointer-events: none;
+      visibility: hidden;
+    }
+    .storii-search-results.is-layer-active {
+      visibility: visible;
+      pointer-events: none;
+    }
+    .storii-search-results.is-open {
+      visibility: visible;
     }
     body.storii-results-screen-open #storii-stay-tab-bar {
       display: none !important;
@@ -2487,7 +2495,7 @@
       </nav>
     </div>
 
-    <div id="storii-search-results" class="results-screen storii-search-results" aria-hidden="true">
+    <div id="storii-search-results" class="results-screen storii-search-results" aria-hidden="true" inert>
       <div class="storii-results-map-wrap">
         <div id="gmap-results"></div>
         <div id="map-results-fallback" class="map-fallback">
@@ -2789,7 +2797,6 @@
           history.pushState({ storiiSearchOverlay: true }, "");
           historyPushed = true;
         }
-        window.storiiPreloadResultsMap?.();
       }
 
       function focusSearchInput() {
@@ -3783,15 +3790,26 @@
       }
 
       function preloadResultsMap() {
-        if (!window.google || !window.google.maps) return;
-        initResultsMap();
-        if (resultsMap) google.maps.event.trigger(resultsMap, "resize");
+        if (!window.google || !window.google.maps) return false;
+        if (!initResultsMap()) return false;
+        google.maps.event.trigger(resultsMap, "resize");
+        return true;
+      }
+
+      function ensureResultsMap() {
+        if (resultsMap) return true;
+        return preloadResultsMap();
       }
 
       window.storiiPreloadResultsMap = preloadResultsMap;
 
+      function activateResultsLayer() {
+        results.classList.add("is-layer-active");
+        results.removeAttribute("inert");
+        results.setAttribute("aria-hidden", "false");
+      }
+
       window.__storiiOnMapsApiReady = function onMapsApiReady() {
-        preloadResultsMap();
         if (pendingSubmitPayload) {
           const payload = pendingSubmitPayload;
           pendingSubmitPayload = null;
@@ -3807,13 +3825,13 @@
         resultsMap.setZoom(RESULTS_HOME_ZOOM);
       }
 
-      function resetResultsScreenUi() {
-        mapWrap.classList.remove("is-map-visible", "is-map-fading-out");
+      function forceResetResultsLayer() {
+        mapWrap.classList.remove("is-map-visible", "is-map-fading-out", "is-map-searching");
         sheet.classList.remove("is-sheet-visible", "is-sheet-closing", "is-sheet-collapsed");
-        results.classList.remove("is-open");
+        results.classList.remove("is-open", "is-layer-active");
         results.setAttribute("aria-hidden", "true");
+        results.inert = true;
         removeAiLoadingOverlay();
-        mapWrap.classList.remove("is-map-searching");
         resultsShown = false;
         resultsFocusedCard = null;
         resultsInitialPanDone = false;
@@ -3821,6 +3839,7 @@
         results.style.removeProperty("display");
         results.style.removeProperty("opacity");
         results.style.removeProperty("pointer-events");
+        results.style.removeProperty("visibility");
         sheet.style.removeProperty("display");
         sheet.style.removeProperty("opacity");
         sheet.style.removeProperty("transform");
@@ -3832,6 +3851,14 @@
         document.querySelectorAll(".storii-result-card").forEach((c) => c.classList.remove("is-active"));
         const first = document.querySelector(".storii-result-card");
         if (first) first.classList.add("is-active");
+        setStayTabBarVisible(true);
+        if (typeof window.__storiiSyncCardsScrollerHeight === "function") {
+          window.requestAnimationFrame(() => window.__storiiSyncCardsScrollerHeight());
+        }
+      }
+
+      function resetResultsScreenUi() {
+        forceResetResultsLayer();
       }
 
       async function showResults() {
@@ -3854,17 +3881,9 @@
         await dropPinsStaggered();
         await delay(AI_AFTER_PINS_MS);
 
-        if (resultsScreen) {
-          resultsScreen.style.setProperty("display", "block", "important");
-          resultsScreen.style.setProperty("opacity", "1", "important");
-          resultsScreen.style.setProperty("pointer-events", "auto", "important");
-          results.classList.add("is-open");
-          results.setAttribute("aria-hidden", "false");
-        }
+        activateResultsLayer();
+        results.classList.add("is-open");
         if (resultsSheet) {
-          resultsSheet.style.setProperty("display", "flex", "important");
-          resultsSheet.style.setProperty("opacity", "1", "important");
-          resultsSheet.style.setProperty("pointer-events", "auto", "important");
           sheet.style.removeProperty("transform");
           sheet.classList.remove("is-sheet-closing", "is-sheet-collapsed");
           sheet.classList.add("is-sheet-visible");
@@ -3898,14 +3917,13 @@
           window.storiiCloseSearchOverlayForResults?.();
           window.storiiCloseDatePicker?.();
 
-          if (!resultsMap) {
+          if (!ensureResultsMap()) {
             pendingSubmitPayload = payload;
-            preloadResultsMap();
-            if (!resultsMap) return;
+            return;
           }
 
+          activateResultsLayer();
           setStayTabBarVisible(false);
-          results.setAttribute("aria-hidden", "false");
           sheet.classList.remove("is-sheet-visible", "is-sheet-closing", "is-sheet-collapsed");
           sheetCollapsed = false;
           results.classList.remove("is-open");
@@ -3971,28 +3989,32 @@
       }
 
       async function closeResults() {
-        if (!mapWrap.classList.contains("is-map-visible") && !sheet.classList.contains("is-sheet-visible")) {
-          return;
+        const wasActive =
+          results.classList.contains("is-layer-active") ||
+          mapWrap.classList.contains("is-map-visible") ||
+          sheet.classList.contains("is-sheet-visible");
+
+        if (wasActive) {
+          sheet.classList.remove("is-sheet-visible");
+          sheet.classList.add("is-sheet-closing");
+          mapWrap.classList.add("is-map-fading-out");
+          mapWrap.classList.remove("is-map-visible");
+          results.classList.remove("is-open");
+          await Promise.all([delay(250), delay(300)]);
         }
 
-        sheet.classList.remove("is-sheet-visible");
-        sheet.classList.add("is-sheet-closing");
-        mapWrap.classList.add("is-map-fading-out");
-        mapWrap.classList.remove("is-map-visible");
-        results.classList.remove("is-open");
-        setStayTabBarVisible(true);
-
-        await Promise.all([delay(250), delay(300)]);
-
-        resetResultsScreenUi();
+        forceResetResultsLayer();
         resetResultsMapView();
         window.storiiResetSearchOverlay?.();
       }
 
       window.storiiOpenSearchResults = (payload) => {
-        if (!resultsMap && (!window.google || !window.google.maps)) {
+        if (!window.google || !window.google.maps) {
           pendingSubmitPayload = payload;
-          preloadResultsMap();
+          return;
+        }
+        if (!ensureResultsMap()) {
+          pendingSubmitPayload = payload;
           return;
         }
         runSubmitSequence(payload);
@@ -4000,6 +4022,7 @@
       window.storiiCloseSearchResults = closeResults;
 
       backBtn.addEventListener("click", closeResults);
+      forceResetResultsLayer();
     })();
 
     function getGmapsKey() {
@@ -4046,12 +4069,12 @@
         const root = document.documentElement;
         if (!mq.matches) {
           clearMobileLayoutVars();
-          if (layoutObserver) {
-            layoutObserver.disconnect();
-            layoutObserver = null;
-          }
           if (shouldSyncVerticalCardScroller()) {
             syncCardsScrollerHeight();
+            bindLayoutObserver();
+          } else if (layoutObserver) {
+            layoutObserver.disconnect();
+            layoutObserver = null;
           }
           return;
         }
@@ -4105,12 +4128,12 @@
       }
 
       function bindLayoutObserver() {
-        if (layoutObserver || !mq.matches) return;
+        if (layoutObserver) return;
         const phone = document.querySelector(".phone");
         const tabBar = document.getElementById("storii-stay-tab-bar");
         const scroller = document.getElementById("cards-scroller");
         const sheet = document.querySelector(".sheet");
-        if (!phone || !tabBar) return;
+        if (!phone || !tabBar || !shouldSyncVerticalCardScroller()) return;
         layoutObserver = new ResizeObserver(() => {
           requestAnimationFrame(apply);
         });
@@ -4381,7 +4404,7 @@
       /* Mouse / pen / touch: drag to scroll (axis follows layout). */
       let drag = null;
       scroller.addEventListener("pointerdown", (e) => {
-        if (e.pointerType === "mouse" && e.button !== 0) return;
+        if (e.pointerType !== "mouse" || e.button !== 0) return;
         const t = e.target;
         if (t && typeof t.closest === "function" && t.closest("a, button, input, textarea, select")) return;
         drag = {
@@ -4390,26 +4413,16 @@
           y0: e.clientY,
           sl0: scroller.scrollLeft,
           st0: scroller.scrollTop,
-          mobile: isMobileCardDeck(),
-          touch: e.pointerType === "touch"
+          mobile: isMobileCardDeck()
         };
-        if (e.pointerType === "mouse") {
-          try {
-            scroller.setPointerCapture(e.pointerId);
-          } catch (_) {}
-        }
+        try {
+          scroller.setPointerCapture(e.pointerId);
+        } catch (_) {}
       });
       scroller.addEventListener(
         "pointermove",
         (e) => {
           if (!drag || drag.pid !== e.pointerId) return;
-          if (drag.touch && drag.mobile) {
-            const dy = e.clientY - drag.y0;
-            if (Math.abs(dy) < 2) return;
-            e.preventDefault();
-            scroller.scrollTop = drag.st0 - dy;
-            return;
-          }
           if (drag.mobile) {
             scroller.scrollTop = drag.st0 - (e.clientY - drag.y0);
           } else {
