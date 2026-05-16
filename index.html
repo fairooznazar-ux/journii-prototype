@@ -3007,10 +3007,9 @@
           safeBottom = panelTop + padTop + summaryH + gap + filtersH + overlayGap;
         }
 
-        safeBottom = Math.min(safeBottom, panelTop - 4);
-        const safeTop = mapRect.top + 16;
-        const safeHeight = Math.max(96, safeBottom - safeTop);
-        const targetPinY = safeTop + safeHeight * 0.38;
+        const safeTop = mapRect.top + 12;
+        const safeHeight = Math.max(120, safeBottom - safeTop);
+        const targetPinY = safeTop + safeHeight * 0.5;
 
         return { mapRect, safeTop, safeBottom, safeHeight, panelTop, targetPinY };
       }
@@ -3020,8 +3019,9 @@
         if (!zone) {
           return { top: 48, bottom: 0, left: 8, right: 8 };
         }
-        const top = Math.max(16, Math.round(zone.safeTop - zone.mapRect.top));
-        const bottom = Math.max(0, Math.round(zone.mapRect.bottom - zone.safeBottom));
+        const overlayOnMap = Math.max(0, zone.safeBottom - zone.panelTop);
+        const top = Math.max(24, Math.round(12 + overlayOnMap * 0.28));
+        const bottom = Math.max(0, Math.round(zone.mapRect.bottom - zone.panelTop));
         return { top, bottom, left: 8, right: 8 };
       }
 
@@ -3048,8 +3048,16 @@
           const pinY = entry.marker._pinActive
             ? pinRect.bottom
             : pinRect.top + pinRect.height * 0.5;
-          const dy = Math.round(pinY - zone.targetPinY);
-          if (Math.abs(dy) > 3) {
+
+          const inSafeBand =
+            pinY >= zone.safeTop + 28 && pinY <= zone.safeBottom - 6;
+          if (inSafeBand) {
+            resultsMarkers.forEach(({ marker }) => marker.draw());
+            return;
+          }
+
+          const dy = Math.max(-40, Math.min(40, Math.round(pinY - zone.targetPinY)));
+          if (Math.abs(dy) > 4) {
             resultsMap.panBy(0, dy);
           }
           resultsMarkers.forEach(({ marker }) => marker.draw());
