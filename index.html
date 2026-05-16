@@ -519,6 +519,9 @@
     }
 
     /* Tab bar — Figma 4665:33910 iOS floating pill */
+    #storii-stay-tab-bar[hidden] {
+      display: none !important;
+    }
     .tab-bar {
       position: absolute;
       bottom: 0;
@@ -1340,7 +1343,7 @@
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior: contain;
-      padding: 4px 0 calc(100px + env(safe-area-inset-bottom, 0px));
+      padding: 4px 0 calc(24px + env(safe-area-inset-bottom, 0px));
       margin: 0 -20px;
       padding-left: 20px;
       padding-right: 20px;
@@ -1356,6 +1359,11 @@
       box-shadow: 0 1.92px 7.68px rgba(49, 44, 63, 0.12);
       overflow: hidden;
       flex-shrink: 0;
+      opacity: 0.5;
+      transition: opacity 0.25s ease;
+    }
+    .storii-result-card.is-active {
+      opacity: 1;
     }
     .storii-result-card-hero {
       position: relative;
@@ -1392,21 +1400,22 @@
       background: #fff;
     }
     .storii-result-card-body {
-      padding: 12px 16px 16px;
+      padding: 12px 16px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 0;
     }
     .storii-result-card-title {
-      margin: 0;
+      margin: 0 0 4px;
       font-family: "Instrument Sans", system-ui, sans-serif;
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 600;
-      line-height: 1.1;
+      line-height: normal;
       color: #080e12;
       text-transform: capitalize;
     }
     .storii-result-card-sub {
+      margin: 0 0 4px;
       font-family: "Geist Mono", ui-monospace, monospace;
       font-size: 10px;
       font-weight: 500;
@@ -1427,7 +1436,8 @@
       grid-template-columns: 1fr 1fr 1fr;
       gap: 8px;
       align-items: center;
-      padding-top: 4px;
+      margin: 0;
+      padding: 0;
     }
     .storii-result-stat {
       display: flex;
@@ -1504,14 +1514,6 @@
       color: #080e12;
       line-height: 1;
     }
-    .storii-search-results .tab-bar {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 1001;
-    }
-
     /* Real phones: full-bleed map, sheet over map, floating tab pill over sheet. */
     @media (max-width: 480px) {
       html {
@@ -1991,7 +1993,7 @@
         </div>
       </div>
 
-      <nav class="tab-bar">
+      <nav class="tab-bar" id="storii-stay-tab-bar">
         <div class="tab-inner">
           <div class="tab-item active" data-tab="stay">stay</div>
           <div class="tab-item" data-tab="fly">fly</div>
@@ -2145,8 +2147,8 @@
               class="storii-result-card is-active"
               id="storii-result-anantara"
               data-anchor="anantara"
-              data-lat="7.767"
-              data-lng="98.352"
+              data-lat="7.7674"
+              data-lng="98.3526"
               data-pin-fill="#05cf55"
               data-pin-icon="https://www.figma.com/api/mcp/asset/f4d1f08a-e77c-44ab-a224-629f4e917224"
             >
@@ -2192,8 +2194,8 @@
               class="storii-result-card"
               id="storii-result-trisara"
               data-anchor="trisara"
-              data-lat="8.021"
-              data-lng="98.279"
+              data-lat="8.0218"
+              data-lng="98.2794"
               data-pin-fill="#a27dd1"
               data-pin-icon="https://www.figma.com/api/mcp/asset/8b4fb1e8-5200-4c2c-b413-e6a577a6eaa3"
             >
@@ -2705,7 +2707,21 @@
       const queryEl = document.getElementById("storii-results-query");
       const metaEl = document.getElementById("storii-results-meta");
       const scroller = document.getElementById("storii-results-scroller");
+      const stayTabBar = document.getElementById("storii-stay-tab-bar");
       if (!results || !backBtn || !queryEl || !metaEl || !scroller) return;
+
+      function setStayTabBarVisible(visible) {
+        if (!stayTabBar) return;
+        stayTabBar.hidden = !visible;
+      }
+
+      function panResultsMapToCard(card) {
+        if (!resultsMap || !card) return;
+        const lat = parseFloat(card.dataset.lat);
+        const lng = parseFloat(card.dataset.lng);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+        resultsMap.panTo({ lat, lng });
+      }
 
       let resultsMap = null;
       let resultsMarkers = [];
@@ -2743,6 +2759,7 @@
         document.querySelectorAll(".storii-result-card").forEach((c) => {
           c.classList.toggle("is-active", c === card);
         });
+        panResultsMapToCard(card);
       }
 
       function setupResultsCardSync() {
@@ -2900,6 +2917,7 @@
           closeTimer = null;
         }
 
+        setStayTabBarVisible(false);
         results.hidden = false;
         results.setAttribute("aria-hidden", "false");
         results.classList.remove("is-closing");
@@ -2924,6 +2942,7 @@
         if (!results.classList.contains("is-open")) return;
         results.classList.remove("is-open");
         results.classList.add("is-closing");
+        setStayTabBarVisible(true);
         if (closeTimer) clearTimeout(closeTimer);
         closeTimer = window.setTimeout(() => {
           results.hidden = true;
@@ -2986,8 +3005,8 @@
         );
         root.style.setProperty("--storii-app-h", `${appH}px`);
 
-        const tabBar = document.querySelector(".tab-bar");
-        if (tabBar) {
+        const tabBar = document.getElementById("storii-stay-tab-bar");
+        if (tabBar && !tabBar.hidden) {
           const tabBarH = Math.ceil(tabBar.getBoundingClientRect().height);
           root.style.setProperty("--storii-tab-bar-h", `${tabBarH}px`);
         }
@@ -3005,7 +3024,7 @@
       function bindLayoutObserver() {
         if (layoutObserver || !mq.matches) return;
         const phone = document.querySelector(".phone");
-        const tabBar = document.querySelector(".tab-bar");
+        const tabBar = document.getElementById("storii-stay-tab-bar");
         if (!phone || !tabBar) return;
         layoutObserver = new ResizeObserver(() => {
           requestAnimationFrame(apply);
