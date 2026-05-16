@@ -1615,9 +1615,26 @@
         #24619B 100%
       );
     }
+    .storii-results-sheet-handle {
+      flex: 0 0 auto;
+      display: block;
+      width: 36px;
+      height: 4px;
+      margin: 8px auto 4px;
+      padding: 0;
+      border: none;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.3);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
     .storii-results-panel.is-sheet-visible {
       transform: translateY(0);
       pointer-events: auto;
+      transition: transform 300ms ease-out;
+    }
+    .storii-results-panel.is-sheet-visible.is-sheet-collapsed {
+      transform: translateY(calc(100% - 80px));
     }
     .storii-results-panel.is-sheet-closing {
       transform: translateY(100%);
@@ -2417,6 +2434,12 @@
         <div id="storii-results-search-pill" class="storii-results-search-pill" aria-live="polite"></div>
       </div>
       <div class="storii-results-panel" id="storii-results-sheet">
+        <button
+          type="button"
+          class="storii-results-sheet-handle"
+          id="storii-results-sheet-handle"
+          aria-label="Collapse results sheet"
+        ></button>
         <div class="storii-results-summary">
           <button type="button" class="storii-results-back" id="storii-results-back" aria-label="Back to stays">
             <svg viewBox="0 0 18 18" fill="none" aria-hidden="true">
@@ -3152,6 +3175,8 @@
       let resultsShown = false;
       let resultsFocusedCard = null;
       let resultsInitialPanDone = false;
+      let sheetCollapsed = false;
+      let resultsSheetUiBound = false;
 
       function delay(ms) {
         return new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -3273,103 +3298,85 @@
         document.body.classList.toggle("storii-results-screen-open", !visible);
       }
 
-      function getResultsPanelMapCutoffY() {
-        const mapEl = document.getElementById("gmap-results");
-        if (!mapEl || !sheet) return 368;
-        const mapRect = mapEl.getBoundingClientRect();
-        if (sheet.classList.contains("is-sheet-visible")) {
-          return sheet.getBoundingClientRect().top;
-        }
-        const cssTop = parseFloat(getComputedStyle(sheet).top);
-        if (Number.isFinite(cssTop) && cssTop > 0) {
-          return mapRect.top + cssTop;
-        }
-        return mapRect.top + 368;
-      }
-
-      /**
-       * Visible map band above the sheet UI. Full-height tiles stay immersive; only camera
-       * framing uses this safe zone (summary + filters overlap excluded).
-       */
-      function getResultsMapSafeZone() {
-        const mapEl = document.getElementById("gmap-results");
-        if (!mapEl || !sheet) return null;
-
-        const mapRect = mapEl.getBoundingClientRect();
-        const panelTop = getResultsPanelMapCutoffY();
-        const summary = document.querySelector(".storii-results-summary");
-        const filters = document.querySelector(".storii-results-filters");
-        const sheetVisible = sheet.classList.contains("is-sheet-visible");
-        const overlayGap = 10;
-
-        let safeBottom;
-        if (sheetVisible && filters) {
-          safeBottom = filters.getBoundingClientRect().bottom + overlayGap;
-        } else if (sheetVisible && summary) {
-          safeBottom = summary.getBoundingClientRect().bottom + overlayGap;
-        } else {
-          const panelStyle = getComputedStyle(sheet);
-          const padTop = parseFloat(panelStyle.paddingTop) || 16;
-          const gap = parseFloat(panelStyle.gap) || 12;
-          const summaryH = summary ? 64 : 64;
-          const filtersH = 40;
-          safeBottom = panelTop + padTop + summaryH + gap + filtersH + overlayGap;
-        }
-
-        const safeTop = mapRect.top + 12;
-        const safeHeight = Math.max(120, safeBottom - safeTop);
-        const targetPinY = safeTop + safeHeight * 0.5;
-
-        return { mapRect, safeTop, safeBottom, safeHeight, panelTop, targetPinY };
-      }
-
-      function getResultsMapPadding() {
-        const zone = getResultsMapSafeZone();
-        if (!zone) {
-          return { top: 48, bottom: 0, left: 8, right: 8 };
-        }
-        // Match Google Maps padded viewport to the measured safe band (above summary + filters).
-        const top = Math.max(12, Math.round(zone.safeTop - zone.mapRect.top));
-        const bottom = Math.max(0, Math.round(zone.mapRect.bottom - zone.safeBottom));
-        return { top, bottom, left: 8, right: 8 };
-      }
-
-      function applyResultsMapPadding() {
+      function setResultsMapPadding(collapsed = false) {
         if (!resultsMap) return;
-        resultsMap.setOptions({ padding: getResultsMapPadding() });
-      }
-
-      function panToPin(map, lat, lng) {
-        if (!map || !Number.isFinite(lat) || !Number.isFinite(lng)) return;
-
-        const mapContainer =
-          mapWrap ||
-          document.querySelector(".storii-results-map-wrap") ||
-          document.getElementById("gmap-results");
         const sheetEl =
           sheet ||
           document.getElementById("storii-results-sheet") ||
           document.querySelector(".storii-results-panel");
+        const tabBar = document.querySelector(".tab-bar");
+        const viewportH =
+          document.querySelector(".phone")?.getBoundingClientRect().height || window.innerHeight;
+        const sheetTop = sheetEl ? sheetEl.getBoundingClientRect().top : 0;
+        const sheetHeight = sheetEl ? Math.max(0, viewportH - sheetTop) : 400;
+        const tabBarHeight = tabBar ? tabBar.getBoundingClientRect().height : 0;
 
-        if (!mapContainer || !sheetEl) {
-          map.panTo({ lat, lng });
-          return;
+        resultsMap.setOptions({
+          padding: {
+            top: 0,
+            right: 0,
+            bottom: collapsed ? tabBarHeight + 20 : sheetHeight,
+            left: 0,
+          },
+        });
+      }
+
+      function panToActiveCard() {
+        const card =
+          resultsFocusedCard ||
+          document.querySelector(".storii-result-card.is-active") ||
+          document.querySelector(".storii-result-card");
+        if (!card || !resultsMap) return;
+        const lat = parseFloat(card.dataset.lat);
+        const lng = parseFloat(card.dataset.lng);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+        resultsMap.panTo({ lat, lng });
+      }
+
+      function setSheetState(collapsed) {
+        if (!sheet.classList.contains("is-sheet-visible")) return;
+        sheetCollapsed = collapsed;
+        sheet.classList.toggle("is-sheet-collapsed", collapsed);
+        const handle = document.getElementById("storii-results-sheet-handle");
+        if (handle) {
+          handle.setAttribute(
+            "aria-label",
+            collapsed ? "Expand results sheet" : "Collapse results sheet"
+          );
+        }
+        window.setTimeout(() => {
+          setResultsMapPadding(collapsed);
+          panToActiveCard();
+        }, 310);
+      }
+
+      function bindResultsSheetUi() {
+        const handle = document.getElementById("storii-results-sheet-handle");
+        const summary = document.querySelector(".storii-results-summary");
+
+        if (!resultsSheetUiBound) {
+          resultsSheetUiBound = true;
+
+          handle?.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (!sheet.classList.contains("is-sheet-visible")) return;
+            setSheetState(!sheetCollapsed);
+          });
+
+          summary?.addEventListener("click", (e) => {
+            if (!sheetCollapsed) return;
+            if (e.target.closest(".storii-results-back")) return;
+            setSheetState(false);
+          });
         }
 
-        const mapRect = mapContainer.getBoundingClientRect();
-        const sheetRect = sheetEl.getBoundingClientRect();
-        const mapHeight = mapRect.height;
-        const visibleMapHeight = Math.max(0, sheetRect.top - mapRect.top);
-
-        const fullCenterY = mapHeight / 2;
-        const targetY = visibleMapHeight * 0.55;
-        const pixelOffset = fullCenterY - targetY;
-
-        const zoom = map.getZoom();
-        const latPerPixel = 360 / (256 * Math.pow(2, zoom));
-        const latOffset = pixelOffset * latPerPixel;
-
-        map.panTo({ lat: lat - latOffset, lng });
+        if (resultsMap && !resultsMap.__storiiSheetMapClickBound) {
+          resultsMap.__storiiSheetMapClickBound = true;
+          resultsMap.addListener("click", () => {
+            if (!sheet.classList.contains("is-sheet-visible") || sheetCollapsed) return;
+            setSheetState(true);
+          });
+        }
       }
 
       function panToFirstCardOnce() {
@@ -3383,7 +3390,8 @@
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
         resultsInitialPanDone = true;
         resultsFocusedCard = firstCard;
-        panToPin(resultsMap, lat, lng);
+        setResultsMapPadding(false);
+        resultsMap.panTo({ lat, lng });
       }
 
       function formatGuestsMeta(count) {
@@ -3423,7 +3431,7 @@
         const lng = parseFloat(card.dataset.lng);
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
         resultsFocusedCard = card;
-        panToPin(resultsMap, lat, lng);
+        resultsMap.panTo({ lat, lng });
       }
 
       function setupResultsCardSync() {
@@ -3653,6 +3661,7 @@
           if (!resultsMap) return;
           google.maps.event.trigger(resultsMap, "resize");
           if (!sheet.classList.contains("is-sheet-visible")) return;
+          setResultsMapPadding(sheetCollapsed);
           resultsMarkers.forEach(({ marker }) => marker.draw());
         });
         ro.observe(mapWrap);
@@ -3699,6 +3708,7 @@
         });
 
         bindResultsResizeObserver();
+        bindResultsSheetUi();
         return true;
       }
 
@@ -3729,7 +3739,7 @@
 
       function resetResultsScreenUi() {
         mapWrap.classList.remove("is-map-visible", "is-map-fading-out");
-        sheet.classList.remove("is-sheet-visible", "is-sheet-closing");
+        sheet.classList.remove("is-sheet-visible", "is-sheet-closing", "is-sheet-collapsed");
         results.classList.remove("is-open");
         results.setAttribute("aria-hidden", "true");
         removeAiLoadingOverlay();
@@ -3737,6 +3747,7 @@
         resultsShown = false;
         resultsFocusedCard = null;
         resultsInitialPanDone = false;
+        sheetCollapsed = false;
         results.style.removeProperty("display");
         results.style.removeProperty("opacity");
         results.style.removeProperty("pointer-events");
@@ -3783,10 +3794,13 @@
         if (resultsSheet) {
           resultsSheet.style.setProperty("display", "flex", "important");
           resultsSheet.style.setProperty("opacity", "1", "important");
-          resultsSheet.style.setProperty("transform", "translateY(0)", "important");
           resultsSheet.style.setProperty("pointer-events", "auto", "important");
-          sheet.classList.remove("is-sheet-closing");
+          sheet.style.removeProperty("transform");
+          sheet.classList.remove("is-sheet-closing", "is-sheet-collapsed");
           sheet.classList.add("is-sheet-visible");
+          sheetCollapsed = false;
+          setResultsMapPadding(false);
+          bindResultsSheetUi();
         }
 
         const loadingOverlay =
@@ -3821,7 +3835,8 @@
 
           setStayTabBarVisible(false);
           results.setAttribute("aria-hidden", "false");
-          sheet.classList.remove("is-sheet-visible", "is-sheet-closing");
+          sheet.classList.remove("is-sheet-visible", "is-sheet-closing", "is-sheet-collapsed");
+          sheetCollapsed = false;
           results.classList.remove("is-open");
 
           mapWrap.classList.remove("is-map-fading-out", "is-map-searching");
