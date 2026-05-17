@@ -1787,11 +1787,14 @@
       gap: 16px;
     }
     .storii-result-card {
-      background: #fff;
-      border-radius: 6px;
-      box-shadow: 0 1.92px 7.68px rgba(49, 44, 63, 0.12);
+      background: #f1fcff;
+      border-radius: 8px;
       overflow: hidden;
       flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-bottom: 12px;
       opacity: 0.5;
       transition: opacity 0.25s ease;
     }
@@ -1803,7 +1806,7 @@
       width: 100%;
       height: 195px;
       overflow: hidden;
-      border-radius: 6px 6px 0 0;
+      flex-shrink: 0;
     }
     .storii-result-card-hero img {
       position: absolute;
@@ -1833,122 +1836,169 @@
       background: #fff;
     }
     .storii-result-card-body {
-      padding: 12px 16px;
+      padding: 0 16px;
       display: flex;
       flex-direction: column;
-      gap: 0;
+      gap: 12px;
+      min-width: 0;
+    }
+    .storii-result-card-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .storii-result-card-info {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
     .storii-result-card-title {
-      margin: 0 0 4px;
-      font-family: "Instrument Sans", system-ui, sans-serif;
-      font-size: 16px;
-      font-weight: 600;
+      margin: 0;
+      font-family: "Forum", serif;
+      font-size: 18px;
+      font-weight: 400;
       line-height: normal;
       color: #080e12;
       text-transform: capitalize;
     }
     .storii-result-card-sub {
-      margin: 0 0 8px;
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
       font-family: "Geist Mono", ui-monospace, monospace;
       font-size: 10px;
       font-weight: 500;
       letter-spacing: -0.1px;
-      color: #6e6e6e;
+      line-height: normal;
+      color: rgba(0, 0, 0, 0.4);
       text-transform: uppercase;
     }
     .storii-result-card-sub .star {
-      font-family: "Geist Mono", ui-monospace, monospace;
+      font-family: inherit;
     }
     .storii-result-card-sub .sep {
-      color: #b4b4b4;
-      margin: 0 4px;
-      text-transform: none;
-    }
-    .storii-result-card-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px 16px;
-      align-items: center;
-      margin: 0;
-      padding: 0;
-    }
-    .storii-result-card-stats .storii-result-stat:nth-child(2) {
-      margin-left: 12px;
-    }
-    .storii-result-stat {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-    }
-    .storii-result-stat--price {
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 2px;
-    }
-    .storii-result-vibe-ic {
-      flex: 0 0 24px;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      overflow: hidden;
-      background: linear-gradient(160deg, #76d57f 8.72%, #05cf37 81.12%);
-      border: 0.75px solid #dfffe3;
-    }
-    .storii-result-vibe-ic img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .storii-result-vibe-ic--couples {
-      background: linear-gradient(160deg, #e8b4ff 8.72%, #a27dd1 81.12%);
-      border-color: #f0e4ff;
-    }
-    .storii-result-stat-copy {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      min-width: 0;
-    }
-    .storii-result-stat-label {
       font-family: "Instrument Sans", system-ui, sans-serif;
       font-size: 12px;
       font-weight: 500;
-      color: #080e12;
-      text-transform: capitalize;
+      color: #b4b4b4;
+      text-transform: lowercase;
+    }
+    .storii-result-card-price {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      padding: 4px 0;
       white-space: nowrap;
     }
-    .storii-result-stat-sublabel {
+    .storii-result-card-price-amt {
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: normal;
+      color: #080e12;
+      text-transform: lowercase;
+    }
+    .storii-result-card-price-unit {
       font-family: "Geist Mono", ui-monospace, monospace;
       font-size: 10px;
       font-weight: 500;
       letter-spacing: -0.1px;
+      line-height: normal;
       color: #6e6e6e;
       text-transform: uppercase;
+      text-align: right;
     }
-    .storii-result-mult-badge {
-      flex: 0 0 24px;
-      width: 24px;
-      height: 24px;
-      position: relative;
-    }
-    .storii-result-mult-badge img {
-      position: absolute;
-      inset: 0;
+    .storii-result-card-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
       width: 100%;
-      height: 100%;
-      display: block;
     }
-    .storii-result-mult-badge span {
+    .storii-result-card-divider {
+      border: 0;
+      height: 1px;
+      margin: 0;
+      background: #c7dde2;
+    }
+    .storii-result-card-footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+    }
+    .storii-result-cashback {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin: 0;
+      min-width: 0;
+    }
+    .storii-result-cashback-badge {
+      position: relative;
+      flex: 0 0 26px;
+      width: 26px;
+      height: 28px;
+    }
+    .storii-result-cashback-badge::before {
+      content: "";
       position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      font-family: "Forum", serif;
+      left: -2px;
+      top: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 28%, #5ecde8 0%, #2aa9ca 72%);
+      box-shadow: 0 2.716px 9.507px rgba(0, 0, 0, 0.04);
+    }
+    .storii-result-cashback-num,
+    .storii-result-cashback-pct {
+      position: absolute;
+      color: #fff;
+      text-shadow: 0 2.716px 9.507px rgba(0, 0, 0, 0.04);
+      line-height: normal;
+      white-space: nowrap;
+    }
+    .storii-result-cashback-num {
+      left: 2px;
+      top: 5px;
+      font-family: "Instrument Sans", system-ui, sans-serif;
       font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.7px;
+    }
+    .storii-result-cashback-pct {
+      left: 15px;
+      top: 9px;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .storii-result-cashback-label {
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: normal;
+      color: #2aa9ca;
+      text-transform: capitalize;
+      white-space: nowrap;
+    }
+    .storii-result-points {
+      margin: 0;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: normal;
       color: #080e12;
-      line-height: 1;
+      text-transform: lowercase;
+      white-space: nowrap;
     }
     /* Real phones: full-bleed map, sheet over map, floating tab pill over sheet. */
     @media (max-width: 480px) {
@@ -2548,48 +2598,44 @@
           <div class="storii-results-cards-track" id="storii-results-track">
             <article
               class="storii-result-card is-active"
-              id="storii-result-anantara"
-              data-anchor="anantara"
-              data-name="Anantara Phuket"
+              id="storii-result-amatara"
+              data-anchor="amatara"
+              data-name="Amatara Phuket"
               data-lat="7.8073"
               data-lng="98.4092"
-              data-pin-fill="#05cf55"
+              data-pin-fill="#2aa9ca"
               data-pin-icon="https://www.figma.com/api/mcp/asset/f4d1f08a-e77c-44ab-a224-629f4e917224"
             >
               <div class="storii-result-card-hero">
-                <img src="https://www.figma.com/api/mcp/asset/7c88de51-d3c7-4c25-823e-ef6ee551250f" alt="" decoding="async">
+                <img src="https://www.figma.com/api/mcp/asset/e643cddc-ebb7-4627-bf6e-f508408da4e4" alt="" decoding="async">
                 <div class="storii-result-card-dots" aria-hidden="true">
                   <span class="is-active"></span><span></span><span></span>
                 </div>
               </div>
               <div class="storii-result-card-body">
-                <h2 class="storii-result-card-title">Anantara Phuket</h2>
-                <p class="storii-result-card-sub">
-                  <span class="star">★ 4.89 (739)</span><span class="sep">·</span>Panway Bay, Phuket
-                </p>
-                <div class="storii-result-card-stats">
-                  <div class="storii-result-stat">
-                    <div class="storii-result-vibe-ic">
-                      <img src="https://www.figma.com/api/mcp/asset/f4d1f08a-e77c-44ab-a224-629f4e917224" alt="">
-                    </div>
-                    <div class="storii-result-stat-copy">
-                      <span class="storii-result-stat-label">Staycation</span>
-                      <span class="storii-result-stat-sublabel">Vibe</span>
-                    </div>
+                <div class="storii-result-card-head">
+                  <div class="storii-result-card-info">
+                    <h2 class="storii-result-card-title">Amatara Phuket</h2>
+                    <p class="storii-result-card-sub">
+                      <span class="star">★ 4.89 (739)</span><span class="sep">•</span><span>Panwa Bay, Phuket</span>
+                    </p>
                   </div>
-                  <div class="storii-result-stat">
-                    <div class="storii-result-mult-badge">
-                      <img src="https://www.figma.com/api/mcp/asset/078fb683-41ed-4066-9640-1c2918e3ec07" alt="">
-                      <span>15x</span>
-                    </div>
-                    <div class="storii-result-stat-copy">
-                      <span class="storii-result-stat-label">1500 Pts</span>
-                      <span class="storii-result-stat-sublabel">1pt = ₹1</span>
-                    </div>
+                  <div class="storii-result-card-price">
+                    <span class="storii-result-card-price-amt">₹ 20,000</span>
+                    <span class="storii-result-card-price-unit">Per night</span>
                   </div>
-                  <div class="storii-result-stat storii-result-stat--price">
-                    <span class="storii-result-stat-label">₹ 21,000</span>
-                    <span class="storii-result-stat-sublabel">Per night</span>
+                </div>
+                <div class="storii-result-card-footer">
+                  <hr class="storii-result-card-divider" />
+                  <div class="storii-result-card-footer-row">
+                    <p class="storii-result-cashback">
+                      <span class="storii-result-cashback-badge" aria-hidden="true">
+                        <span class="storii-result-cashback-num">15</span>
+                        <span class="storii-result-cashback-pct">%</span>
+                      </span>
+                      <span class="storii-result-cashback-label">cashback</span>
+                    </p>
+                    <p class="storii-result-points">1500 pts = ₹1500</p>
                   </div>
                 </div>
               </div>
@@ -2598,10 +2644,10 @@
               class="storii-result-card"
               id="storii-result-trisara"
               data-anchor="trisara"
-              data-name="Trisara"
+              data-name="Trisara Phuket"
               data-lat="8.0218"
               data-lng="98.2794"
-              data-pin-fill="#a27dd1"
+              data-pin-fill="#2aa9ca"
               data-pin-icon="https://www.figma.com/api/mcp/asset/8b4fb1e8-5200-4c2c-b413-e6a577a6eaa3"
             >
               <div class="storii-result-card-hero">
@@ -2611,37 +2657,34 @@
                 </div>
               </div>
               <div class="storii-result-card-body">
-                <h2 class="storii-result-card-title">Trisara Phuket</h2>
-                <p class="storii-result-card-sub">
-                  <span class="star">★ 4.95 (412)</span><span class="sep">·</span>Nai Thon Beach, Phuket
-                </p>
-                <div class="storii-result-card-stats">
-                  <div class="storii-result-stat">
-                    <div class="storii-result-vibe-ic storii-result-vibe-ic--couples">
-                      <img src="https://www.figma.com/api/mcp/asset/8b4fb1e8-5200-4c2c-b413-e6a577a6eaa3" alt="">
-                    </div>
-                    <div class="storii-result-stat-copy">
-                      <span class="storii-result-stat-label">Couples Retreat</span>
-                      <span class="storii-result-stat-sublabel">Vibe</span>
-                    </div>
+                <div class="storii-result-card-head">
+                  <div class="storii-result-card-info">
+                    <h2 class="storii-result-card-title">Trisara Phuket</h2>
+                    <p class="storii-result-card-sub">
+                      <span class="star">★ 4.95 (412)</span><span class="sep">•</span><span>Nai Thon Beach, Phuket</span>
+                    </p>
                   </div>
-                  <div class="storii-result-stat">
-                    <div class="storii-result-mult-badge">
-                      <img src="https://www.figma.com/api/mcp/asset/078fb683-41ed-4066-9640-1c2918e3ec07" alt="">
-                      <span>20x</span>
-                    </div>
-                    <div class="storii-result-stat-copy">
-                      <span class="storii-result-stat-label">2000 Pts</span>
-                      <span class="storii-result-stat-sublabel">1pt = ₹1</span>
-                    </div>
+                  <div class="storii-result-card-price">
+                    <span class="storii-result-card-price-amt">₹ 45,000</span>
+                    <span class="storii-result-card-price-unit">Per night</span>
                   </div>
-                  <div class="storii-result-stat storii-result-stat--price">
-                    <span class="storii-result-stat-label">₹ 45,000</span>
-                    <span class="storii-result-stat-sublabel">Per night</span>
+                </div>
+                <div class="storii-result-card-footer">
+                  <hr class="storii-result-card-divider" />
+                  <div class="storii-result-card-footer-row">
+                    <p class="storii-result-cashback">
+                      <span class="storii-result-cashback-badge" aria-hidden="true">
+                        <span class="storii-result-cashback-num">20</span>
+                        <span class="storii-result-cashback-pct">%</span>
+                      </span>
+                      <span class="storii-result-cashback-label">cashback</span>
+                    </p>
+                    <p class="storii-result-points">2000 pts = ₹2000</p>
                   </div>
                 </div>
               </div>
             </article>
+
           </div>
         </div>
       </div>
