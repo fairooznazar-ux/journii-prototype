@@ -1649,6 +1649,13 @@
       top: 0;
       border-radius: 0;
     }
+    .storii-results-panel.is-sheet-visible.sheet-expanded .storii-results-summary,
+    .storii-results-panel.is-sheet-visible.sheet-expanded .results-search-bar,
+    .results-sheet.sheet-expanded .storii-results-summary,
+    .results-sheet.sheet-expanded .results-search-bar {
+      padding-top: calc(12px + env(safe-area-inset-top, 44px));
+      box-sizing: border-box;
+    }
     .storii-results-panel.is-sheet-closing,
     .results-sheet.is-sheet-closing {
       transform: translateY(100%);
