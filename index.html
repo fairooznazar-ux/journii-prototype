@@ -2042,6 +2042,342 @@
       text-transform: lowercase;
       white-space: nowrap;
     }
+
+    /* Stay details — layer above results */
+    .storii-stay-details {
+      position: absolute;
+      inset: 0;
+      z-index: 1200;
+      display: flex;
+      flex-direction: column;
+      background: #f1fcff;
+      pointer-events: none;
+      visibility: hidden;
+      transform: translateY(100%);
+      transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .storii-stay-details.is-open {
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    .storii-stay-details.is-closing {
+      pointer-events: none;
+      transform: translateY(100%);
+      transition: transform 300ms ease-in;
+    }
+    .storii-stay-details-bar {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      padding-top: env(safe-area-inset-top, 44px);
+      padding-bottom: 12px;
+      padding-left: 16px;
+      padding-right: 16px;
+      border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
+      z-index: 10;
+    }
+    .storii-stay-details-back {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      margin: 0;
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: #080e12;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .storii-stay-details-back svg {
+      width: 20px;
+      height: 20px;
+    }
+    .storii-stay-details-bar-center {
+      flex: 1 1 auto;
+      min-width: 0;
+      text-align: center;
+    }
+    .storii-stay-details-bar-query {
+      margin: 0;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.25;
+      color: #080e12;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .storii-stay-details-bar-meta {
+      margin: 2px 0 0;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.25;
+      color: rgba(8, 14, 18, 0.55);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .storii-stay-details-bar-spacer {
+      flex: 0 0 32px;
+    }
+    .storii-stay-details-scroll {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+    }
+    .storii-stay-details-hero {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 390 / 280;
+      background: #c8ddd6;
+      overflow: hidden;
+    }
+    .storii-stay-details-hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .storii-stay-details-hero-dots {
+      position: absolute;
+      left: 50%;
+      bottom: 14px;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .storii-stay-details-hero-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      border: none;
+      padding: 0;
+      background: rgba(255, 255, 255, 0.45);
+    }
+    .storii-stay-details-hero-dot.is-active {
+      width: 18px;
+      border-radius: 3px;
+      background: #fff;
+    }
+    .storii-stay-details-main {
+      padding: 20px 16px 32px;
+    }
+    .storii-stay-details-title {
+      margin: 0;
+      font-family: "Unbounded", system-ui, sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      line-height: 1.2;
+      color: #080e12;
+      letter-spacing: -0.02em;
+    }
+    .storii-stay-details-sub {
+      margin: 8px 0 0;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      color: rgba(8, 14, 18, 0.65);
+    }
+    .storii-stay-details-sub .star {
+      color: #080e12;
+      font-weight: 500;
+    }
+    .storii-stay-details-desc {
+      margin: 16px 0 0;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.5;
+      color: rgba(8, 14, 18, 0.75);
+    }
+    .storii-stay-details-section {
+      margin-top: 28px;
+    }
+    .storii-stay-details-section-label {
+      margin: 0 0 12px;
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(8, 14, 18, 0.45);
+    }
+    .storii-stay-details-vibe-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .storii-stay-details-vibe-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #fff;
+      border: 0.5px solid rgba(8, 14, 18, 0.08);
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: #080e12;
+    }
+    .storii-stay-details-vibe-pill i {
+      width: 14px;
+      height: 14px;
+    }
+    .storii-stay-details-when {
+      padding: 16px;
+      border-radius: 12px;
+      background: #fff;
+      border: 0.5px solid rgba(8, 14, 18, 0.08);
+    }
+    .storii-stay-details-when-season {
+      margin: 0;
+      font-family: "Unbounded", system-ui, sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #080e12;
+    }
+    .storii-stay-details-when-note {
+      margin: 6px 0 0;
+      font-size: 13px;
+      line-height: 1.4;
+      color: rgba(8, 14, 18, 0.65);
+    }
+    .storii-stay-details-reviews-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .storii-stay-details-reviews-score {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .storii-stay-details-reviews-score strong {
+      font-family: "Unbounded", system-ui, sans-serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: #080e12;
+    }
+    .storii-stay-details-reviews-score span {
+      font-size: 13px;
+      color: rgba(8, 14, 18, 0.55);
+    }
+    .storii-stay-details-review-avatars {
+      display: flex;
+    }
+    .storii-stay-details-review-avatars img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid #f1fcff;
+      margin-left: -8px;
+      object-fit: cover;
+    }
+    .storii-stay-details-review-avatars img:first-child {
+      margin-left: 0;
+    }
+    .storii-stay-details-review-card {
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: #fff;
+      border: 0.5px solid rgba(8, 14, 18, 0.08);
+    }
+    .storii-stay-details-review-card p {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.45;
+      color: rgba(8, 14, 18, 0.8);
+    }
+    .storii-stay-details-review-card cite {
+      display: block;
+      margin-top: 10px;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 600;
+      color: #080e12;
+    }
+    .storii-stay-details-room {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      background: #fff;
+      border: 0.5px solid rgba(8, 14, 18, 0.08);
+    }
+    .storii-stay-details-room-thumb {
+      flex: 0 0 88px;
+      width: 88px;
+      height: 88px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #c8ddd6;
+    }
+    .storii-stay-details-room-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .storii-stay-details-room-info h3 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: #080e12;
+    }
+    .storii-stay-details-room-info p {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: rgba(8, 14, 18, 0.55);
+    }
+    .storii-stay-details-room-price {
+      margin-top: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #080e12;
+    }
+    .storii-stay-details-map-wrap {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 0.5px solid rgba(8, 14, 18, 0.08);
+      background: #fff;
+    }
+    .storii-stay-details-map-wrap img {
+      width: 100%;
+      display: block;
+    }
+    .storii-stay-details-nbhd {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .storii-stay-details-nbhd-pill {
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #fff;
+      border: 0.5px solid rgba(8, 14, 18, 0.08);
+      color: rgba(8, 14, 18, 0.75);
+    }
+    .storii-result-card.result-card,
+    .deal-card,
+    .result-card {
+      cursor: pointer;
+    }
     /* Real phones: full-bleed map, sheet over map, floating tab pill over sheet. */
     @media (max-width: 480px) {
       html {
@@ -2633,7 +2969,7 @@
         <div class="storii-results-cards-scroller results-cards-scroller" id="storii-results-scroller" role="region" aria-label="Search results">
           <div class="storii-results-cards-track" id="storii-results-track">
             <article
-              class="storii-result-card resort-card is-active"
+              class="storii-result-card resort-card result-card is-active"
               id="storii-result-amatara"
               data-anchor="amatara"
               data-name="Amatara Phuket"
@@ -2684,7 +3020,7 @@
               </div>
             </article>
             <article
-              class="storii-result-card resort-card"
+              class="storii-result-card resort-card result-card"
               id="storii-result-trisara"
               data-anchor="trisara"
               data-name="Trisara Phuket"
@@ -2735,7 +3071,7 @@
               </div>
             </article>
             <article
-              class="storii-result-card resort-card"
+              class="storii-result-card resort-card result-card"
               id="storii-result-sri-panwa"
               data-anchor="sri-panwa"
               data-name="Sri Panwa Phuket"
@@ -2786,7 +3122,7 @@
               </div>
             </article>
             <article
-              class="storii-result-card resort-card"
+              class="storii-result-card resort-card result-card"
               id="storii-result-nai-harn"
               data-anchor="nai-harn"
               data-name="The Nai Harn Phuket"
@@ -2837,7 +3173,7 @@
               </div>
             </article>
             <article
-              class="storii-result-card resort-card"
+              class="storii-result-card resort-card result-card"
               id="storii-result-layan"
               data-anchor="layan"
               data-name="Anantara Layan Phuket"
@@ -2889,6 +3225,99 @@
             </article>
 
           </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div id="storii-stay-details" class="storii-stay-details" role="dialog" aria-modal="true" aria-labelledby="storii-stay-details-title" hidden>
+      <header class="storii-stay-details-bar">
+        <button type="button" class="storii-stay-details-back" aria-label="Back to results">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="storii-stay-details-bar-center">
+          <p class="storii-stay-details-bar-query" id="storii-stay-details-query">Beachfront Resorts In Phuket</p>
+          <p class="storii-stay-details-bar-meta" id="storii-stay-details-meta">12–15 Mar · 2 guests</p>
+        </div>
+        <div class="storii-stay-details-bar-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="storii-stay-details-scroll" id="storii-stay-details-scroll">
+        <div class="storii-stay-details-hero">
+          <img id="storii-stay-details-hero-img" src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&q=80" alt="" decoding="async">
+          <div class="storii-stay-details-hero-dots" aria-hidden="true">
+            <button type="button" class="storii-stay-details-hero-dot is-active" tabindex="-1"></button>
+            <button type="button" class="storii-stay-details-hero-dot" tabindex="-1"></button>
+            <button type="button" class="storii-stay-details-hero-dot" tabindex="-1"></button>
+          </div>
+        </div>
+        <div class="storii-stay-details-main">
+          <h1 class="storii-stay-details-title" id="storii-stay-details-title">Amatara Phuket</h1>
+          <p class="storii-stay-details-sub" id="storii-stay-details-sub"><span class="star">★ 4.89 (739)</span><span class="sep"> · </span><span id="storii-stay-details-location">Panwa Bay, Phuket</span></p>
+          <p class="storii-stay-details-desc" id="storii-stay-details-desc">Perched on a lush hillside overlooking the scenic Cape Panwa, Amatara blends Thai heritage with contemporary wellness. Expect cliffside pools, holistic spa rituals, and sunset dinners framed by the Andaman Sea.</p>
+
+          <section class="storii-stay-details-section" aria-labelledby="storii-stay-vibe-label">
+            <h2 class="storii-stay-details-section-label" id="storii-stay-vibe-label">The vibe</h2>
+            <div class="storii-stay-details-vibe-row">
+              <span class="storii-stay-details-vibe-pill"><i data-lucide="waves"></i> Beachfront</span>
+              <span class="storii-stay-details-vibe-pill"><i data-lucide="sparkles"></i> Wellness</span>
+              <span class="storii-stay-details-vibe-pill"><i data-lucide="utensils"></i> Fine dining</span>
+              <span class="storii-stay-details-vibe-pill"><i data-lucide="sun"></i> Sunset views</span>
+            </div>
+          </section>
+
+          <section class="storii-stay-details-section" aria-labelledby="storii-stay-when-label">
+            <h2 class="storii-stay-details-section-label" id="storii-stay-when-label">When to go</h2>
+            <div class="storii-stay-details-when">
+              <p class="storii-stay-details-when-season">NOV – FEB</p>
+              <p class="storii-stay-details-when-note">Dry season with calm seas and cooler evenings — ideal for pool villas and island-hopping day trips.</p>
+            </div>
+          </section>
+
+          <section class="storii-stay-details-section" aria-labelledby="storii-stay-reviews-label">
+            <h2 class="storii-stay-details-section-label" id="storii-stay-reviews-label">Reviews</h2>
+            <div class="storii-stay-details-reviews-head">
+              <div class="storii-stay-details-reviews-score">
+                <strong>4.89</strong>
+                <span>739 reviews</span>
+              </div>
+              <div class="storii-stay-details-review-avatars" aria-hidden="true">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&fit=crop&q=80" alt="">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&q=80" alt="">
+              </div>
+            </div>
+            <blockquote class="storii-stay-details-review-card">
+              <p>“Stunning views from every corner. The spa and breakfast spread were highlights — felt completely removed from the city.”</p>
+              <cite>— Priya, stayed Mar 2025</cite>
+            </blockquote>
+          </section>
+
+          <section class="storii-stay-details-section" aria-labelledby="storii-stay-rooms-label">
+            <h2 class="storii-stay-details-section-label" id="storii-stay-rooms-label">The rooms</h2>
+            <article class="storii-stay-details-room">
+              <div class="storii-stay-details-room-thumb">
+                <img id="storii-stay-details-room-img" src="https://images.unsplash.com/photo-1582719508461-905c673771fd?w=400&q=80" alt="" decoding="async">
+              </div>
+              <div class="storii-stay-details-room-info">
+                <h3>Ocean View Pool Villa</h3>
+                <p>1 king bed · 120 m² · Private pool</p>
+                <p class="storii-stay-details-room-price" id="storii-stay-details-room-price">₹ 20,000 / night</p>
+              </div>
+            </article>
+          </section>
+
+          <section class="storii-stay-details-section" aria-labelledby="storii-stay-nbhd-label">
+            <h2 class="storii-stay-details-section-label" id="storii-stay-nbhd-label">Neighbourhood</h2>
+            <div class="storii-stay-details-map-wrap">
+              <img src="https://images.unsplash.com/photo-1552465011-b85e21e08ad7?w=800&q=60" alt="Map preview of Cape Panwa area" loading="lazy" decoding="async">
+            </div>
+            <div class="storii-stay-details-nbhd">
+              <span class="storii-stay-details-nbhd-pill">Cape Panwa</span>
+              <span class="storii-stay-details-nbhd-pill">25 min to Patong</span>
+              <span class="storii-stay-details-nbhd-pill">Phuket Intl. 45 min</span>
+            </div>
+          </section>
         </div>
       </div>
     </div>
@@ -3476,6 +3905,146 @@
     })();
 
     /** Search results screen — layered map + animated handoff */
+
+
+    (function storiiStayDetails() {
+      const root = document.getElementById("storii-stay-details");
+      if (!root) return;
+
+      const backBtn = root.querySelector(".storii-stay-details-back");
+      const scrollEl = document.getElementById("storii-stay-details-scroll");
+      const queryEl = document.getElementById("storii-stay-details-query");
+      const metaEl = document.getElementById("storii-stay-details-meta");
+      const titleEl = document.getElementById("storii-stay-details-title");
+      const subEl = document.getElementById("storii-stay-details-sub");
+      const descEl = document.getElementById("storii-stay-details-desc");
+      const heroImg = document.getElementById("storii-stay-details-hero-img");
+      const roomImg = document.getElementById("storii-stay-details-room-img");
+      const roomPriceEl = document.getElementById("storii-stay-details-room-price");
+      const locationEl = document.getElementById("storii-stay-details-location");
+
+      const CLOSE_MS = 300;
+      let closeTimer = null;
+      let isOpen = false;
+
+      const COPY = {
+        "storii-result-amatara": {
+          desc: "Perched on a lush hillside overlooking the scenic Cape Panwa, Amatara blends Thai heritage with contemporary wellness. Expect cliffside pools, holistic spa rituals, and sunset dinners framed by the Andaman Sea.",
+          location: "Panwa Bay, Phuket",
+        },
+        "storii-result-trisara": {
+          desc: "An intimate oceanfront hideaway where jungle meets sea. Private pool villas, Michelin-leaning dining, and a serene bay set the tone for a slow, luxurious escape.",
+          location: "Cherngtalay, Phuket",
+        },
+        "storii-result-sri-panwa": {
+          desc: "Hilltop villas and suites with dramatic Andaman views. Known for its buzzy social scene, infinity pools, and legendary sunset cocktails above the cape.",
+          location: "Cape Panwa, Phuket",
+        },
+        "storii-result-nai-harn": {
+          desc: "Steps from Nai Harn Beach with a relaxed, family-friendly rhythm. Bright rooms, a generous pool deck, and easy access to southern Phuket's best sand.",
+          location: "Nai Harn, Phuket",
+        },
+        "storii-result-layan": {
+          desc: "Tucked beside Bang Tao's lagoon, Layan offers calm luxury with spacious suites, lush gardens, and a polished beach club a short stroll away.",
+          location: "Bang Tao, Phuket",
+        },
+      };
+
+      function syncBarFromResults() {
+        const q = document.getElementById("storii-results-query");
+        const m = document.getElementById("storii-results-meta");
+        if (queryEl && q) queryEl.textContent = q.textContent.trim() || "Beachfront Resorts In Phuket";
+        if (metaEl && m) metaEl.textContent = m.textContent.trim() || "12–15 Mar · 2 guests";
+      }
+
+      function cardFromTarget(target) {
+        return target.closest(".storii-result-card, .deal-card, .result-card");
+      }
+
+      function firstHeroSrc(card) {
+        const img = card.querySelector(".storii-result-card-slide img, .storii-result-card-hero img, .deal-card img, img");
+        return img?.getAttribute("src") || img?.currentSrc || "";
+      }
+
+      function secondHeroSrc(card) {
+        const imgs = card.querySelectorAll(".storii-result-card-slide img, .storii-result-card-hero img");
+        return imgs[1]?.getAttribute("src") || imgs[0]?.getAttribute("src") || "";
+      }
+
+      function populateFromCard(card) {
+        const id = card.id || "";
+        const data = COPY[id] || {};
+        const name = card.dataset.name || card.querySelector(".storii-result-card-title, h2, h3")?.textContent?.trim() || "Stay";
+        const subHtml = card.querySelector(".storii-result-card-sub")?.innerHTML;
+        const price = card.querySelector(".storii-result-card-price-amt")?.textContent?.trim();
+
+        if (titleEl) titleEl.textContent = name;
+        if (subEl && subHtml) subEl.innerHTML = subHtml;
+        else if (subEl) subEl.textContent = "";
+        if (descEl) descEl.textContent = data.desc || descEl.textContent;
+        if (locationEl && data.location) locationEl.textContent = data.location;
+
+        const hero = firstHeroSrc(card);
+        if (hero && heroImg) heroImg.src = hero;
+        const room = secondHeroSrc(card) || hero;
+        if (room && roomImg) roomImg.src = room;
+        if (roomPriceEl && price) roomPriceEl.textContent = price + " / night";
+      }
+
+      function openStayDetails(card) {
+        if (!card || isOpen) return;
+        if (closeTimer) {
+          clearTimeout(closeTimer);
+          closeTimer = null;
+        }
+        syncBarFromResults();
+        populateFromCard(card);
+        root.hidden = false;
+        root.classList.remove("is-closing");
+        requestAnimationFrame(() => {
+          root.classList.add("is-open");
+        });
+        if (scrollEl) scrollEl.scrollTop = 0;
+        isOpen = true;
+        if (window.lucide) lucide.createIcons({ root });
+      }
+
+      function closeStayDetails() {
+        if (!isOpen) return;
+        root.classList.remove("is-open");
+        root.classList.add("is-closing");
+        isOpen = false;
+        closeTimer = setTimeout(() => {
+          root.classList.remove("is-closing");
+          root.hidden = true;
+          closeTimer = null;
+        }, CLOSE_MS);
+      }
+
+      document.addEventListener(
+        "click",
+        (e) => {
+          const card = cardFromTarget(e.target);
+          if (!card) return;
+          if (!card.classList.contains("deal-card")) {
+            const results = document.getElementById("storii-search-results");
+            if (results && !results.classList.contains("is-open")) return;
+          }
+          e.preventDefault();
+          openStayDetails(card);
+        },
+        true
+      );
+
+      backBtn?.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeStayDetails();
+      });
+
+      window.storiiOpenStayDetails = openStayDetails;
+      window.storiiCloseStayDetails = closeStayDetails;
+    })();
 
     (function setupResultHeroCarousels() {
       function initHero(hero) {
@@ -4191,6 +4760,7 @@
       }
 
       function forceResetResultsLayer() {
+        window.storiiCloseStayDetails?.();
         sheetExpanded = false;
         sheetTransitioning = false;
         showResultsMapFallback(false);
