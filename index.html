@@ -1208,6 +1208,11 @@
       opacity: 1;
       transition: opacity 280ms ease;
     }
+    .storii-results-map-wrap.is-map-visible.is-map-sheet-covered {
+      opacity: 0;
+      transition: opacity 250ms ease;
+      pointer-events: none;
+    }
     .storii-results-search-pill {
       position: absolute;
       left: 50%;
@@ -1603,12 +1608,13 @@
       direction: ltr;
       transform: translateZ(0);
     }
-    .storii-results-panel {
-      position: absolute;
+    .storii-results-panel,
+    .results-sheet {
+      position: fixed;
+      bottom: 0;
       left: 0;
       right: 0;
-      top: 295px;
-      bottom: 0;
+      top: 45vh;
       z-index: 1000;
       display: flex;
       flex-direction: column;
@@ -1617,7 +1623,12 @@
       min-height: 0;
       pointer-events: none;
       transform: translateY(100%);
-      transition: transform 350ms ease-out;
+      border-radius: 20px 20px 0 0;
+      overflow: hidden;
+      transition:
+        top 350ms cubic-bezier(0.4, 0, 0.2, 1),
+        transform 350ms cubic-bezier(0.4, 0, 0.2, 1),
+        border-radius 350ms cubic-bezier(0.4, 0, 0.2, 1);
       background: linear-gradient(
         180deg,
         rgba(38, 156, 191, 0) 0%,
@@ -1627,34 +1638,28 @@
         #24619B 100%
       );
     }
-    .storii-results-sheet-handle {
-      flex: 0 0 auto;
-      display: block;
-      width: 36px;
-      height: 4px;
-      margin: 8px auto 4px;
-      padding: 0;
-      border: none;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.3);
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .storii-results-panel.is-sheet-visible {
+    .storii-results-panel.is-sheet-visible,
+    .results-sheet.is-sheet-visible {
       transform: translateY(0);
       pointer-events: auto;
-      transition: transform 300ms ease-out;
     }
-    .storii-results-panel.is-sheet-visible.is-sheet-collapsed {
-      transform: translateY(calc(100% - 80px));
+    .storii-results-panel.is-sheet-visible.sheet-expanded,
+    .results-sheet.sheet-expanded {
+      top: 0;
+      border-radius: 0;
     }
-    .storii-results-panel.is-sheet-closing {
+    .storii-results-panel.is-sheet-closing,
+    .results-sheet.is-sheet-closing {
       transform: translateY(100%);
       transition: transform 250ms ease-in;
       pointer-events: none;
     }
-    .storii-results-summary {
+    .storii-results-summary,
+    .results-search-bar {
       flex: 0 0 auto;
+      position: sticky;
+      top: 0;
+      z-index: 10;
       width: 100%;
       min-height: 64px;
       border-radius: 12px;
@@ -1663,13 +1668,13 @@
       align-items: center;
       gap: 8px;
       border: 0.5px solid rgba(255, 255, 255, 0.35);
-      cursor: pointer;
+      border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
       text-align: left;
       -webkit-tap-highlight-color: transparent;
       background: linear-gradient(
         90deg,
-        rgba(237, 250, 255, 0.94) 0%,
-        rgba(245, 255, 254, 0.9) 100%
+        rgba(237, 250, 255, 1) 0%,
+        rgba(245, 255, 254, 1) 100%
       );
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
       font: inherit;
@@ -1795,10 +1800,6 @@
       flex-direction: column;
       gap: 12px;
       padding-bottom: 12px;
-      opacity: 0.5;
-      transition: opacity 0.25s ease;
-    }
-    .storii-result-card.is-active {
       opacity: 1;
     }
     .storii-result-card-hero {
@@ -2581,7 +2582,7 @@
     </div>
 
     <div id="storii-search-results" class="results-screen storii-search-results" aria-hidden="true" inert>
-      <div class="storii-results-map-wrap">
+      <div class="storii-results-map-wrap results-map-wrap">
         <div id="gmap-results"></div>
         <div id="map-results-fallback" class="map-fallback">
           <div>Add your Google Maps API key to load satellite view.</div>
@@ -2589,14 +2590,8 @@
         </div>
         <div id="storii-results-search-pill" class="storii-results-search-pill" aria-live="polite"></div>
       </div>
-      <div class="storii-results-panel" id="storii-results-sheet">
-        <button
-          type="button"
-          class="storii-results-sheet-handle"
-          id="storii-results-sheet-handle"
-          aria-label="Collapse results sheet"
-        ></button>
-        <div class="storii-results-summary">
+      < results-sheet" id="storii-results-sheet">
+        <div class="storii-results-summary results-search-bar">
           <button type="button" class="storii-results-back" id="storii-results-back" aria-label="Back to stays">
             <img src="https://www.figma.com/api/mcp/asset/a3399cc7-56f6-4333-bda2-2dd682e67553" alt="" width="18" height="18" aria-hidden="true">
           </button>
@@ -2627,7 +2622,7 @@
             Beachfront
           </button>
         </div>
-        <div class="storii-results-cards-scroller" id="storii-results-scroller" role="region" aria-label="Search results">
+        <div class="storii-results-cards-scroller results-cards-scroller" id="storii-results-scroller" role="region" aria-label="Search results">
           <div class="storii-results-cards-track" id="storii-results-track">
             <article
               class="storii-result-card is-active"
@@ -3573,8 +3568,7 @@
       let resultsShown = false;
       let resultsFocusedCard = null;
       let resultsInitialPanDone = false;
-      let sheetCollapsed = false;
-      let resultsSheetUiBound = false;
+      let resultsScrollSheetBound = false;
       let panDebounceTimer = null;
 
       function delay(ms) {
@@ -3738,49 +3732,44 @@
         panToWithOffset(resultsMap, lat, lng);
       }
 
-      function setSheetState(collapsed) {
+      function setResultsSheetExpanded(expanded) {
         if (!sheet.classList.contains("is-sheet-visible")) return;
-        sheetCollapsed = collapsed;
-        sheet.classList.toggle("is-sheet-collapsed", collapsed);
-        const handle = document.getElementById("storii-results-sheet-handle");
-        if (handle) {
-          handle.setAttribute(
-            "aria-label",
-            collapsed ? "Expand results sheet" : "Collapse results sheet"
-          );
+        const wasExpanded = sheet.classList.contains("sheet-expanded");
+        if (expanded === wasExpanded) return;
+        sheet.classList.toggle("sheet-expanded", expanded);
+        mapWrap.classList.toggle("is-map-sheet-covered", expanded);
+        if (!expanded && wasExpanded) {
+          scroller.scrollTo({ top: 0, behavior: "smooth" });
+          window.setTimeout(() => {
+            panToActiveCard();
+          }, 320);
         }
-        window.setTimeout(() => {
-          panToActiveCard();
-        }, 310);
       }
 
       function bindResultsSheetUi() {
-        const handle = document.getElementById("storii-results-sheet-handle");
-        const summary = document.querySelector(".storii-results-summary");
+        if (resultsScrollSheetBound) return;
+        resultsScrollSheetBound = true;
 
-        if (!resultsSheetUiBound) {
-          resultsSheetUiBound = true;
+        const resultsScroller =
+          scroller ||
+          document.querySelector(".results-cards-scroller") ||
+          document.getElementById("storii-results-scroller");
 
-          handle?.addEventListener("click", (e) => {
-            e.stopPropagation();
+        if (!resultsScroller) return;
+
+        resultsScroller.addEventListener(
+          "scroll",
+          () => {
             if (!sheet.classList.contains("is-sheet-visible")) return;
-            setSheetState(!sheetCollapsed);
-          });
-
-          summary?.addEventListener("click", (e) => {
-            if (!sheetCollapsed) return;
-            if (e.target.closest(".storii-results-back")) return;
-            setSheetState(false);
-          });
-        }
-
-        if (resultsMap && !resultsMap.__storiiSheetMapClickBound) {
-          resultsMap.__storiiSheetMapClickBound = true;
-          resultsMap.addListener("click", () => {
-            if (!sheet.classList.contains("is-sheet-visible") || sheetCollapsed) return;
-            setSheetState(true);
-          });
-        }
+            const scrollTop = resultsScroller.scrollTop;
+            if (scrollTop > 40) {
+              setResultsSheetExpanded(true);
+            } else {
+              setResultsSheetExpanded(false);
+            }
+          },
+          { passive: true }
+        );
       }
 
       function panToFirstCardOnce() {
@@ -3842,10 +3831,8 @@
               console.log("Card in focus:", card.dataset.name, lat, lng);
 
               cards.forEach((c) => {
-                c.style.opacity = "0.5";
                 c.classList.remove("is-active");
               });
-              card.style.opacity = "1";
               card.classList.add("is-active");
 
               const anchor = card.getAttribute("data-anchor");
@@ -4154,7 +4141,8 @@
 
       function forceResetResultsLayer() {
         mapWrap.classList.remove("is-map-visible", "is-map-fading-out", "is-map-searching");
-        sheet.classList.remove("is-sheet-visible", "is-sheet-closing", "is-sheet-collapsed");
+        sheet.classList.remove("is-sheet-visible", "is-sheet-closing", "sheet-expanded");
+        mapWrap.classList.remove("is-map-sheet-covered");
         results.classList.remove("is-open", "is-layer-active");
         results.setAttribute("aria-hidden", "true");
         results.inert = true;
@@ -4162,7 +4150,7 @@
         resultsShown = false;
         resultsFocusedCard = null;
         resultsInitialPanDone = false;
-        sheetCollapsed = false;
+        if (scroller) scroller.scrollTop = 0;
         results.style.removeProperty("display");
         results.style.removeProperty("opacity");
         results.style.removeProperty("pointer-events");
@@ -4175,7 +4163,10 @@
           resultsCardObserver.disconnect();
           resultsCardObserver = null;
         }
-        document.querySelectorAll(".storii-result-card").forEach((c) => c.classList.remove("is-active"));
+        document.querySelectorAll(".storii-result-card").forEach((c) => {
+          c.classList.remove("is-active");
+          c.style.removeProperty("opacity");
+        });
         const first = document.querySelector(".storii-result-card");
         if (first) first.classList.add("is-active");
         setStayTabBarVisible(true);
@@ -4212,9 +4203,10 @@
         results.classList.add("is-open");
         if (resultsSheet) {
           sheet.style.removeProperty("transform");
-          sheet.classList.remove("is-sheet-closing", "is-sheet-collapsed");
+          sheet.classList.remove("is-sheet-closing", "sheet-expanded");
           sheet.classList.add("is-sheet-visible");
-          sheetCollapsed = false;
+          mapWrap.classList.remove("is-map-sheet-covered");
+          if (scroller) scroller.scrollTop = 0;
           bindResultsSheetUi();
         }
 
@@ -4252,7 +4244,8 @@
 
           activateResultsLayer();
           setStayTabBarVisible(false);
-          sheet.classList.remove("is-sheet-visible", "is-sheet-closing", "is-sheet-collapsed");
+          sheet.classList.remove("is-sheet-visible", "is-sheet-closing", "sheet-expanded");
+        mapWrap.classList.remove("is-map-sheet-covered");
           sheetCollapsed = false;
           results.classList.remove("is-open");
 
@@ -4349,7 +4342,15 @@
       };
       window.storiiCloseSearchResults = closeResults;
 
-      backBtn.addEventListener("click", closeResults);
+      backBtn.addEventListener("click", (e) => {
+        if (sheet.classList.contains("sheet-expanded")) {
+          e.preventDefault();
+          e.stopPropagation();
+          setResultsSheetExpanded(false);
+          return;
+        }
+        closeResults();
+      });
       forceResetResultsLayer();
     })();
 
