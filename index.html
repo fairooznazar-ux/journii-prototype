@@ -3583,6 +3583,8 @@
       let resultsFocusedCard = null;
       let resultsInitialPanDone = false;
       let resultsScrollSheetBound = false;
+      let sheetExpanded = false;
+      let sheetTransitioning = false;
       let panDebounceTimer = null;
 
       function delay(ms) {
@@ -3752,6 +3754,8 @@
         if (expanded === wasExpanded) return;
         sheet.classList.toggle("sheet-expanded", expanded);
         mapWrap.classList.toggle("is-map-sheet-covered", expanded);
+        sheetExpanded = expanded;
+        sheetTransitioning = false;
         if (!expanded && wasExpanded) {
           scroller.scrollTo({ top: 0, behavior: "smooth" });
           window.setTimeout(() => {
@@ -3775,11 +3779,28 @@
           "scroll",
           () => {
             if (!sheet.classList.contains("is-sheet-visible")) return;
-            const scrollTop = resultsScroller.scrollTop;
-            if (scrollTop > 40) {
-              setResultsSheetExpanded(true);
-            } else {
-              setResultsSheetExpanded(false);
+
+            if (sheetTransitioning) {
+              resultsScroller.scrollTop = 0;
+              return;
+            }
+
+            if (!sheetExpanded) {
+              resultsScroller.scrollTop = 0;
+              sheetTransitioning = true;
+              sheet.classList.add("sheet-expanded");
+              mapWrap.classList.add("is-map-sheet-covered");
+              window.setTimeout(() => {
+                sheetExpanded = true;
+                sheetTransitioning = false;
+              }, 360);
+              return;
+            }
+
+            if (sheetExpanded && resultsScroller.scrollTop === 0) {
+              sheetExpanded = false;
+              sheet.classList.remove("sheet-expanded");
+              mapWrap.classList.remove("is-map-sheet-covered");
             }
           },
           { passive: true }
@@ -4163,6 +4184,8 @@
       }
 
       function forceResetResultsLayer() {
+        sheetExpanded = false;
+        sheetTransitioning = false;
         showResultsMapFallback(false);
         mapWrap.classList.remove("is-map-visible", "is-map-fading-out", "is-map-searching");
         sheet.classList.remove("is-sheet-visible", "is-sheet-closing", "sheet-expanded");
