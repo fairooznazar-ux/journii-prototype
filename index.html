@@ -683,6 +683,7 @@
         visibility 0ms linear 200ms;
     }
     .storii-search-overlay.is-open {
+      z-index: 1100;
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
@@ -3535,7 +3536,12 @@
       const metaEl = document.getElementById("storii-results-meta");
       const scroller = document.getElementById("storii-results-scroller");
       const stayTabBar = document.getElementById("storii-stay-tab-bar");
-      if (!results || !mapWrap || !sheet || !backBtn || !queryEl || !metaEl || !scroller) return;
+      if (!results || !mapWrap || !sheet || !backBtn || !queryEl || !metaEl || !scroller) {
+        window.storiiOpenSearchResults = () => {
+          console.error("Search results UI is missing required DOM nodes.");
+        };
+        return;
+      }
 
       const RESULTS_HOME = { lat: 15, lng: 95 };
       const RESULTS_HOME_ZOOM = 4;
@@ -3790,6 +3796,15 @@
         const n = parseInt(String(count || "2"), 10);
         if (!Number.isFinite(n) || n <= 0) return "2 Guests";
         return n === 1 ? "1 Guest" : `${n} Guests`;
+      }
+
+      function mapsApiAvailable() {
+        return Boolean(window.google && window.google.maps);
+      }
+
+      function showResultsMapFallback(show) {
+        const fallback = document.getElementById("map-results-fallback");
+        if (fallback) fallback.classList.toggle("visible", Boolean(show));
       }
 
       function updateSummary(payload) {
@@ -4140,6 +4155,7 @@
       }
 
       function forceResetResultsLayer() {
+        showResultsMapFallback(false);
         mapWrap.classList.remove("is-map-visible", "is-map-fading-out", "is-map-searching");
         sheet.classList.remove("is-sheet-visible", "is-sheet-closing", "sheet-expanded");
         mapWrap.classList.remove("is-map-sheet-covered");
@@ -4220,7 +4236,9 @@
         await delay(350);
 
         if (window.lucide) lucide.createIcons();
-        google.maps.event.addListenerOnce(resultsMap, "idle", panToFirstCardOnce);
+        if (resultsMap && mapsApiAvailable()) {
+          google.maps.event.addListenerOnce(resultsMap, "idle", panToFirstCardOnce);
+        }
         window.setTimeout(() => {
           initResultsObserver();
           window.storiiInitResultHeroCarousels?.();
@@ -4229,24 +4247,54 @@
 
       window.showResults = showResults;
 
+      async function runSubmitSequenceNoMap(payload) {
+        activateResultsLayer();
+        setStayTabBarVisible(false);
+        sheet.classList.remove("is-sheet-visible", "is-sheet-closing", "sheet-expanded");
+        mapWrap.classList.remove("is-map-sheet-covered");
+        results.classList.remove("is-open");
+        mapWrap.classList.remove("is-map-fading-out", "is-map-searching");
+        mapWrap.classList.add("is-map-visible");
+        showResultsMapFallback(true);
+        resultsShown = false;
+        mountAiLoadingOverlay(payload);
+        const waitMs = prefersReducedMotion()
+          ? 400
+          : Math.min(AI_RESULTS_TRANSITION_MS, 1400);
+        await delay(waitMs);
+        await showResults();
+      }
+
       async function runSubmitSequence(payload) {
         if (submitRunning) return;
         submitRunning = true;
         try {
           updateSummary(payload);
-          window.storiiCloseSearchOverlayForResults?.();
-          window.storiiCloseDatePicker?.();
 
-          if (!ensureResultsMap()) {
+          const apiReady = mapsApiAvailable();
+          const gmapsKey =
+            typeof getGmapsKey === "function" ? getGmapsKey() : "";
+          const mapReady = apiReady && ensureResultsMap();
+
+          if (!apiReady && gmapsKey) {
             pendingSubmitPayload = payload;
             return;
           }
+
+          window.storiiCloseSearchOverlayForResults?.();
+          window.storiiCloseDatePicker?.();
+
+          if (!mapReady) {
+            await runSubmitSequenceNoMap(payload);
+            return;
+          }
+
+          showResultsMapFallback(false);
 
           activateResultsLayer();
           setStayTabBarVisible(false);
           sheet.classList.remove("is-sheet-visible", "is-sheet-closing", "sheet-expanded");
         mapWrap.classList.remove("is-map-sheet-covered");
-          sheetCollapsed = false;
           results.classList.remove("is-open");
 
           mapWrap.classList.remove("is-map-fading-out", "is-map-searching");
@@ -4330,15 +4378,7 @@
       }
 
       window.storiiOpenSearchResults = (payload) => {
-        if (!window.google || !window.google.maps) {
-          pendingSubmitPayload = payload;
-          return;
-        }
-        if (!ensureResultsMap()) {
-          pendingSubmitPayload = payload;
-          return;
-        }
-        runSubmitSequence(payload);
+        void runSubmitSequence(payload);
       };
       window.storiiCloseSearchResults = closeResults;
 
