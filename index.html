@@ -1655,6 +1655,29 @@
       transition: transform 250ms ease-in;
       pointer-events: none;
     }
+    .results-top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: white;
+      padding-top: env(safe-area-inset-top, 44px);
+      padding-bottom: 12px;
+      padding-left: 16px;
+      padding-right: 16px;
+      border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
+      flex: 0 0 auto;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .results-sheet:not(.sheet-expanded) .results-top-bar {
+      padding-top: 12px;
+    }
+    .results-top-bar .storii-results-summary,
+    .results-top-bar .results-search-bar {
+      position: relative;
+      top: auto;
+      z-index: auto;
+    }
     .storii-results-summary,
     .results-search-bar {
       flex: 0 0 auto;
@@ -2592,6 +2615,7 @@
         <div id="storii-results-search-pill" class="storii-results-search-pill" aria-live="polite"></div>
       </div>
       <div class="storii-results-panel results-sheet" id="storii-results-sheet">
+        <div class="results-top-bar">
         <div class="storii-results-summary results-search-bar">
           <button type="button" class="storii-results-back" id="storii-results-back" aria-label="Back to stays">
             <img src="https://www.figma.com/api/mcp/asset/a3399cc7-56f6-4333-bda2-2dd682e67553" alt="" width="18" height="18" aria-hidden="true">
@@ -2600,6 +2624,7 @@
             <div class="storii-results-query" id="storii-results-query">Beachfront Resorts In Phuket</div>
             <div class="storii-results-meta" id="storii-results-meta">16-18 May · 2 Guests</div>
           </div>
+        </div>
         </div>
         <div class="storii-results-filters" role="list" aria-label="Filters">
           <button type="button" class="storii-results-filter-chip" role="listitem">
