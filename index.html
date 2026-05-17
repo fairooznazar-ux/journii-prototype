@@ -1942,44 +1942,32 @@
     }
     .storii-result-cashback-badge {
       position: relative;
-      flex: 0 0 26px;
-      width: 26px;
+      flex: 0 0 28px;
+      width: 28px;
       height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .storii-result-cashback-badge::before {
       content: "";
       position: absolute;
-      left: -2px;
-      top: 0;
-      width: 28px;
-      height: 28px;
+      inset: 0;
       border-radius: 50%;
       background: radial-gradient(circle at 30% 28%, #5ecde8 0%, #2aa9ca 72%);
       box-shadow: 0 2.716px 9.507px rgba(0, 0, 0, 0.04);
     }
-    .storii-result-cashback-num,
-    .storii-result-cashback-pct {
-      position: absolute;
-      color: #fff;
-      text-shadow: 0 2.716px 9.507px rgba(0, 0, 0, 0.04);
-      line-height: normal;
-      white-space: nowrap;
-    }
-    .storii-result-cashback-num {
-      left: 2px;
-      top: 5px;
-      font-family: "Instrument Sans", system-ui, sans-serif;
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: -0.7px;
-    }
-    .storii-result-cashback-pct {
-      left: 15px;
-      top: 9px;
+    .storii-result-cashback-value {
+      position: relative;
+      z-index: 1;
       font-family: "Instrument Sans", system-ui, sans-serif;
       font-size: 10px;
       font-weight: 700;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.45px;
+      line-height: 1;
+      color: #fff;
+      text-shadow: 0 2.716px 9.507px rgba(0, 0, 0, 0.04);
+      white-space: nowrap;
     }
     .storii-result-cashback-label {
       font-family: "Instrument Sans", system-ui, sans-serif;
@@ -2601,13 +2589,13 @@
               id="storii-result-amatara"
               data-anchor="amatara"
               data-name="Amatara Phuket"
-              data-lat="7.8073"
-              data-lng="98.4092"
+              data-lat="7.8012"
+              data-lng="98.4105"
               data-pin-fill="#2aa9ca"
               data-pin-icon="https://www.figma.com/api/mcp/asset/f4d1f08a-e77c-44ab-a224-629f4e917224"
             >
               <div class="storii-result-card-hero">
-                <img src="https://www.figma.com/api/mcp/asset/e643cddc-ebb7-4627-bf6e-f508408da4e4" alt="" decoding="async">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Phuket_-_Cape_Panwa.jpg/500px-Phuket_-_Cape_Panwa.jpg" alt="" decoding="async" loading="lazy">
                 <div class="storii-result-card-dots" aria-hidden="true">
                   <span class="is-active"></span><span></span><span></span>
                 </div>
@@ -2630,8 +2618,7 @@
                   <div class="storii-result-card-footer-row">
                     <p class="storii-result-cashback">
                       <span class="storii-result-cashback-badge" aria-hidden="true">
-                        <span class="storii-result-cashback-num">15</span>
-                        <span class="storii-result-cashback-pct">%</span>
+                        <span class="storii-result-cashback-value">15%</span>
                       </span>
                       <span class="storii-result-cashback-label">cashback</span>
                     </p>
@@ -2645,13 +2632,13 @@
               id="storii-result-trisara"
               data-anchor="trisara"
               data-name="Trisara Phuket"
-              data-lat="8.0218"
-              data-lng="98.2794"
+              data-lat="8.0406"
+              data-lng="98.2768"
               data-pin-fill="#2aa9ca"
-              data-pin-icon="https://www.figma.com/api/mcp/asset/8b4fb1e8-5200-4c2c-b413-e6a577a6eaa3"
+              data-pin-icon="https://www.figma.com/api/mcp/asset/f4d1f08a-e77c-44ab-a224-629f4e917224"
             >
               <div class="storii-result-card-hero">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Maya_Bay.jpg/500px-Maya_Bay.jpg" alt="" decoding="async">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Surin_Beach%2C_Phuket%2C_Thailand.jpg/500px-Surin_Beach%2C_Phuket%2C_Thailand.jpg" alt="" decoding="async" loading="lazy">
                 <div class="storii-result-card-dots" aria-hidden="true">
                   <span class="is-active"></span><span></span><span></span>
                 </div>
@@ -2674,12 +2661,140 @@
                   <div class="storii-result-card-footer-row">
                     <p class="storii-result-cashback">
                       <span class="storii-result-cashback-badge" aria-hidden="true">
-                        <span class="storii-result-cashback-num">20</span>
-                        <span class="storii-result-cashback-pct">%</span>
+                        <span class="storii-result-cashback-value">10%</span>
                       </span>
                       <span class="storii-result-cashback-label">cashback</span>
                     </p>
-                    <p class="storii-result-points">2000 pts = ₹2000</p>
+                    <p class="storii-result-points">4500 pts = ₹4500</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <article
+              class="storii-result-card"
+              id="storii-result-sri-panwa"
+              data-anchor="sri-panwa"
+              data-name="Sri Panwa Phuket"
+              data-lat="7.8019"
+              data-lng="98.4108"
+              data-pin-fill="#2aa9ca"
+              data-pin-icon="https://www.figma.com/api/mcp/asset/f4d1f08a-e77c-44ab-a224-629f4e917224"
+            >
+              <div class="storii-result-card-hero">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Relaxing_Poolside%2C_Karon_Beach%2C_Phuket%2C_Thailand.jpg/500px-Relaxing_Poolside%2C_Karon_Beach%2C_Phuket%2C_Thailand.jpg" alt="" decoding="async" loading="lazy">
+                <div class="storii-result-card-dots" aria-hidden="true">
+                  <span class="is-active"></span><span></span><span></span>
+                </div>
+              </div>
+              <div class="storii-result-card-body">
+                <div class="storii-result-card-head">
+                  <div class="storii-result-card-info">
+                    <h2 class="storii-result-card-title">Sri Panwa Phuket</h2>
+                    <p class="storii-result-card-sub">
+                      <span class="star">★ 4.92 (568)</span><span class="sep">•</span><span>Cape Panwa, Phuket</span>
+                    </p>
+                  </div>
+                  <div class="storii-result-card-price">
+                    <span class="storii-result-card-price-amt">₹ 38,500</span>
+                    <span class="storii-result-card-price-unit">Per night</span>
+                  </div>
+                </div>
+                <div class="storii-result-card-footer">
+                  <hr class="storii-result-card-divider" />
+                  <div class="storii-result-card-footer-row">
+                    <p class="storii-result-cashback">
+                      <span class="storii-result-cashback-badge" aria-hidden="true">
+                        <span class="storii-result-cashback-value">10%</span>
+                      </span>
+                      <span class="storii-result-cashback-label">cashback</span>
+                    </p>
+                    <p class="storii-result-points">3850 pts = ₹3850</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <article
+              class="storii-result-card"
+              id="storii-result-nai-harn"
+              data-anchor="nai-harn"
+              data-name="The Nai Harn Phuket"
+              data-lat="7.7782"
+              data-lng="98.3067"
+              data-pin-fill="#2aa9ca"
+              data-pin-icon="https://www.figma.com/api/mcp/asset/f4d1f08a-e77c-44ab-a224-629f4e917224"
+            >
+              <div class="storii-result-card-hero">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Rawai_Beach%2C_Phuket.jpg/500px-Rawai_Beach%2C_Phuket.jpg" alt="" decoding="async" loading="lazy">
+                <div class="storii-result-card-dots" aria-hidden="true">
+                  <span class="is-active"></span><span></span><span></span>
+                </div>
+              </div>
+              <div class="storii-result-card-body">
+                <div class="storii-result-card-head">
+                  <div class="storii-result-card-info">
+                    <h2 class="storii-result-card-title">The Nai Harn Phuket</h2>
+                    <p class="storii-result-card-sub">
+                      <span class="star">★ 4.88 (621)</span><span class="sep">•</span><span>Nai Harn Beach, Phuket</span>
+                    </p>
+                  </div>
+                  <div class="storii-result-card-price">
+                    <span class="storii-result-card-price-amt">₹ 28,500</span>
+                    <span class="storii-result-card-price-unit">Per night</span>
+                  </div>
+                </div>
+                <div class="storii-result-card-footer">
+                  <hr class="storii-result-card-divider" />
+                  <div class="storii-result-card-footer-row">
+                    <p class="storii-result-cashback">
+                      <span class="storii-result-cashback-badge" aria-hidden="true">
+                        <span class="storii-result-cashback-value">10%</span>
+                      </span>
+                      <span class="storii-result-cashback-label">cashback</span>
+                    </p>
+                    <p class="storii-result-points">2850 pts = ₹2850</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <article
+              class="storii-result-card"
+              id="storii-result-layan"
+              data-anchor="layan"
+              data-name="Anantara Layan Phuket"
+              data-lat="8.0362"
+              data-lng="98.2765"
+              data-pin-fill="#2aa9ca"
+              data-pin-icon="https://www.figma.com/api/mcp/asset/f4d1f08a-e77c-44ab-a224-629f4e917224"
+            >
+              <div class="storii-result-card-hero">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Bang_Tao_Beach%2C_Phu_2013.jpg/500px-Bang_Tao_Beach%2C_Phu_2013.jpg" alt="" decoding="async" loading="lazy">
+                <div class="storii-result-card-dots" aria-hidden="true">
+                  <span class="is-active"></span><span></span><span></span>
+                </div>
+              </div>
+              <div class="storii-result-card-body">
+                <div class="storii-result-card-head">
+                  <div class="storii-result-card-info">
+                    <h2 class="storii-result-card-title">Anantara Layan Phuket</h2>
+                    <p class="storii-result-card-sub">
+                      <span class="star">★ 4.91 (504)</span><span class="sep">•</span><span>Bang Tao Bay, Phuket</span>
+                    </p>
+                  </div>
+                  <div class="storii-result-card-price">
+                    <span class="storii-result-card-price-amt">₹ 32,500</span>
+                    <span class="storii-result-card-price-unit">Per night</span>
+                  </div>
+                </div>
+                <div class="storii-result-card-footer">
+                  <hr class="storii-result-card-divider" />
+                  <div class="storii-result-card-footer-row">
+                    <p class="storii-result-cashback">
+                      <span class="storii-result-cashback-badge" aria-hidden="true">
+                        <span class="storii-result-cashback-value">10%</span>
+                      </span>
+                      <span class="storii-result-cashback-label">cashback</span>
+                    </p>
+                    <p class="storii-result-points">3250 pts = ₹3250</p>
                   </div>
                 </div>
               </div>
@@ -2791,7 +2906,7 @@
   <script>
     /** If a /500px-… thumbnail 404s (Commons sometimes prunes sizes), try /960px-… once. */
     (function setupCommonsThumbFallback() {
-      document.querySelectorAll(".deal-card img[src*='upload.wikimedia.org']").forEach((img) => {
+      document.querySelectorAll(".deal-card img[src*='upload.wikimedia.org'], .storii-result-card-hero img[src*='upload.wikimedia.org']").forEach((img) => {
         img.addEventListener("error", () => {
           if (img.dataset.commonsThumbFallback) return;
           const u = img.src;
