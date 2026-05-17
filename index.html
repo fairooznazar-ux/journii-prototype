@@ -2626,7 +2626,7 @@
         <div class="storii-results-cards-scroller results-cards-scroller" id="storii-results-scroller" role="region" aria-label="Search results">
           <div class="storii-results-cards-track" id="storii-results-track">
             <article
-              class="storii-result-card is-active"
+              class="storii-result-card resort-card is-active"
               id="storii-result-amatara"
               data-anchor="amatara"
               data-name="Amatara Phuket"
@@ -2637,9 +2637,9 @@
             >
               <div class="storii-result-card-hero">
                 <div class="storii-result-card-gallery" tabindex="0" aria-label="Property photos">
-                  <div class="storii-result-card-slide"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Phuket_-_Cape_Panwa.jpg/500px-Phuket_-_Cape_Panwa.jpg" alt="" decoding="async" loading="lazy"></div>
-                  <div class="storii-result-card-slide"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Relaxing_Poolside%2C_Karon_Beach%2C_Phuket%2C_Thailand.jpg/500px-Relaxing_Poolside%2C_Karon_Beach%2C_Phuket%2C_Thailand.jpg" alt="" decoding="async" loading="lazy"></div>
-                  <div class="storii-result-card-slide"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Maya_Bay.jpg/500px-Maya_Bay.jpg" alt="" decoding="async" loading="lazy"></div>
+                  <div class="storii-result-card-slide"><img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&q=80" alt="" decoding="async" loading="lazy"></div>
+                  <div class="storii-result-card-slide"><img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800&q=80" alt="" decoding="async" loading="lazy"></div>
+                  <div class="storii-result-card-slide"><img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80" alt="" decoding="async" loading="lazy"></div>
                 </div>
                 <div class="storii-result-card-dots" aria-hidden="true">
                   <button type="button" class="storii-result-card-dot is-active" aria-label="Photo 1"></button>
@@ -2677,7 +2677,7 @@
               </div>
             </article>
             <article
-              class="storii-result-card"
+              class="storii-result-card resort-card"
               id="storii-result-trisara"
               data-anchor="trisara"
               data-name="Trisara Phuket"
@@ -2688,9 +2688,9 @@
             >
               <div class="storii-result-card-hero">
                 <div class="storii-result-card-gallery" tabindex="0" aria-label="Property photos">
-                  <div class="storii-result-card-slide"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Maya_Bay.jpg/500px-Maya_Bay.jpg" alt="" decoding="async" loading="lazy"></div>
-                  <div class="storii-result-card-slide"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Surin_Beach%2C_Phuket%2C_Thailand.jpg/500px-Surin_Beach%2C_Phuket%2C_Thailand.jpg" alt="" decoding="async" loading="lazy"></div>
-                  <div class="storii-result-card-slide"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Bang_Tao_Beach%2C_Phu_2013.jpg/500px-Bang_Tao_Beach%2C_Phu_2013.jpg" alt="" decoding="async" loading="lazy"></div>
+                  <div class="storii-result-card-slide"><img src="https://images.unsplash.com/photo-1540541338537-1220059af4dc?w=800&q=80" alt="" decoding="async" loading="lazy"></div>
+                  <div class="storii-result-card-slide"><img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=800&q=80" alt="" decoding="async" loading="lazy"></div>
+                  <div class="storii-result-card-slide"><img src="https://images.unsplash.com/photo-1563911302283-d2bc129e7570?w=800&q=80" alt="" decoding="async" loading="lazy"></div>
                 </div>
                 <div class="storii-result-card-dots" aria-hidden="true">
                   <button type="button" class="storii-result-card-dot is-active" aria-label="Photo 1"></button>
@@ -2728,7 +2728,7 @@
               </div>
             </article>
             <article
-              class="storii-result-card"
+              class="storii-result-card resort-card"
               id="storii-result-sri-panwa"
               data-anchor="sri-panwa"
               data-name="Sri Panwa Phuket"
@@ -2779,7 +2779,7 @@
               </div>
             </article>
             <article
-              class="storii-result-card"
+              class="storii-result-card resort-card"
               id="storii-result-nai-harn"
               data-anchor="nai-harn"
               data-name="The Nai Harn Phuket"
@@ -2830,7 +2830,7 @@
               </div>
             </article>
             <article
-              class="storii-result-card"
+              class="storii-result-card resort-card"
               id="storii-result-layan"
               data-anchor="layan"
               data-name="Anantara Layan Phuket"
@@ -3011,6 +3011,14 @@
             img.src = COMMONS_FINAL_FALLBACK;
           }
         });
+      });
+    })();
+    (function setupResortCardImageFallback() {
+      document.querySelectorAll(".resort-card img").forEach((img) => {
+        img.onerror = function () {
+          this.style.display = "none";
+          this.parentElement.style.background = "#c8ddd6";
+        };
       });
     })();
 
