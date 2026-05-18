@@ -2206,41 +2206,86 @@
       margin-top: 28px;
     }
     .storii-stay-details-section-label {
-      margin: 0 0 12px;
+      margin: 0 0 16px;
       font-family: "Geist Mono", ui-monospace, monospace;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: rgba(8, 14, 18, 0.45);
-    }
-    .storii-stay-details-vibe-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .storii-stay-details-vibe-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: #fff;
-      border: 0.5px solid rgba(8, 14, 18, 0.08);
-      font-family: "Instrument Sans", system-ui, sans-serif;
       font-size: 12px;
       font-weight: 500;
+      line-height: 12px;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      color: rgba(0, 0, 0, 0.4);
+    }
+    .storii-stay-details-divider {
+      height: 0;
+      border: none;
+      border-top: 1px solid #c7dde2;
+      margin: 28px 0 0;
+      width: 100%;
+    }
+    .storii-stay-details-icon-rail {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      width: 100%;
+    }
+    .storii-stay-details-icon-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 0;
+      width: 60px;
+      flex: 0 0 60px;
+      min-width: 0;
+    }
+    .storii-stay-details-icon-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .storii-stay-details-icon-wrap img {
+      width: 24px;
+      height: 24px;
+      display: block;
+      object-fit: contain;
+    }
+    .storii-stay-details-icon-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      text-align: center;
+    }
+    .storii-stay-details-icon-title {
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: -0.1px;
+      line-height: normal;
+      text-transform: uppercase;
       color: #080e12;
     }
-    .storii-stay-details-vibe-pill i {
-      width: 14px;
-      height: 14px;
+    .storii-stay-details-icon-sub {
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      line-height: 12px;
+      text-transform: lowercase;
+      color: rgba(0, 0, 0, 0.4);
     }
-    .storii-stay-details-when {
+    .storii-stay-details-icon-sub--muted {
+      color: #6e6e6e;
+    }
+    .storii-stay-details-when-season-block {
       padding: 16px;
       border-radius: 12px;
       background: #fff;
       border: 0.5px solid rgba(8, 14, 18, 0.08);
+      margin-bottom: 16px;
     }
     .storii-stay-details-when-season {
       margin: 0;
@@ -2251,129 +2296,292 @@
     }
     .storii-stay-details-when-note {
       margin: 6px 0 0;
+      font-family: "Instrument Sans", system-ui, sans-serif;
       font-size: 13px;
+      font-weight: 400;
       line-height: 1.4;
       color: rgba(8, 14, 18, 0.65);
     }
-    .storii-stay-details-reviews-head {
+    .storii-stay-details-when-cards {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 12px;
+      gap: 16px;
+      width: 100%;
     }
-    .storii-stay-details-reviews-score {
+    .storii-stay-details-when-card {
+      flex: 1 1 0;
+      min-width: 0;
       display: flex;
-      align-items: center;
+      flex-direction: column;
       gap: 8px;
-    }
-    .storii-stay-details-reviews-score strong {
-      font-family: "Unbounded", system-ui, sans-serif;
-      font-size: 28px;
-      font-weight: 600;
-      color: #080e12;
-    }
-    .storii-stay-details-reviews-score span {
-      font-size: 13px;
-      color: rgba(8, 14, 18, 0.55);
-    }
-    .storii-stay-details-review-avatars {
-      display: flex;
-    }
-    .storii-stay-details-review-avatars img {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      border: 2px solid #f1fcff;
-      margin-left: -8px;
-      object-fit: cover;
-    }
-    .storii-stay-details-review-avatars img:first-child {
-      margin-left: 0;
-    }
-    .storii-stay-details-review-card {
-      padding: 14px 16px;
-      border-radius: 12px;
-      background: #fff;
-      border: 0.5px solid rgba(8, 14, 18, 0.08);
-    }
-    .storii-stay-details-review-card p {
-      margin: 0;
-      font-size: 13px;
-      line-height: 1.45;
-      color: rgba(8, 14, 18, 0.8);
-    }
-    .storii-stay-details-review-card cite {
-      display: block;
-      margin-top: 10px;
-      font-size: 12px;
-      font-style: normal;
-      font-weight: 600;
-      color: #080e12;
-    }
-    .storii-stay-details-room {
-      display: flex;
-      gap: 12px;
-      padding: 12px;
-      border-radius: 12px;
-      background: #fff;
-      border: 0.5px solid rgba(8, 14, 18, 0.08);
-    }
-    .storii-stay-details-room-thumb {
-      flex: 0 0 88px;
-      width: 88px;
-      height: 88px;
+      padding: 8px 16px;
       border-radius: 8px;
-      overflow: hidden;
-      background: #c8ddd6;
+      background: #ebf4f8;
     }
-    .storii-stay-details-room-thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .storii-stay-details-room-info h3 {
+    .storii-stay-details-when-card-label {
       margin: 0;
-      font-size: 14px;
-      font-weight: 600;
-      color: #080e12;
-    }
-    .storii-stay-details-room-info p {
-      margin: 4px 0 0;
+      font-family: "Geist Mono", ui-monospace, monospace;
       font-size: 12px;
-      color: rgba(8, 14, 18, 0.55);
+      font-weight: 500;
+      line-height: 12px;
+      text-transform: uppercase;
+      color: rgba(0, 0, 0, 0.4);
     }
-    .storii-stay-details-room-price {
-      margin-top: 8px;
-      font-size: 14px;
+    .storii-stay-details-when-card-label--teal {
+      color: #2aa9ca;
+    }
+    .storii-stay-details-when-card-value {
+      margin: 0;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 16px;
       font-weight: 600;
-      color: #080e12;
+      line-height: normal;
+      text-transform: lowercase;
+      color: #000;
     }
-    .storii-stay-details-map-wrap {
-      border-radius: 12px;
-      overflow: hidden;
-      border: 0.5px solid rgba(8, 14, 18, 0.08);
-      background: #fff;
-    }
-    .storii-stay-details-map-wrap img {
-      width: 100%;
-      display: block;
-    }
-    .storii-stay-details-nbhd {
-      margin-top: 12px;
+    .storii-stay-details-tags {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
+      margin-bottom: 20px;
     }
-    .storii-stay-details-nbhd-pill {
+    .storii-stay-details-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 6px;
+      border-radius: 20px;
+      background: #ecf6ff;
+      border: 1px solid #c7dde2;
+      font-family: "Instrument Sans", system-ui, sans-serif;
       font-size: 12px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: #fff;
-      border: 0.5px solid rgba(8, 14, 18, 0.08);
-      color: rgba(8, 14, 18, 0.75);
+      font-weight: 400;
+      line-height: normal;
+      text-transform: lowercase;
+      color: #080e12;
+      white-space: nowrap;
     }
-    .storii-result-card.result-card,
+    .storii-stay-details-reviews-scroller {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -16px;
+      padding: 0 16px 4px;
+      scroll-snap-type: x proximity;
+    }
+    .storii-stay-details-review-card {
+      flex: 0 0 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 20px 16px;
+      border-radius: 8px;
+      background: #ebf4f8;
+      border: none;
+      margin: 0;
+    }
+    .storii-stay-details-review-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .storii-stay-details-review-head img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .storii-stay-details-review-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .storii-stay-details-review-name {
+      margin: 0;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: normal;
+      text-transform: capitalize;
+      color: #080e12;
+    }
+    .storii-stay-details-review-stars {
+      margin: 0;
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: -0.1px;
+      text-transform: uppercase;
+      color: #6e6e6e;
+    }
+    .storii-stay-details-review-card p {
+      margin: 0;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: normal;
+      text-transform: capitalize;
+      color: #000;
+    }
+    .storii-stay-details-rooms-scroller {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -16px;
+      padding: 0 16px 4px;
+      scroll-snap-type: x proximity;
+    }
+    .storii-stay-details-room-card {
+      flex: 0 0 360px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px 12px 24px;
+      border-radius: 12px;
+      border: 2px solid #2aa9ca;
+      background: #fff;
+      scroll-snap-align: start;
+    }
+    .storii-stay-details-room-card--alt {
+      border-color: #c7dde2;
+    }
+    .storii-stay-details-room-card-title {
+      margin: 0;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: normal;
+      text-align: center;
+      text-transform: capitalize;
+      color: #080e12;
+    }
+    .storii-stay-details-room-hero {
+      position: relative;
+      width: 100%;
+      height: 260px;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #c8ddd6;
+    }
+    .storii-stay-details-room-hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .storii-stay-details-room-hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 6px;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 30.19%);
+      pointer-events: none;
+    }
+    .storii-stay-details-room-hero-dots {
+      position: absolute;
+      left: 50%;
+      bottom: 12px;
+      transform: translateX(-50%);
+      width: 38px;
+      height: 14px;
+      z-index: 1;
+    }
+    .storii-stay-details-room-hero-dots img {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .storii-stay-details-room-amenities {
+      padding: 0 4px;
+    }
+    .storii-stay-details-room-footer {
+      position: relative;
+      min-height: 56px;
+      padding: 0 4px;
+    }
+    .storii-stay-details-room-prices {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding-top: 12px;
+    }
+    .storii-stay-details-room-price-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: normal;
+    }
+    .storii-stay-details-room-price-row strong {
+      font-weight: 500;
+      color: #080e12;
+    }
+    .storii-stay-details-room-price-row s {
+      color: #6e6e6e;
+      text-decoration: line-through;
+      font-weight: 500;
+    }
+    .storii-stay-details-room-dates {
+      margin: 0;
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: -0.1px;
+      text-transform: uppercase;
+      color: #6e6e6e;
+    }
+    .storii-stay-details-room-cta {
+      position: absolute;
+      right: 0;
+      top: 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      height: 35px;
+      padding: 0 12px 0 22px;
+      border-radius: 32px;
+      border: 1px solid #2aa9ca;
+      background: rgba(255, 255, 255, 0.7);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: normal;
+      text-transform: capitalize;
+      color: #2aa9ca;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .storii-stay-details-room-cta img {
+      width: 20px;
+      height: 20px;
+      display: block;
+    }
+    .storii-stay-details-map-wrap {
+      width: 100%;
+      height: 180px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #269cbf;
+    }
+    .storii-stay-details-map-wrap img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      object-position: center;
+    }
+    .storii-stay-details-nbhd .storii-stay-details-icon-rail {
+      margin-bottom: 26px;
+    }
+    .storii-result-card.result-card,    .storii-result-card.result-card,
     .deal-card,
     .result-card {
       cursor: pointer;
@@ -3258,64 +3466,227 @@
           <p class="storii-stay-details-desc" id="storii-stay-details-desc">Perched on a lush hillside overlooking the scenic Cape Panwa, Amatara blends Thai heritage with contemporary wellness. Expect cliffside pools, holistic spa rituals, and sunset dinners framed by the Andaman Sea.</p>
 
           <section class="storii-stay-details-section" aria-labelledby="storii-stay-vibe-label">
-            <h2 class="storii-stay-details-section-label" id="storii-stay-vibe-label">The vibe</h2>
-            <div class="storii-stay-details-vibe-row">
-              <span class="storii-stay-details-vibe-pill"><i data-lucide="waves"></i> Beachfront</span>
-              <span class="storii-stay-details-vibe-pill"><i data-lucide="sparkles"></i> Wellness</span>
-              <span class="storii-stay-details-vibe-pill"><i data-lucide="utensils"></i> Fine dining</span>
-              <span class="storii-stay-details-vibe-pill"><i data-lucide="sun"></i> Sunset views</span>
+            <h2 class="storii-stay-details-section-label" id="storii-stay-vibe-label">THE VIBE</h2>
+            <div class="storii-stay-details-icon-rail" role="list">
+              <div class="storii-stay-details-icon-cell">
+                <span class="storii-stay-details-icon-wrap"><img src="https://www.figma.com/api/mcp/asset/99887c4a-e453-43ca-a9d3-cc0a97da7c40" alt="" width="24" height="24" decoding="async"></span>
+                <span class="storii-stay-details-icon-label">
+                  <span class="storii-stay-details-icon-title">SUNNY</span>
+                  <span class="storii-stay-details-icon-sub">weather</span>
+                </span>
+              </div>
+              <div class="storii-stay-details-icon-cell">
+                <span class="storii-stay-details-icon-wrap"><img src="https://www.figma.com/api/mcp/asset/3b8c7b77-e489-4ab3-884c-5e15ab615a2b" alt="" width="24" height="24" decoding="async"></span>
+                <span class="storii-stay-details-icon-label">
+                  <span class="storii-stay-details-icon-title">BEACHFRONT</span>
+                  <span class="storii-stay-details-icon-sub">resort</span>
+                </span>
+              </div>
+              <div class="storii-stay-details-icon-cell">
+                <span class="storii-stay-details-icon-wrap"><img src="https://www.figma.com/api/mcp/asset/0f9a75f7-1f00-4713-acf8-787f3e077629" alt="" width="24" height="24" decoding="async"></span>
+                <span class="storii-stay-details-icon-label">
+                  <span class="storii-stay-details-icon-title">AYURVEDIC</span>
+                  <span class="storii-stay-details-icon-sub">spa</span>
+                </span>
+              </div>
+              <div class="storii-stay-details-icon-cell">
+                <span class="storii-stay-details-icon-wrap"><img src="https://www.figma.com/api/mcp/asset/945591b5-093a-45e6-b0d6-5e64bb6f0ae2" alt="" width="24" height="24" decoding="async"></span>
+                <span class="storii-stay-details-icon-label">
+                  <span class="storii-stay-details-icon-title">COUPLES</span>
+                  <span class="storii-stay-details-icon-sub">preferred</span>
+                </span>
+              </div>
             </div>
           </section>
 
+          <hr class="storii-stay-details-divider" aria-hidden="true">
+
           <section class="storii-stay-details-section" aria-labelledby="storii-stay-when-label">
-            <h2 class="storii-stay-details-section-label" id="storii-stay-when-label">When to go</h2>
-            <div class="storii-stay-details-when">
+            <h2 class="storii-stay-details-section-label" id="storii-stay-when-label">WHEN TO GO</h2>
+            <div class="storii-stay-details-when-season-block">
               <p class="storii-stay-details-when-season">NOV – FEB</p>
               <p class="storii-stay-details-when-note">Dry season with calm seas and cooler evenings — ideal for pool villas and island-hopping day trips.</p>
             </div>
+            <div class="storii-stay-details-when-cards">
+              <div class="storii-stay-details-when-card">
+                <p class="storii-stay-details-when-card-label">Available from</p>
+                <p class="storii-stay-details-when-card-value">11-14 jan</p>
+              </div>
+              <div class="storii-stay-details-when-card">
+                <p class="storii-stay-details-when-card-label storii-stay-details-when-card-label--teal">Cheaper from</p>
+                <p class="storii-stay-details-when-card-value">1-3 feb</p>
+              </div>
+            </div>
           </section>
+
+          <hr class="storii-stay-details-divider" aria-hidden="true">
 
           <section class="storii-stay-details-section" aria-labelledby="storii-stay-reviews-label">
-            <h2 class="storii-stay-details-section-label" id="storii-stay-reviews-label">Reviews</h2>
-            <div class="storii-stay-details-reviews-head">
-              <div class="storii-stay-details-reviews-score">
-                <strong>4.89</strong>
-                <span>739 reviews</span>
-              </div>
-              <div class="storii-stay-details-review-avatars" aria-hidden="true">
-                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&fit=crop&q=80" alt="">
-                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&q=80" alt="">
-              </div>
+            <h2 class="storii-stay-details-section-label" id="storii-stay-reviews-label">WHAT GUESTS SAY</h2>
+            <div class="storii-stay-details-tags">
+              <span class="storii-stay-details-tag">beautiful view</span>
+              <span class="storii-stay-details-tag">great hospitality</span>
+              <span class="storii-stay-details-tag">brilliant spa massage</span>
             </div>
-            <blockquote class="storii-stay-details-review-card">
-              <p>“Stunning views from every corner. The spa and breakfast spread were highlights — felt completely removed from the city.”</p>
-              <cite>— Priya, stayed Mar 2025</cite>
-            </blockquote>
+            <div class="storii-stay-details-reviews-scroller" role="list">
+              <blockquote class="storii-stay-details-review-card" role="listitem">
+                <div class="storii-stay-details-review-head">
+                  <img src="https://www.figma.com/api/mcp/asset/dedbb9d8-48cd-49bb-b9d3-1a74ccdfbb6f" alt="" width="32" height="32" decoding="async">
+                  <div class="storii-stay-details-review-meta">
+                    <p class="storii-stay-details-review-name">Sakshi</p>
+                    <p class="storii-stay-details-review-stars" aria-label="5 out of 5 stars">★★★★★</p>
+                  </div>
+                </div>
+                <p>Very nice hotel with very happy with all, definitely recommend! and julian in reception is just amazing! thank you!</p>
+              </blockquote>
+              <blockquote class="storii-stay-details-review-card" role="listitem">
+                <div class="storii-stay-details-review-head">
+                  <img src="https://www.figma.com/api/mcp/asset/fe0ad8b0-53a8-419f-8d1c-03acab2e4fd6" alt="" width="32" height="32" decoding="async">
+                  <div class="storii-stay-details-review-meta">
+                    <p class="storii-stay-details-review-name">Rohini</p>
+                    <p class="storii-stay-details-review-stars" aria-label="5 out of 5 stars">★★★★★</p>
+                  </div>
+                </div>
+                <p>Pleasant stay at the beautiful resort. I would definitely return for the spa and the breakfast spread</p>
+              </blockquote>
+            </div>
           </section>
+
+          <hr class="storii-stay-details-divider" aria-hidden="true">
 
           <section class="storii-stay-details-section" aria-labelledby="storii-stay-rooms-label">
-            <h2 class="storii-stay-details-section-label" id="storii-stay-rooms-label">The rooms</h2>
-            <article class="storii-stay-details-room">
-              <div class="storii-stay-details-room-thumb">
-                <img id="storii-stay-details-room-img" src="https://images.unsplash.com/photo-1582719508461-905c673771fd?w=400&q=80" alt="" decoding="async">
+            <h2 class="storii-stay-details-section-label" id="storii-stay-rooms-label">THE ROOMS</h2>
+            <div class="storii-stay-details-rooms-scroller" role="list">
+              <article class="storii-stay-details-room-card storii-stay-details-room-card--primary" role="listitem">
+                <h3 class="storii-stay-details-room-card-title">Pool villa</h3>
+                <div class="storii-stay-details-room-hero">
+                  <img class="storii-stay-details-room-hero-img" src="https://www.figma.com/api/mcp/asset/171d163b-4792-4108-986b-8f0a505767e8" alt="" decoding="async">
+                  <div class="storii-stay-details-room-hero-dots" aria-hidden="true">
+                    <img src="https://www.figma.com/api/mcp/asset/a19b3c97-9780-4007-9cf7-b79fc64b7894" alt="">
+                  </div>
+                </div>
+                <div class="storii-stay-details-room-amenities storii-stay-details-icon-rail">
+              <div class="storii-stay-details-icon-cell">
+                <span class="storii-stay-details-icon-wrap"><img src="https://www.figma.com/api/mcp/asset/fbbbe6d2-04fe-4d2c-923f-52a294508269" alt="" width="24" height="24" decoding="async"></span>
+                <span class="storii-stay-details-icon-label">
+                  <span class="storii-stay-details-icon-title">BREAKFAST</span>
+                  <span class="storii-stay-details-icon-sub storii-stay-details-icon-sub--muted">included</span>
+                </span>
               </div>
-              <div class="storii-stay-details-room-info">
-                <h3>Ocean View Pool Villa</h3>
-                <p>1 king bed · 120 m² · Private pool</p>
-                <p class="storii-stay-details-room-price" id="storii-stay-details-room-price">₹ 20,000 / night</p>
+              <div class="storii-stay-details-icon-cell">
+                <span class="storii-stay-details-icon-wrap"><img src="https://www.figma.com/api/mcp/asset/3b8c7b77-e489-4ab3-884c-5e15ab615a2b" alt="" width="24" height="24" decoding="async"></span>
+                <span class="storii-stay-details-icon-label">
+                  <span class="storii-stay-details-icon-title">BAY</span>
+                  <span class="storii-stay-details-icon-sub storii-stay-details-icon-sub--muted">view</span>
+                </span>
               </div>
-            </article>
+              <div class="storii-stay-details-icon-cell">
+                <span class="storii-stay-details-icon-wrap"><img src="https://www.figma.com/api/mcp/asset/acc4456d-a57c-4401-a706-cc33bb12c01d" alt="" width="24" height="24" decoding="async"></span>
+                <span class="storii-stay-details-icon-label">
+                  <span class="storii-stay-details-icon-title">FREE</span>
+                  <span class="storii-stay-details-icon-sub storii-stay-details-icon-sub--muted">cancellation</span>
+                </span>
+              </div>
+              <div class="storii-stay-details-icon-cell">
+                <span class="storii-stay-details-icon-wrap"><img src="https://www.figma.com/api/mcp/asset/930e99ce-7652-46be-8420-52c726952358" alt="" width="24" height="24" decoding="async"></span>
+                <span class="storii-stay-details-icon-label">
+                  <span class="storii-stay-details-icon-title">SPACIOUS</span>
+                  <span class="storii-stay-details-icon-sub storii-stay-details-icon-sub--muted">25 sqm</span>
+                </span>
+              </div>
+                </div>
+                <div class="storii-stay-details-room-footer">
+                  <div class="storii-stay-details-room-prices">
+                    <div class="storii-stay-details-room-price-row" id="storii-stay-details-room-price">
+                      <strong>₹56,700</strong>
+                      <s>₹63,000</s>
+                    </div>
+                    <p class="storii-stay-details-room-dates">5-7 feb</p>
+                  </div>
+                  <button type="button" class="storii-stay-details-room-cta">
+                    1 Room
+                    <img src="https://www.figma.com/api/mcp/asset/d284b8a2-1f16-40a1-82b2-60d82807e394" alt="" width="20" height="20" decoding="async">
+                  </button>
+                </div>
+              </article>
+              <article class="storii-stay-details-room-card storii-stay-details-room-card--alt" role="listitem">
+                <h3 class="storii-stay-details-room-card-title">Pool villa</h3>
+                <div class="storii-stay-details-room-hero">
+                  <img src="https://www.figma.com/api/mcp/asset/171d163b-4792-4108-986b-8f0a505767e8" alt="" decoding="async">
+                  <div class="storii-stay-details-room-hero-dots" aria-hidden="true">
+                    <img src="https://www.figma.com/api/mcp/asset/a19b3c97-9780-4007-9cf7-b79fc64b7894" alt="">
+                  </div>
+                </div>
+                <div class="storii-stay-details-room-amenities storii-stay-details-icon-rail">
+              <div class="storii-stay-details-icon-cell">
+                <span class="storii-stay-details-icon-wrap"><img src="https://www.figma.com/api/mcp/asset/99887c4a-e453-43ca-a9d3-cc0a97da7c40" alt="" width="24" height="24" decoding="async"></span>
+                <span class="storii-stay-details-icon-label">
+                  <span class="storii-stay-details-icon-title">SUNRISE</span>
+                  <span class="storii-stay-details-icon-sub storii-stay-details-icon-sub--muted">view</span>
+                </span>
+              </div>
+              <div class="storii-stay-details-icon-cell">
+                <span class="storii-stay-details-icon-wrap"><img src="https://www.figma.com/api/mcp/asset/3b8c7b77-e489-4ab3-884c-5e15ab615a2b" alt="" width="24" height="24" decoding="async"></span>
+                <span class="storii-stay-details-icon-label">
+                  <span class="storii-stay-details-icon-title">BAY</span>
+                  <span class="storii-stay-details-icon-sub storii-stay-details-icon-sub--muted">view</span>
+                </span>
+              </div>
+              <div class="storii-stay-details-icon-cell">
+                <span class="storii-stay-details-icon-wrap"><img src="https://www.figma.com/api/mcp/asset/aaaf33a8-81e9-4864-8526-c692937eb9bb" alt="" width="24" height="24" decoding="async"></span>
+                <span class="storii-stay-details-icon-label">
+                  <span class="storii-stay-details-icon-title">BATHTUB</span>
+                  <span class="storii-stay-details-icon-sub storii-stay-details-icon-sub--muted">indoor</span>
+                </span>
+              </div>
+              <div class="storii-stay-details-icon-cell">
+                <span class="storii-stay-details-icon-wrap"><img src="https://www.figma.com/api/mcp/asset/cfdf6440-6e3f-45be-b886-a915738b604a" alt="" width="24" height="24" decoding="async"></span>
+                <span class="storii-stay-details-icon-label">
+                  <span class="storii-stay-details-icon-title">PRIVATE</span>
+                  <span class="storii-stay-details-icon-sub storii-stay-details-icon-sub--muted">space</span>
+                </span>
+              </div>
+                </div>
+              </article>
+            </div>
           </section>
 
-          <section class="storii-stay-details-section" aria-labelledby="storii-stay-nbhd-label">
-            <h2 class="storii-stay-details-section-label" id="storii-stay-nbhd-label">Neighbourhood</h2>
-            <div class="storii-stay-details-map-wrap">
-              <img src="https://images.unsplash.com/photo-1552465011-b85e21e08ad7?w=800&q=60" alt="Map preview of Cape Panwa area" loading="lazy" decoding="async">
+          <hr class="storii-stay-details-divider" aria-hidden="true">
+
+          <section class="storii-stay-details-section storii-stay-details-nbhd" aria-labelledby="storii-stay-nbhd-label">
+            <h2 class="storii-stay-details-section-label" id="storii-stay-nbhd-label">The neighbourhood</h2>
+            <div class="storii-stay-details-icon-rail" role="list">
+              <div class="storii-stay-details-icon-cell">
+                <span class="storii-stay-details-icon-wrap"><img src="https://www.figma.com/api/mcp/asset/8e76aab5-90bf-4ad2-b237-ed7212174f3e" alt="" width="24" height="24" decoding="async"></span>
+                <span class="storii-stay-details-icon-label">
+                  <span class="storii-stay-details-icon-title">30 mins</span>
+                  <span class="storii-stay-details-icon-sub">to town</span>
+                </span>
+              </div>
+              <div class="storii-stay-details-icon-cell">
+                <span class="storii-stay-details-icon-wrap"><img src="https://www.figma.com/api/mcp/asset/e0dfe1a3-2f04-4aea-9732-e3971f304826" alt="" width="24" height="24" decoding="async"></span>
+                <span class="storii-stay-details-icon-label">
+                  <span class="storii-stay-details-icon-title">RESTAURANTS</span>
+                  <span class="storii-stay-details-icon-sub">nearby</span>
+                </span>
+              </div>
+              <div class="storii-stay-details-icon-cell">
+                <span class="storii-stay-details-icon-wrap"><img src="https://www.figma.com/api/mcp/asset/1289e8bf-c2ac-47c6-bc67-f5da1f13af52" alt="" width="24" height="24" decoding="async"></span>
+                <span class="storii-stay-details-icon-label">
+                  <span class="storii-stay-details-icon-title">TAXIS</span>
+                  <span class="storii-stay-details-icon-sub">around</span>
+                </span>
+              </div>
+              <div class="storii-stay-details-icon-cell">
+                <span class="storii-stay-details-icon-wrap"><img src="https://www.figma.com/api/mcp/asset/333f45f1-d8c8-47dc-a6cc-c450f9bffe37" alt="" width="24" height="24" decoding="async"></span>
+                <span class="storii-stay-details-icon-label">
+                  <span class="storii-stay-details-icon-title">WALKABLE</span>
+                  <span class="storii-stay-details-icon-sub">area</span>
+                </span>
+              </div>
             </div>
-            <div class="storii-stay-details-nbhd">
-              <span class="storii-stay-details-nbhd-pill">Cape Panwa</span>
-              <span class="storii-stay-details-nbhd-pill">25 min to Patong</span>
-              <span class="storii-stay-details-nbhd-pill">Phuket Intl. 45 min</span>
+            <div class="storii-stay-details-map-wrap">
+              <img src="https://www.figma.com/api/mcp/asset/68dcb1f3-a24b-43bf-b996-fb416b343c60" alt="Map showing resort location near Phuket Town" loading="lazy" decoding="async">
             </div>
           </section>
         </div>
@@ -3919,7 +4290,6 @@
       const subEl = document.getElementById("storii-stay-details-sub");
       const descEl = document.getElementById("storii-stay-details-desc");
       const heroImg = document.getElementById("storii-stay-details-hero-img");
-      const roomImg = document.getElementById("storii-stay-details-room-img");
       const roomPriceEl = document.getElementById("storii-stay-details-room-price");
       const locationEl = document.getElementById("storii-stay-details-location");
 
@@ -3987,8 +4357,12 @@
         const hero = firstHeroSrc(card);
         if (hero && heroImg) heroImg.src = hero;
         const room = secondHeroSrc(card) || hero;
-        if (room && roomImg) roomImg.src = room;
-        if (roomPriceEl && price) roomPriceEl.textContent = price + " / night";
+        const roomHeroImg = root.querySelector(".storii-stay-details-room-card--primary .storii-stay-details-room-hero-img");
+        if (room && roomHeroImg) roomHeroImg.src = room;
+        if (roomPriceEl && price) {
+          const strong = roomPriceEl.querySelector("strong");
+          if (strong) strong.textContent = price.replace(/\s/g, "");
+        }
       }
 
       function openStayDetails(card) {
