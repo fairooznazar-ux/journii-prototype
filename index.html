@@ -2050,7 +2050,7 @@
       z-index: 1200;
       display: flex;
       flex-direction: column;
-      background: #f1fcff;
+      background: #fafeff;
       pointer-events: none;
       visibility: hidden;
       transform: translateY(100%);
@@ -2174,25 +2174,19 @@
     .storii-stay-details-main {
       padding: 20px 16px 32px;
     }
+    .storii-stay-details-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
     .storii-stay-details-title {
       margin: 0;
-      font-family: "Unbounded", system-ui, sans-serif;
-      font-size: 22px;
-      font-weight: 600;
-      line-height: 1.2;
-      color: #080e12;
-      letter-spacing: -0.02em;
-    }
-    .storii-stay-details-sub {
-      margin: 8px 0 0;
       font-family: "Instrument Sans", system-ui, sans-serif;
-      font-size: 13px;
-      font-weight: 400;
-      color: rgba(8, 14, 18, 0.65);
-    }
-    .storii-stay-details-sub .star {
+      font-size: 20px;
+      font-weight: 600;
+      line-height: normal;
       color: #080e12;
-      font-weight: 500;
+      text-transform: capitalize;
     }
     .storii-stay-details-desc {
       margin: 16px 0 0;
@@ -2431,8 +2425,8 @@
       overflow-x: auto;
       overflow-y: hidden;
       -webkit-overflow-scrolling: touch;
-      margin: 0 -16px;
-      padding: 0 16px 4px;
+      margin: 0;
+      padding: 0 0 4px;
       scroll-snap-type: x proximity;
     }
     .storii-stay-details-room-card {
@@ -3461,8 +3455,12 @@
           </div>
         </div>
         <div class="storii-stay-details-main">
-          <h1 class="storii-stay-details-title" id="storii-stay-details-title">Amatara Phuket</h1>
-          <p class="storii-stay-details-sub" id="storii-stay-details-sub"><span class="star">★ 4.89 (739)</span><span class="sep"> · </span><span id="storii-stay-details-location">Panwa Bay, Phuket</span></p>
+          <div class="storii-stay-details-title-block">
+            <h1 class="storii-stay-details-title" id="storii-stay-details-title">Amatara Phuket</h1>
+            <p class="storii-result-card-sub" id="storii-stay-details-sub">
+              <span class="star">★ 4.89 (739)</span><span class="sep">•</span><span id="storii-stay-details-location">Panwa Bay, Phuket</span>
+            </p>
+          </div>
           <p class="storii-stay-details-desc" id="storii-stay-details-desc">Perched on a lush hillside overlooking the scenic Cape Panwa, Amatara blends Thai heritage with contemporary wellness. Expect cliffside pools, holistic spa rituals, and sunset dinners framed by the Andaman Sea.</p>
 
           <section class="storii-stay-details-section" aria-labelledby="storii-stay-vibe-label">
