@@ -2880,6 +2880,7 @@
     }
   </style>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="onboarding.css">
 </head>
 <body>
   <div class="phone">
@@ -3787,8 +3788,180 @@
       </ul>
     </div>
 
+    <div id="journii-onboarding" class="journii-onboarding" hidden aria-hidden="true">
+      <div class="onb-layer onb-auth is-active" data-onb="auth">
+        <div class="onb-auth-bg">
+          <video class="onb-video" src="assets/onboarding/edge-bali.mp4" autoplay muted loop playsinline aria-hidden="true"></video>
+          <div class="onb-auth-overlay" aria-hidden="true"></div>
+        </div>
+        <div class="onb-auth-top">
+          <p class="onb-wordmark">JOURNII</p>
+          <h1 class="onb-headline">Supercharge Your Existing<br>Credit Card With Rewards</h1>
+          <div class="onb-cashback">
+            <div class="onb-cashback-col">
+              <div class="onb-cashback-pct"><span class="onb-cashback-num">10</span><span class="onb-cashback-sym">%</span></div>
+              <span class="onb-cashback-label">cashback on</span>
+              <span class="onb-cashback-cat">STAYS</span>
+            </div>
+            <div class="onb-cashback-divider" aria-hidden="true"></div>
+            <div class="onb-cashback-col">
+              <div class="onb-cashback-pct"><span class="onb-cashback-num">5</span><span class="onb-cashback-sym">%</span></div>
+              <span class="onb-cashback-label">cashback on</span>
+              <span class="onb-cashback-cat">FLIGHTS</span>
+            </div>
+          </div>
+        </div>
+        <div class="onb-auth-bottom">
+          <div class="onb-panel is-active" data-onb-panel="phone">
+            <div class="onb-phone-row">
+              <div class="onb-phone-field">
+                <span class="onb-phone-prefix">+91</span>
+                <input type="tel" class="onb-phone-input" id="onb-phone-input" placeholder="Enter Mobile Number" inputmode="numeric" autocomplete="tel" maxlength="10" aria-label="Mobile number">
+              </div>
+              <button type="button" class="onb-arrow-btn onb-phone-arrow" disabled aria-label="Continue">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+            <p class="onb-footnote">1 POINT = ₹1 · ZERO CONVENIENCE FEES</p>
+          </div>
+          <div class="onb-panel" data-onb-panel="otp">
+            <p class="onb-otp-sent">OTP Sent To + <span id="onb-otp-phone">91 00000 0000</span> <button type="button" class="onb-otp-edit" id="onb-otp-edit">Edit</button></p>
+            <div class="onb-otp-row">
+              <div class="onb-otp-boxes" aria-hidden="true">
+                <div class="onb-otp-box is-active"></div>
+                <div class="onb-otp-box"></div>
+                <div class="onb-otp-box"></div>
+                <div class="onb-otp-box"></div>
+              </div>
+              <input type="tel" class="onb-otp-hidden" id="onb-otp-hidden" inputmode="numeric" maxlength="4" autocomplete="one-time-code" aria-label="One-time password">
+              <button type="button" class="onb-arrow-btn" id="onb-otp-arrow" disabled aria-label="Verify OTP">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="onb-keyboard" aria-hidden="true">
+            <div class="onb-kb-row">
+              <button type="button" class="onb-kb-key" data-digit="1">1</button>
+              <button type="button" class="onb-kb-key" data-digit="2">2</button>
+              <button type="button" class="onb-kb-key" data-digit="3">3</button>
+            </div>
+            <div class="onb-kb-row">
+              <button type="button" class="onb-kb-key" data-digit="4">4</button>
+              <button type="button" class="onb-kb-key" data-digit="5">5</button>
+              <button type="button" class="onb-kb-key" data-digit="6">6</button>
+            </div>
+            <div class="onb-kb-row">
+              <button type="button" class="onb-kb-key" data-digit="7">7</button>
+              <button type="button" class="onb-kb-key" data-digit="8">8</button>
+              <button type="button" class="onb-kb-key" data-digit="9">9</button>
+            </div>
+            <div class="onb-kb-row">
+              <button type="button" class="onb-kb-key onb-kb-key--wide" data-action="done">Done</button>
+              <button type="button" class="onb-kb-key" data-digit="0">0</button>
+              <button type="button" class="onb-kb-key onb-kb-key--action" data-action="back" aria-label="Delete">⌫</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="onb-layer onb-club" data-onb="club">
+        <button type="button" class="onb-club-close" id="onb-club-close" aria-label="Skip">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <div class="onb-club-scroll">
+          <p class="onb-club-eyebrow">ONE TIME OFFER</p>
+          <div class="onb-club-hero-pct"><span class="onb-club-100">100</span><span class="onb-club-pct-sym">%</span></div>
+          <p class="onb-club-cashback-word">Cashback</p>
+          <div class="onb-club-card">
+            <img src="https://www.figma.com/api/mcp/asset/e643cddc-ebb7-4627-bf6e-f508408da4e4" alt="" decoding="async">
+            <div class="onb-club-card-label"><span class="journii">JOURNII</span><span class="club">CLUB</span></div>
+          </div>
+          <div class="onb-pricing">
+            <span class="onb-pricing-badge">Save 100%</span>
+            <div class="onb-pricing-row">
+              <div class="onb-pricing-col">
+                <span class="onb-pricing-main">Yearly ₹999</span>
+                <span class="onb-pricing-sub">₹83/month</span>
+              </div>
+              <div class="onb-pricing-col onb-pricing-col--right">
+                <span class="onb-pricing-main">Earn ₹999</span>
+                <span class="onb-pricing-sub">Cashback</span>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="onb-btn-primary" id="onb-club-join">Join Journii Club</button>
+          <p class="onb-club-tagline">Save ₹20,000 per year<br>with Journii Club</p>
+          <p class="onb-club-section-title">Book your flights and stays from the<br>Journii app and earn cashback on each booking</p>
+          <div class="onb-perks">
+            <div class="onb-perk"><span class="onb-perk-pct">5<small>%</small></span><span class="onb-perk-label">flights</span></div>
+            <div class="onb-perk"><span class="onb-perk-pct">10<small>%</small></span><span class="onb-perk-label">stays</span></div>
+            <div class="onb-perk"><span class="onb-perk-pct">15<small>%</small></span><span class="onb-perk-label">last minute</span></div>
+          </div>
+          <p class="onb-receipt-title">HERE'S HOW MUCH PRABH AND HIS FAMILY<br>SAVED LAST YEAR</p>
+          <div class="onb-receipt">
+            <div class="onb-receipt-line"><span>10 nights in Thailand</span><strong>₹8,000 back</strong></div>
+            <div class="onb-receipt-line"><span>Return flight to Thailand</span><strong>₹2,000 back</strong></div>
+            <div class="onb-receipt-line"><span>3 weekend trips in India</span><strong>₹7,500 back</strong></div>
+            <div class="onb-receipt-line"><span>Domestic flights in India</span><strong>₹2,500 back</strong></div>
+            <hr class="onb-receipt-hr">
+            <div class="onb-receipt-line onb-receipt-total"><span>Total savings</span><strong>₹20,000</strong></div>
+            <div class="onb-receipt-line"><span>Journii membership fees</span><strong>₹999</strong></div>
+            <div class="onb-receipt-line"><span>Joining cashback</span><strong>-₹999</strong></div>
+            <hr class="onb-receipt-hr">
+            <div class="onb-receipt-line onb-receipt-total"><span>Net savings per year</span><strong>₹20,000</strong></div>
+          </div>
+          <div class="onb-polaroids" aria-hidden="true">
+            <div class="polaroid p1"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Maya_Bay.jpg/500px-Maya_Bay.jpg" alt="" decoding="async"></div>
+            <div class="polaroid p2"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Patong_Beach.jpg/500px-Patong_Beach.jpg" alt="" decoding="async"></div>
+          </div>
+          <p class="onb-club-cards-note">Works on top of your existing<br>credit card rewards —<br>HDFC, Axis, Amex, SBI and more.</p>
+        </div>
+      </div>
+      <div class="onb-layer onb-payment" data-onb="payment">
+        <div class="onb-pay-scroll">
+          <button type="button" class="onb-pay-back" id="onb-pay-back">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Complete Your Membership
+          </button>
+          <h2 class="onb-pay-title">JOURNII CLUB</h2>
+          <p class="onb-pay-sub">₹999/year · ₹83/month</p>
+          <div class="onb-pay-highlight">
+            <p class="onb-pay-highlight-label">YOUR FIRST YEAR IS FREE</p>
+            <p>₹999 joining cashback applied<br>You pay ₹999, earn ₹999 back</p>
+          </div>
+          <p class="onb-field-label">Pay with UPI</p>
+          <div class="onb-upi-row">
+            <input type="text" class="onb-field" placeholder="yourname@upi" autocomplete="off">
+            <button type="button" class="onb-verify-btn">Verify</button>
+          </div>
+          <p class="onb-or">—— OR ——</p>
+          <p class="onb-field-label">Pay with card</p>
+          <input type="text" class="onb-field" placeholder="Card number" inputmode="numeric" autocomplete="cc-number">
+          <div class="onb-field-row">
+            <input type="text" class="onb-field" placeholder="MM / YY" inputmode="numeric" autocomplete="cc-exp">
+            <input type="text" class="onb-field" placeholder="CVV" inputmode="numeric" autocomplete="cc-csc">
+          </div>
+          <input type="text" class="onb-field" placeholder="Name on card" autocomplete="cc-name">
+        </div>
+        <div class="onb-pay-footer">
+          <button type="button" class="onb-btn-primary" id="onb-pay-submit">Pay ₹999</button>
+          <p class="onb-secured">🔒 Secured by Razorpay</p>
+        </div>
+      </div>
+      <div class="onb-layer onb-success" data-onb="success">
+        <div class="onb-success-inner">
+          <div class="onb-check-wrap" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h2>Welcome to Journii Club 🎉</h2>
+          <p>Your ₹999 cashback will be<br>credited after your first booking</p>
+          <button type="button" class="onb-btn-primary" id="onb-success-go">Go explore stays →</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
+  <script src="onboarding.js"></script>
   <script>
     /** If a /500px-… thumbnail 404s (Commons sometimes prunes sizes), try /960px-… once. */
     (function setupCommonsThumbFallback() {
