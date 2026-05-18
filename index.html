@@ -16,26 +16,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;500;600;700&family=Instrument+Sans:wght@400;500;600;700&family=Geist+Mono:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --storii-search-border: linear-gradient(
-        162deg,
-        rgba(255, 255, 255, 0.6) 0%,
-        rgba(255, 255, 255, 0.22) 38%,
-        rgba(255, 255, 255, 0.42) 100%
-      );
-      --storii-search-fill-glass: linear-gradient(
-        111.989deg,
-        rgba(255, 255, 255, 0.225) 23.024%,
-        rgba(255, 255, 255, 0.15) 94.82%
-      );
-      --storii-search-fill-results: linear-gradient(
-        90deg,
-        rgba(237, 250, 255, 1) 0%,
-        rgba(245, 255, 254, 1) 100%
-      );
-      --storii-search-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-    }
-
     body {
       min-height: 100vh;
       background: #0a1628;
@@ -219,11 +199,13 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      border: 0.5px solid transparent;
-      background:
-        var(--storii-search-fill-glass) padding-box,
-        var(--storii-search-border) border-box;
-      box-shadow: var(--storii-search-shadow);
+      background: linear-gradient(
+        111.989deg,
+        rgba(255, 255, 255, 0.225) 23.024%,
+        rgba(255, 255, 255, 0.15) 94.82%
+      );
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      border: none;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       text-align: left;
@@ -770,11 +752,12 @@
       width: 100%;
       border-radius: 12px;
       box-sizing: border-box;
-      border: 0.5px solid transparent;
-      background:
-        var(--storii-search-fill-glass) padding-box,
-        var(--storii-search-border) border-box;
-      box-shadow: var(--storii-search-shadow);
+      background: linear-gradient(
+        99.54deg,
+        rgba(255, 255, 255, 0.225) 23.024%,
+        rgba(255, 255, 255, 0.15) 94.82%
+      );
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
       margin-bottom: 32px;
       padding: 12px 12px 12px 16px;
       display: flex;
@@ -1666,14 +1649,12 @@
       top: 0;
       border-radius: 0;
     }
-    .storii-results-panel.is-sheet-visible.sheet-expanded .results-top-bar,
-    .results-sheet.sheet-expanded .results-top-bar {
-      background: #fff;
-      border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
-    }
-    .storii-results-panel.is-sheet-visible.sheet-expanded .results-safe-area,
-    .results-sheet.sheet-expanded .results-safe-area {
-      height: env(safe-area-inset-top, 44px);
+    .storii-results-panel.is-sheet-visible.sheet-expanded .storii-results-summary,
+    .storii-results-panel.is-sheet-visible.sheet-expanded .results-search-bar,
+    .results-sheet.sheet-expanded .storii-results-summary,
+    .results-sheet.sheet-expanded .results-search-bar {
+      padding-top: calc(12px + env(safe-area-inset-top, 44px));
+      box-sizing: border-box;
     }
     .storii-results-panel.is-sheet-closing,
     .results-sheet.is-sheet-closing {
@@ -1681,45 +1662,31 @@
       transition: transform 250ms ease-in;
       pointer-events: none;
     }
-    .results-top-bar {
+    .storii-results-summary,
+    .results-search-bar {
       flex: 0 0 auto;
       position: sticky;
       top: 0;
       z-index: 10;
       width: 100%;
-    }
-    .results-safe-area {
-      width: 100%;
-      height: 0;
-      flex-shrink: 0;
-      background: #fff;
-    }
-    .storii-results-summary,
-    .results-search-bar {
-      flex: 0 0 auto;
-      width: 100%;
       min-height: 64px;
       border-radius: 12px;
+      padding: 12px 20px;
       display: flex;
       align-items: center;
       gap: 8px;
-      border: 0.5px solid transparent;
+      border: 0.5px solid rgba(255, 255, 255, 0.35);
+      border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
       text-align: left;
       -webkit-tap-highlight-color: transparent;
-      background:
-        var(--storii-search-fill-results) padding-box,
-        var(--storii-search-border) border-box;
-      box-shadow: var(--storii-search-shadow);
+      background: linear-gradient(
+        90deg,
+        rgba(237, 250, 255, 1) 0%,
+        rgba(245, 255, 254, 1) 100%
+      );
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
       font: inherit;
       color: #080e12;
-      box-sizing: border-box;
-    }
-    .results-search-bar {
-      padding: 12px 16px;
-    }
-    .storii-results-panel.is-sheet-visible.sheet-expanded .results-search-bar,
-    .results-sheet.sheet-expanded .results-search-bar {
-      padding-top: 0;
     }
     .storii-results-back {
       flex: 0 0 24px;
@@ -3170,16 +3137,13 @@
         <div id="storii-results-search-pill" class="storii-results-search-pill" aria-live="polite"></div>
       </div>
       <div class="storii-results-panel results-sheet" id="storii-results-sheet">
-        <div class="results-top-bar">
-          <div class="results-safe-area" aria-hidden="true"></div>
-          <div class="storii-results-summary results-search-bar">
-            <button type="button" class="storii-results-back" id="storii-results-back" aria-label="Back to stays">
-              <img src="https://www.figma.com/api/mcp/asset/a3399cc7-56f6-4333-bda2-2dd682e67553" alt="" width="18" height="18" aria-hidden="true">
-            </button>
-            <div class="storii-results-summary-text">
-              <div class="storii-results-query" id="storii-results-query">Beachfront Resorts In Phuket</div>
-              <div class="storii-results-meta" id="storii-results-meta">16-18 May · 2 Guests</div>
-            </div>
+        <div class="storii-results-summary results-search-bar">
+          <button type="button" class="storii-results-back" id="storii-results-back" aria-label="Back to stays">
+            <img src="https://www.figma.com/api/mcp/asset/a3399cc7-56f6-4333-bda2-2dd682e67553" alt="" width="18" height="18" aria-hidden="true">
+          </button>
+          <div class="storii-results-summary-text">
+            <div class="storii-results-query" id="storii-results-query">Beachfront Resorts In Phuket</div>
+            <div class="storii-results-meta" id="storii-results-meta">16-18 May · 2 Guests</div>
           </div>
         </div>
         <div class="storii-results-filters" role="list" aria-label="Filters">
